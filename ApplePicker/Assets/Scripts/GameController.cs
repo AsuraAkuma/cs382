@@ -28,19 +28,38 @@ public class GameController : MonoBehaviour
     {
         if (screenName == mainScreen.name)
         {
+            mainScreen.SetActive(true);
+            playerSelect.SetActive(false);
+            pauseScreen.SetActive(false);
+            endScreen.SetActive(false);
         }
         else if (screenName == playerSelect.name)
         {
-
+            mainScreen.SetActive(false);
+            playerSelect.SetActive(true);
+            pauseScreen.SetActive(false);
+            endScreen.SetActive(false);
         }
         else if (screenName == pauseScreen.name)
         {
-
+            mainScreen.SetActive(false);
+            playerSelect.SetActive(false);
+            pauseScreen.SetActive(true);
+            endScreen.SetActive(false);
         }
         else if (screenName == endScreen.name)
         {
-
+            mainScreen.SetActive(false);
+            playerSelect.SetActive(false);
+            pauseScreen.SetActive(false);
+            endScreen.SetActive(true);
         }
+    }
+
+    public void startGame()
+    {
+        // Each "game" will have it's own box, each box acts as an instance for a single player.
+        // Generate boxs
     }
     // Player Management
     public void addPlayer(Player player)
