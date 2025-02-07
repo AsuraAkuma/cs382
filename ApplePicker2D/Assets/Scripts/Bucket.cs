@@ -26,6 +26,7 @@ public class Bucket : MonoBehaviour
         {
             // Get apple object
             Apple apple = collisionInfo.gameObject.GetComponent<Apple>();
+            // Give player score per apple
             if (apple.special)
             {
                 player.score += apple.value * 2;
@@ -34,12 +35,19 @@ public class Bucket : MonoBehaviour
             {
                 player.score += apple.value;
             }
+            if (player.score > player.highScore)
+            {
+                player.highScore = player.score;
+            }
             controller.scoreText.text = "Score: " + player.score;
+            controller.highScoreText.text = "Highscore: " + player.highScore;
+            // Change apple and bucket speed
             if (controller.appleSpeed < 800f)
             {
                 controller.appleSpeed += 5f;
             }
             controller.bucketSpeed += 0.01f;
+            // Change apple spawn rate
             if (player.score > 50 && player.score <= 100 && controller.appleSpawnInterval != 2)
             {
                 controller.appleSpawnInterval = 2;
@@ -65,6 +73,7 @@ public class Bucket : MonoBehaviour
                 controller.appleSpawnInterval = 0.1f;
                 controller.changeSpawnRate(0.1f);
             }
+            // Destroy apple
             Destroy(collisionInfo.gameObject);
         }
     }

@@ -1,6 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Threading;
+using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -14,9 +13,9 @@ public class GameController : MonoBehaviour
     public int scoreMultiplier = 1;
     public GameObject applePrefab;
     public GameObject bucketPrefab;
-    public GameObject gameContainer;
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI highScoreText;
     private Bucket bucket;
     public float bucketSpeed = 0.60f;
     public float appleSpawnInterval = 3f; //time in seconds
@@ -55,6 +54,12 @@ public class GameController : MonoBehaviour
         // currentScreen = mainScreen;
         appleWidth = applePrefab.gameObject.transform.localScale.x;
         appleHeight = applePrefab.gameObject.transform.localScale.y;
+        // Create player and bucket
+        player = gameObject.AddComponent<Player>();
+        player.username = "AsuraAkuma";
+        nameText.text = player.username;
+        player.highScore = 20;
+        highScoreText.text = "Highscore: " + player.highScore;
         startGame();
     }
     public void changeSpawnRate(float spawnRate)
@@ -102,7 +107,7 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Listen for a,d movement inputs
+        // Listen for bucket inputs
         if (Input.GetKey(KeyCode.A))
         {
             float bucketX = bucket.gameObject.transform.localPosition.x;
@@ -126,15 +131,26 @@ public class GameController : MonoBehaviour
             }
         }
 
+        // Listen for pause input
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            if (!isPaused)
+            {
+                Time.timeScale = 0;
+                isPaused = true;
+            }
+            else
+            {
+                Time.timeScale = 1;
+                isPaused = false;
+            }
+        }
     }
     // Game Management
     public void startGame()
     {
         // Each "game" will have it's own box, each box acts as an instance for a single player.
-        // Create player and bucket
-        player = gameObject.AddComponent<Player>();
-        player.username = "AsuraAkuma";
-        nameText.text = player.username;
+
         // Get the bottom middle of the screen in screen coordinates
         Vector3 screenPos = new Vector3(Screen.width / 2f, 60, Camera.main.nearClipPlane);
 
@@ -147,5 +163,26 @@ public class GameController : MonoBehaviour
         // Set interval for apple spawn
         print(appleWidth + " " + appleHeight);
         InvokeRepeating("SpawnApples", 0f, appleSpawnInterval);
+    }
+
+    public void stopGame()
+    {
+        // Destroy bucket
+        Destroy(bucket.gameObject);
+
+    }
+
+    private void savePlayerData()
+    {
+        // Get current saved data
+        string playerDataFilePath = "/PlayerData/" + player.id;
+        // Player oldPlayerData = File.ReadAllText(playerDataFilePath);
+
+        var playerData = new
+        {
+            name = player.name,
+            high = 30,
+            em = "johndoe@example.com"
+        };
     }
 }
