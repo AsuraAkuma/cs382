@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/MainMenu.uss?fileID=7433441132597879392&amp;guid=cdd7d801fdc28ca49982bd0251138e41&amp;type=3#MainMenu" />
+    <ui:VisualElement name="Panel" class="panel" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/MainMenu_Background.png?fileID=-3875407854014120374&amp;guid=1914dc32839c33c44aedf18fc2e8a946&amp;type=3#MainMenu_Background_0&quot;);">
+        <ui:VisualElement name="menu" class="panel-menu">
+            <ui:Label text="Apple Picker 2D" name="header" class="panel-menu-header" style="-unity-text-align: middle-center; font-size: 40px; background-size: 0 0; background-color: rgba(0, 0, 0, 0); width: auto;" />
+            <ui:VisualElement name="buttons" class="panel-menu-buttons">
+                <ui:Button text="START" name="startButton" class="panel-menu-buttons-button" />
+                <ui:Button text="SETTINGS" name="settingsButton" class="panel-menu-buttons-button" />
+                <ui:Button text="EXIT" name="exitButton" class="panel-menu-buttons-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,28 +1,44 @@
+using System.IO;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+[System.Serializable] // Allows serialization
+class Player
 {
     public string username;
     public int score;
-    public int highScore;
-    public int id;
-    // Constructor
-    public Player(string username, int score = 0)
+    public int highScore = 0;
+    public int id = -1;
+    private Settings settings = new Settings(new Settings.playerData());
+    private static string settingsPath = "settings.json";
+    public void SavePlayerData()
     {
-        this.username = username;
-        this.score = score;
-        highScore = 20;
+        if (id == -1)
+        {
+            // Create or load settings
+            if (File.Exists(settingsPath))
+            {
+                settings.loadSettings();
+            }
+            else
+            {
+                settings.saveSettings();
+            }
+            id = settings.playerIndex;
+            settings.playerIndex++;
+            settings.saveSettings();
+        }
+        string path = "PlayerData/" + username + ".json";
+        SaveSystem.Save(path, this);
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public void LoadPlayerData()
     {
+        string path = "PlayerData/" + username + ".json";
+        SaveSystem.Load(path, this);
     }
 
-    // Update is called once per frame
-    void Update()
+    public Player()
     {
 
     }
-
 }

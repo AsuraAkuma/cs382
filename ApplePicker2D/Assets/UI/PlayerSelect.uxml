@@ -1,0 +1,21 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/PlayerSelect.uss?fileID=7433441132597879392&amp;guid=584123faae9869e42ba33d64a9c51515&amp;type=3#PlayerSelect" />
+    <engine:VisualElement name="container" class="container">
+        <engine:VisualElement name="selectMenu" class="selectmenu">
+            <engine:Label text="Player Select" name="header" class="selectmenu-header" />
+            <engine:Button text="Add Player" name="addPlayerButton" class="selectmenu-button" />
+            <engine:VisualElement name="players" class="selectmenu-players">
+                <engine:ScrollView horizontal-scroller-visibility="Hidden" name="playerList" class="selectmenu-scroll" />
+            </engine:VisualElement>
+            <engine:DropdownField label="Difficulty" choices="Normal,Medium,Hard,Extreme" name="difficultySelector" class="newPlayer-input" />
+            <engine:Label text="error" name="errorText" class="errortext hide" />
+            <engine:Button text="START" name="startButton" class="selectmenu-button" />
+        </engine:VisualElement>
+        <engine:VisualElement name="newPlayerForm" enabled="true" class="newPlayer hide">
+            <engine:Label text="New Player Name" name="header" class="selectmenu-header" />
+            <engine:TextField label="New Name" placeholder-text="Username" name="playerNameInput" max-length="20" class="newPlayer-input" />
+            <engine:Button text="Add Player" name="addPlayerSubmitButton" class="selectmenu-button" style="margin-top: 2%;" />
+            <engine:Button text="Cancel" name="addPlayerCancelButton" class="selectmenu-button" />
+        </engine:VisualElement>
+    </engine:VisualElement>
+</engine:UXML>

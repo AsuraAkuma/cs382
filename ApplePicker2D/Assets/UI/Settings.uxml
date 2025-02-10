@@ -1,0 +1,14 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Settings.uss?fileID=7433441132597879392&amp;guid=9dde62f4065a1214293726573f227c78&amp;type=3#Settings" />
+    <engine:VisualElement name="container" class="container">
+        <engine:VisualElement name="settingsMenu" class="menu">
+            <engine:Label text="Settings" name="header" class="menu-header" style="color: rgb(0, 0, 0);" />
+            <engine:VisualElement name="settings" class="menu-settings">
+                <engine:VisualElement name="option" class="menu-settings-option">
+                    <engine:SliderInt label="Volume" value="50" high-value="100" fill="true" show-input-field="true" name="volumeSlider" class="menu-settings-input" style="-unity-background-image-tint-color: rgba(255, 255, 255, 0); color: rgb(0, 0, 0);" />
+                </engine:VisualElement>
+            </engine:VisualElement>
+            <engine:Button text="CLOSE" name="closeSettingsButton" class="menu-button" />
+        </engine:VisualElement>
+    </engine:VisualElement>
+</engine:UXML>

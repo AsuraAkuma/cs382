@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Bucket : MonoBehaviour
 {
-    public Player player;
+    private Player player;
     public GameController controller;
 
     // Constructor
@@ -44,7 +44,7 @@ public class Bucket : MonoBehaviour
             // Change apple and bucket speed
             if (controller.appleSpeed < 800f)
             {
-                controller.appleSpeed += 5f;
+                controller.appleSpeed += 2.5f;
             }
             controller.bucketSpeed += 0.01f;
             // Change apple spawn rate
@@ -78,4 +78,10 @@ public class Bucket : MonoBehaviour
         }
     }
 
+    public void setPlayer(string username)
+    {
+        player = new Player();
+        player.username = username;
+        player.LoadPlayerData();
+    }
 }

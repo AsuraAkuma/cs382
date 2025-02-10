@@ -1,0 +1,21 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/GameOver.uss?fileID=7433441132597879392&amp;guid=7667f9be94b6125458adf1dca34b4bb6&amp;type=3#GameOver" />
+    <ui:VisualElement name="container" class="container" style="flex-grow: 1;">
+        <ui:VisualElement name="menu" class="menu" style="flex-grow: 1;">
+            <ui:Label text="Game Over" name="menu-header" class="menu-header" />
+            <ui:VisualElement name="menu-stat-container" class="menu-stat-container">
+                <ui:VisualElement name="menu-stat" class="menu-stat">
+                    <ui:Label text="Score" name="menu-stat-label" class="menu-stat-label" />
+                    <ui:Label text="0000" name="menu-stat-score" class="menu-stat-label" />
+                </ui:VisualElement>
+                <ui:VisualElement name="menu-stat" class="menu-stat" style="flex-grow: 1;">
+                    <ui:Label text="Highscore" name="menu-stat-label" class="menu-stat-label" />
+                    <ui:Label text="0000" name="menu-stat-highscore" class="menu-stat-label" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="menu-buttons" class="menu-buttons" style="top: 83%;">
+                <ui:Button text="Main Menu" name="menu-buttons-main" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
