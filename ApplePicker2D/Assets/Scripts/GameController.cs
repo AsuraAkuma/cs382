@@ -1,17 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 public class GameController : MonoBehaviour
 {
     public bool isStarted;
     private Player player;
-    private int playerIndex;
     public bool isPaused;
-    public int scoreMultiplier = 1;
+    public float scoreMultiplier = 1f;
     public GameObject applePrefab;
     public GameObject bucketPrefab;
+    public GameObject Music;
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI highScoreText;
@@ -26,9 +26,12 @@ public class GameController : MonoBehaviour
     public float appleSpeed = 25;
     public float bottomLeftX;
     public float bottomRightX;
-    private Settings settings = new Settings(new Settings.playerData());
-    private static string settingsPath = "settings.json";
-
+    public GameObject leftBarrier;
+    public GameObject rightBarrier;
+    public GameObject appleDestroyer;
+    public GameObject PauseMenuUI;
+    public GameObject PingSound;
+    private Settings settings = new Settings();
     public AppleType[] appleTypes = {
         new AppleType("HoneycrispX",true,5),
         new AppleType("Honeycrisp",false,5),
@@ -42,11 +45,12 @@ public class GameController : MonoBehaviour
         new AppleType("Gala ",false,1)
     };
     public List<GameType> gameTypes = new List<GameType> {
-        new GameType("Normal",5 * 60 * 1000,10),
-        new GameType("Medium",4 * 60 * 1000,20),
-        new GameType("Hard",3 * 60 * 1000,40),
-        new GameType("Extreme",2 * 60 * 1000,80),
-        new GameType("Test",(int)(0.2f * 60 * 1000),80)
+        new GameType("Tutorial",1 * 60 * 1000,5, 50,1f),
+        new GameType("Normal",5 * 60 * 1000,10, 50,1f),
+        new GameType("Medium",4 * 60 * 1000,20, 70, 1.33f),
+        new GameType("Hard",3 * 60 * 1000,40,90,1.66f),
+        new GameType("Extreme",2 * 60 * 1000,80,110,2f),
+        new GameType("Test",(int)(0.2f * 60 * 1000),80,200, 3f)
     };
 
     public struct AppleType
@@ -66,17 +70,23 @@ public class GameController : MonoBehaviour
         public string name;
         public int duration;
         public int startSpeed;
-
-        public GameType(string name, int duration, int startSpeed)
+        public int startBucketSpeed;
+        public float multiplier;
+        public GameType(string name, int duration, int startSpeed, int startBucketSpeed, float multiplier)
         {
             this.name = name;
             this.duration = duration;
             this.startSpeed = startSpeed;
+            this.startBucketSpeed = startBucketSpeed;
+            this.multiplier = multiplier;
         }
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        Music.GetComponent<AudioSource>().volume = 0.2f * ((float)settings.volume / 100f);
+        PingSound.GetComponent<AudioSource>().volume = 0.1f * ((float)settings.volume / 100f);
+        PingSound.GetComponent<AudioSource>().timeSamples = (int)(PingSound.GetComponent<AudioSource>().clip.frequency * 0.05f);
         // Start on main menu
         // currentScreen = mainScreen;
         appleWidth = applePrefab.gameObject.transform.localScale.x;
@@ -85,23 +95,16 @@ public class GameController : MonoBehaviour
         bottomLeftX = bottomLeft.x;
         Vector3 bottomRight = Camera.main.ViewportToWorldPoint(new Vector3(1, 0, Camera.main.nearClipPlane));
         bottomRightX = bottomRight.x;
-        // Create or load settings
-        if (File.Exists(settingsPath))
-        {
-            settings.loadSettings();
-        }
-        else
-        {
-            settings.saveSettings();
-        }
+        leftBarrier.transform.position = new Vector3(bottomLeftX - 10, leftBarrier.transform.position.y, leftBarrier.transform.position.z);
+        rightBarrier.transform.position = new Vector3(bottomRightX + 10, leftBarrier.transform.position.y, leftBarrier.transform.position.z);
+        appleDestroyer.transform.localScale = new Vector3(bottomRightX - bottomLeftX, 10);
         // Create player and bucket
-        player = new Player();
-        player.username = settings.playerUsername;
-        player.LoadPlayerData();
+        player = new Player(TempInfo.playerUsername);
         player.score = 0;
+        player.SavePlayerData();
         nameText.text = player.username;
         highScoreText.text = "Highscore: " + player.highScore;
-        startGame(gameTypes.Find(g => g.name == settings.difficulty));
+        startGame(gameTypes.Find(g => g.name == TempInfo.difficulty));
     }
     public void changeSpawnRate(float spawnRate)
     {
@@ -116,43 +119,56 @@ public class GameController : MonoBehaviour
             // Listen for bucket inputs
             if (Input.GetKey(KeyCode.A))
             {
-                float bucketX = bucket.gameObject.transform.localPosition.x;
-                float bucketY = bucket.gameObject.transform.localPosition.y;
-                float bucketZ = bucket.gameObject.transform.localPosition.z;
-                float bucketWidth = bucket.gameObject.transform.localScale.x;
-                Vector3 bottomLeft = Camera.main.ViewportToWorldPoint(new Vector3(0, 0, Camera.main.nearClipPlane));
-                float bottomLeftX = bottomLeft.x;
-                if (isStarted && bucketX - (bucketWidth * 2) - 5 > bottomLeftX)
+                if (!isPaused)
                 {
-                    bucket.gameObject.transform.localPosition = new Vector3(bucketX - bucketSpeed, bucketY, bucketZ);
+                    float bucketX = bucket.gameObject.transform.localPosition.x;
+                    float bucketY = bucket.gameObject.transform.localPosition.y;
+                    float bucketZ = bucket.gameObject.transform.localPosition.z;
+                    float bucketWidth = bucket.gameObject.transform.localScale.x;
+                    Vector3 bottomLeft = Camera.main.ViewportToWorldPoint(new Vector3(0, 0, Camera.main.nearClipPlane));
+                    float bottomLeftX = bottomLeft.x;
+                    float screenWidth = bottomRightX - bottomLeftX;
+                    float normalizedSpeed = bucketSpeed * (screenWidth / 180) * Time.deltaTime;
+
+                    if (isStarted && bucketX - (bucketWidth * 2) - 5 > bottomLeftX)
+                    {
+                        bucket.gameObject.transform.localPosition = new Vector3(bucketX - normalizedSpeed, bucketY, bucketZ);
+                    }
                 }
             }
             if (Input.GetKey(KeyCode.D))
             {
-                float bucketX = bucket.gameObject.transform.localPosition.x;
-                float bucketY = bucket.gameObject.transform.localPosition.y;
-                float bucketZ = bucket.gameObject.transform.localPosition.z;
-                float bucketWidth = bucket.gameObject.transform.localScale.x;
-                Vector3 bottomRight = Camera.main.ViewportToWorldPoint(new Vector3(1, 0, Camera.main.nearClipPlane));
-                float bottomRightX = bottomRight.x;
-                if (isStarted && bucketX + (bucketWidth * 2) + 5 < bottomRightX)
+                if (!isPaused)
                 {
-                    bucket.gameObject.transform.localPosition = new Vector3(bucketX + bucketSpeed, bucketY, bucketZ);
+                    float bucketX = bucket.gameObject.transform.localPosition.x;
+                    float bucketY = bucket.gameObject.transform.localPosition.y;
+                    float bucketZ = bucket.gameObject.transform.localPosition.z;
+                    float bucketWidth = bucket.gameObject.transform.localScale.x;
+                    Vector3 bottomRight = Camera.main.ViewportToWorldPoint(new Vector3(1, 0, Camera.main.nearClipPlane));
+                    float bottomRightX = bottomRight.x;
+                    float screenWidth = bottomRightX - bottomLeftX;
+                    float normalizedSpeed = bucketSpeed * (screenWidth / 180) * Time.deltaTime;
+                    if (isStarted && bucketX + (bucketWidth * 2) + 5 < bottomRightX)
+                    {
+                        bucket.gameObject.transform.localPosition = new Vector3(bucketX + normalizedSpeed, bucketY, bucketZ);
+                    }
                 }
             }
         }
         // Listen for pause input
-        if (Input.GetKey(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (!isPaused)
             {
                 Time.timeScale = 0;
                 isPaused = true;
+                PauseMenuUI.SetActive(true);
             }
             else
             {
                 Time.timeScale = 1;
                 isPaused = false;
+                PauseMenuUI.SetActive(false);
             }
         }
     }
@@ -175,6 +191,8 @@ public class GameController : MonoBehaviour
         // Set gamemode timer
         timerDuration = gameType.duration;
         appleSpeed = gameType.startSpeed;
+        bucketSpeed = gameType.startBucketSpeed;
+        scoreMultiplier = gameType.multiplier;
         InvokeRepeating("countDownTimer", 0f, 1);
     }
 
@@ -185,9 +203,9 @@ public class GameController : MonoBehaviour
         Destroy(bucket.gameObject);
         // Stop timer
         CancelInvoke(nameof(countDownTimer));
-        // Save player data
-        player.SavePlayerData();
         // Change scene to after game scene
+        TempInfo.gameState = TempInfo.GameState.GameOver;
+        SceneManager.LoadScene("StartMenu");
 
     }
     private void SpawnApples()
@@ -244,7 +262,7 @@ public class GameController : MonoBehaviour
         // Pre End game
         if (timerDuration == 2000)
         {
-            print("pre end");
+            // print("pre end");
             // Stop apple spawning
             CancelInvoke(nameof(SpawnApples));
         }

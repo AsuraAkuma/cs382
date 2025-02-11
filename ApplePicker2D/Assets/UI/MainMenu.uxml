@@ -9,5 +9,11 @@
                 <ui:Button text="EXIT" name="exitButton" class="panel-menu-buttons-button" />
             </ui:VisualElement>
         </ui:VisualElement>
+        <ui:VisualElement style="flex-grow: 1; position: absolute; top: 30%; left: 1%; width: 23%; max-height: 40%; height: 40%; background-color: rgb(0, 155, 255); border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-right-radius: 20px; border-bottom-left-radius: 20px; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-width: 3px; border-right-width: 3px; border-bottom-width: 3px; border-left-width: 3px;">
+            <ui:Label text="How to play" style="position: relative; left: 0; top: 0; color: rgb(0, 0, 0); font-size: 30px; border-bottom-width: 3px; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); -unity-text-align: upper-center;" />
+            <ui:Label text="A = Move left" style="position: relative; left: 0; top: 0; color: rgb(0, 0, 0); font-size: 25px; border-bottom-width: 0; border-left-color: rgba(255, 255, 255, 0); border-right-color: rgba(255, 255, 255, 0); border-top-color: rgba(255, 255, 255, 0); border-bottom-color: rgba(255, 255, 255, 0); -unity-text-align: upper-center;" />
+            <ui:Label text="D = Move right" style="position: relative; left: 0; top: 0; color: rgb(0, 0, 0); font-size: 25px; border-bottom-width: 0; border-left-color: rgba(255, 255, 255, 0); border-right-color: rgba(255, 255, 255, 0); border-top-color: rgba(255, 255, 255, 0); border-bottom-color: rgba(255, 255, 255, 0); -unity-text-align: upper-center;" />
+            <ui:Label text="Collect as many&#10;apples as possible" style="position: relative; left: 0; top: 0; color: rgb(0, 0, 0); font-size: 25px; border-bottom-width: 0; border-left-color: rgba(255, 255, 255, 0); border-right-color: rgba(255, 255, 255, 0); border-top-color: rgba(255, 255, 255, 0); border-bottom-color: rgba(255, 255, 255, 0); -unity-text-align: upper-center;" />
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

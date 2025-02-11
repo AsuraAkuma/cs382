@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/PauseMenu.uss?fileID=7433441132597879392&amp;guid=11bfbbb396f9aa841a11c1714384a779&amp;type=3#PauseMenu" />
+    <ui:VisualElement name="Panel" class="panel" style="flex-grow: 1; background-image: none;">
+        <ui:VisualElement name="menu" class="panel-menu">
+            <ui:Label text="Paused" name="header" class="panel-menu-header" style="-unity-text-align: middle-center; font-size: 40px; background-size: 0 0; background-color: rgba(0, 0, 0, 0); width: auto;" />
+            <ui:VisualElement name="buttons" class="panel-menu-buttons">
+                <ui:Button text="SETTINGS" name="settingsButton" class="panel-menu-buttons-button" />
+                <ui:Button text="EXIT" name="exitButton" class="panel-menu-buttons-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

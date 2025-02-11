@@ -3,18 +3,20 @@
     <ui:VisualElement name="container" class="container" style="flex-grow: 1;">
         <ui:VisualElement name="menu" class="menu" style="flex-grow: 1;">
             <ui:Label text="Game Over" name="menu-header" class="menu-header" />
-            <ui:VisualElement name="menu-stat-container" class="menu-stat-container">
+            <ui:Label text="Player 1" name="playerUsername" class="menu-header" />
+            <ui:VisualElement name="menu-stat-container" class="menu-stat-container" style="height: 100px; position: absolute; max-height: none; top: 37%;">
                 <ui:VisualElement name="menu-stat" class="menu-stat">
                     <ui:Label text="Score" name="menu-stat-label" class="menu-stat-label" />
-                    <ui:Label text="0000" name="menu-stat-score" class="menu-stat-label" />
+                    <ui:Label text="0000" name="scoreStat" class="menu-stat-label" />
                 </ui:VisualElement>
                 <ui:VisualElement name="menu-stat" class="menu-stat" style="flex-grow: 1;">
                     <ui:Label text="Highscore" name="menu-stat-label" class="menu-stat-label" />
-                    <ui:Label text="0000" name="menu-stat-highscore" class="menu-stat-label" />
+                    <ui:Label text="0000" name="highScoreStat" class="menu-stat-label" />
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement name="menu-buttons" class="menu-buttons" style="top: 83%;">
-                <ui:Button text="Main Menu" name="menu-buttons-main" />
+                <ui:Button text="Main Menu" name="mainMenuButton" class="menu-button" />
+                <ui:Button text="Play Again" name="playerSelectButton" class="menu-button" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

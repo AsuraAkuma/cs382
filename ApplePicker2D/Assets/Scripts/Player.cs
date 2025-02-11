@@ -8,7 +8,7 @@ class Player
     public int score;
     public int highScore = 0;
     public int id = -1;
-    private Settings settings = new Settings(new Settings.playerData());
+    private Settings settings = new Settings();
     private static string settingsPath = "settings.json";
     public void SavePlayerData()
     {
@@ -23,8 +23,8 @@ class Player
             {
                 settings.saveSettings();
             }
-            id = settings.playerIndex;
-            settings.playerIndex++;
+            id = TempInfo.playerIndex;
+            TempInfo.playerIndex++;
             settings.saveSettings();
         }
         string path = "PlayerData/" + username + ".json";
@@ -37,8 +37,9 @@ class Player
         SaveSystem.Load(path, this);
     }
 
-    public Player()
+    public Player(string username)
     {
-
+        this.username = username;
+        LoadPlayerData();
     }
 }

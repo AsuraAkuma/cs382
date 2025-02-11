@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEngine.SceneManagement;
 public class MainMenu : MonoBehaviour
 {
     private UIDocument document;
@@ -51,7 +50,7 @@ public class MainMenu : MonoBehaviour
     private void OnExitClick(ClickEvent evt)
     {
         // print("Exit button pressed");
-        UnityEditor.EditorApplication.isPlaying = false;
+        // UnityEditor.EditorApplication.isPlaying = false;
         Application.Quit();
     }
 }

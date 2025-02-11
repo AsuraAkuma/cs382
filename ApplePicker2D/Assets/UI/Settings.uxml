@@ -1,6 +1,6 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Settings.uss?fileID=7433441132597879392&amp;guid=9dde62f4065a1214293726573f227c78&amp;type=3#Settings" />
-    <engine:VisualElement name="container" class="container">
+    <engine:VisualElement name="container" class="container" style="background-image: url(&quot;project://database/Assets/MainMenu_Background.png?fileID=2800000&amp;guid=1914dc32839c33c44aedf18fc2e8a946&amp;type=3#MainMenu_Background&quot;);">
         <engine:VisualElement name="settingsMenu" class="menu">
             <engine:Label text="Settings" name="header" class="menu-header" style="color: rgb(0, 0, 0);" />
             <engine:VisualElement name="settings" class="menu-settings">

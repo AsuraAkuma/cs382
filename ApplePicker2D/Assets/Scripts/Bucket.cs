@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 
@@ -29,11 +30,11 @@ public class Bucket : MonoBehaviour
             // Give player score per apple
             if (apple.special)
             {
-                player.score += apple.value * 2;
+                player.score += (int)Math.Ceiling(apple.value * 2 * controller.scoreMultiplier);
             }
             else
             {
-                player.score += apple.value;
+                player.score += (int)Math.Ceiling(apple.value * controller.scoreMultiplier);
             }
             if (player.score > player.highScore)
             {
@@ -42,11 +43,14 @@ public class Bucket : MonoBehaviour
             controller.scoreText.text = "Score: " + player.score;
             controller.highScoreText.text = "Highscore: " + player.highScore;
             // Change apple and bucket speed
-            if (controller.appleSpeed < 800f)
+            if (controller.appleSpeed < 600f)
             {
                 controller.appleSpeed += 2.5f;
             }
-            controller.bucketSpeed += 0.01f;
+            if (controller.bucketSpeed < 500f)
+            {
+                controller.bucketSpeed += 2.5f;
+            }
             // Change apple spawn rate
             if (player.score > 50 && player.score <= 100 && controller.appleSpawnInterval != 2)
             {
@@ -73,15 +77,17 @@ public class Bucket : MonoBehaviour
                 controller.appleSpawnInterval = 0.1f;
                 controller.changeSpawnRate(0.1f);
             }
+            // Make sound
+            controller.PingSound.GetComponent<AudioSource>().Play();
             // Destroy apple
             Destroy(collisionInfo.gameObject);
+            // Save player data
+            player.SavePlayerData();
         }
     }
 
     public void setPlayer(string username)
     {
-        player = new Player();
-        player.username = username;
-        player.LoadPlayerData();
+        player = new Player(username);
     }
 }

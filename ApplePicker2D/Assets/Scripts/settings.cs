@@ -1,29 +1,21 @@
+using System.IO;
+
 [System.Serializable] // Allows serialization
 class Settings
 {
     private static string settingsPath = "settings.json";
-    public int volume;
-    public string playerUsername;
-    public int playerId;
-    public int playerIndex;
-    public string difficulty;
-    public struct playerData
+    public int volume = 50;
+
+    public Settings()
     {
-        public string username;
-        public int id;
-        public playerData(string username = "", int id = -1)
+        if (File.Exists(settingsPath))
         {
-            this.username = username;
-            this.id = id;
+            loadSettings();
         }
-    }
-    public Settings(playerData player, int volume = 50, int playerIndex = 0, string difficulty = "")
-    {
-        this.volume = volume;
-        playerUsername = player.username;
-        playerId = player.id;
-        this.playerIndex = playerIndex;
-        this.difficulty = difficulty;
+        else
+        {
+            saveSettings();
+        }
     }
     public void saveSettings()
     {

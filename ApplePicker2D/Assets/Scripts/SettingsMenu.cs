@@ -8,19 +8,11 @@ public class SettingsMenu : MonoBehaviour
     private Button closeButton;
     private SliderInt volumeSlider;
     public GameObject MainMenuUI;
-    private Settings settings = new Settings(new Settings.playerData());
-    private static string settingsPath = "settings.json";
+    public GameObject PauseMenuUI;
+    public GameObject Music;
+    private Settings settings = new Settings();
     private void Start()
     {
-        // Create or load settings
-        if (File.Exists(settingsPath))
-        {
-            settings.loadSettings();
-        }
-        else
-        {
-            settings.saveSettings();
-        }
         document = GetComponent<UIDocument>();
         closeButton = document.rootVisualElement.Q("closeSettingsButton") as Button;
         volumeSlider = document.rootVisualElement.Q("volumeSlider") as SliderInt;
@@ -30,15 +22,6 @@ public class SettingsMenu : MonoBehaviour
     }
     private void OnEnable()
     {
-        // Create or load settings
-        if (File.Exists(settingsPath))
-        {
-            settings.loadSettings();
-        }
-        else
-        {
-            settings.saveSettings();
-        }
         document = GetComponent<UIDocument>();
         closeButton = document.rootVisualElement.Q("closeSettingsButton") as Button;
         volumeSlider = document.rootVisualElement.Q("volumeSlider") as SliderInt;
@@ -56,18 +39,19 @@ public class SettingsMenu : MonoBehaviour
     {
         // print("Slider: " + evt);
         settings.volume = (int)evt;
+        Music.GetComponent<AudioSource>().volume = 0.2f * ((float)settings.volume / 100f);
         settings.saveSettings();
     }
     private void OnCloseClick(ClickEvent evt)
     {
-        // print("Settings button pressed");
         gameObject.SetActive(false);
-        MainMenuUI.SetActive(true);
-    }
-    private void OnExitClick(ClickEvent evt)
-    {
-        // print("Exit button pressed");
-        UnityEditor.EditorApplication.isPlaying = false;
-        Application.Quit();
+        if (TempInfo.gameState == TempInfo.GameState.InGame)
+        {
+            PauseMenuUI.SetActive(true);
+        }
+        else if (TempInfo.gameState == TempInfo.GameState.MainMenu)
+        {
+            MainMenuUI.SetActive(true);
+        }
     }
 }
