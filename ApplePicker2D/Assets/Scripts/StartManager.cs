@@ -7,10 +7,12 @@ public class Manager : MonoBehaviour
     public GameObject SettingsUI;
     public GameObject GameOverUI;
     public GameObject Music;
+    public Texture2D cursorTexture;
     private Settings settings = new Settings();
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
         if (TempInfo.gameState == TempInfo.GameState.MainMenu)
         {
             // Load main menu UI

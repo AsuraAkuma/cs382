@@ -166,3 +166,7 @@
     height: 40px;
     max-height: 40px;
 }
+
+.cursor {
+    cursor: url("project://database/Assets/hand-cursor-export.png?fileID=2800000&guid=d419dabf7c2ea7449a30db486aa3fd9b&type=3#hand-cursor-export");
+}

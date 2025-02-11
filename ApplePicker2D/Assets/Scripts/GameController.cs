@@ -31,6 +31,7 @@ public class GameController : MonoBehaviour
     public GameObject appleDestroyer;
     public GameObject PauseMenuUI;
     public GameObject PingSound;
+    public Texture2D cursorTexture;
     private Settings settings = new Settings();
     public AppleType[] appleTypes = {
         new AppleType("HoneycrispX",true,5),
@@ -84,6 +85,7 @@ public class GameController : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
         Music.GetComponent<AudioSource>().volume = 0.2f * ((float)settings.volume / 100f);
         PingSound.GetComponent<AudioSource>().volume = 0.1f * ((float)settings.volume / 100f);
         PingSound.GetComponent<AudioSource>().timeSamples = (int)(PingSound.GetComponent<AudioSource>().clip.frequency * 0.05f);
@@ -163,12 +165,14 @@ public class GameController : MonoBehaviour
                 Time.timeScale = 0;
                 isPaused = true;
                 PauseMenuUI.SetActive(true);
+                Cursor.visible = true;
             }
             else
             {
                 Time.timeScale = 1;
                 isPaused = false;
                 PauseMenuUI.SetActive(false);
+                Cursor.visible = false;
             }
         }
     }
@@ -194,10 +198,13 @@ public class GameController : MonoBehaviour
         bucketSpeed = gameType.startBucketSpeed;
         scoreMultiplier = gameType.multiplier;
         InvokeRepeating("countDownTimer", 0f, 1);
+        // Make cursor dissapear
+        Cursor.visible = false;
     }
 
     public void stopGame()
     {
+        Cursor.visible = true;
         isStarted = false;
         // Destroy bucket
         Destroy(bucket.gameObject);

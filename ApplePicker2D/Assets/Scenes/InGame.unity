@@ -183,6 +183,7 @@ MonoBehaviour:
   appleDestroyer: {fileID: 618228762}
   PauseMenuUI: {fileID: 659840355}
   PingSound: {fileID: 1482259148}
+  cursorTexture: {fileID: 2800000, guid: d419dabf7c2ea7449a30db486aa3fd9b, type: 3}
 --- !u!1 &410513768
 GameObject:
   m_ObjectHideFlags: 0
