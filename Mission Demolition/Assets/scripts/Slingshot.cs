@@ -23,14 +23,14 @@ public class Slingshot : MonoBehaviour
         launchPos = launchPoint.transform.position;
 
         // Initialize the LineRenderer
-        // lineRenderer = gameObject.GetComponent<LineRenderer>();
-        // lineRenderer.positionCount = trajectoryPoints;
-        // lineRenderer.startWidth = 0.05f;
-        // lineRenderer.endWidth = 0.01f;
-        // lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        // lineRenderer.startColor = Color.red;
-        // lineRenderer.endColor = Color.yellow;
-        // lineRenderer.enabled = false; // Hide the line initially
+        lineRenderer = gameObject.GetComponent<LineRenderer>();
+        lineRenderer.positionCount = 2;
+        lineRenderer.startWidth = 0.05f;
+        lineRenderer.endWidth = 0.08f;
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        lineRenderer.startColor = Color.red;
+        lineRenderer.endColor = Color.yellow;
+        lineRenderer.enabled = false; // Hide the line initially
     }
 
     private void OnMouseEnter()
@@ -49,7 +49,9 @@ public class Slingshot : MonoBehaviour
         projectile = Instantiate(projectilePrefeb);
         projectile.transform.position = launchPos;
         projectile.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Kinematic;
-        // lineRenderer.enabled = true; // Show the trajectory line
+        // Draw rubberband
+        lineRenderer.SetPosition(0, launchPos);
+        lineRenderer.enabled = true; // Show the trajectory line
     }
 
     void Update()
@@ -89,10 +91,13 @@ public class Slingshot : MonoBehaviour
 
             FollowCam.POI = projectile; // Set the camera to follow the projectile
             // Hide trajectory line
-            // lineRenderer.enabled = false;
+            lineRenderer.enabled = false;
 
             projectile = null;
         }
+        lineRenderer.SetPosition(1, projectilePos);
+
+
     }
 
 

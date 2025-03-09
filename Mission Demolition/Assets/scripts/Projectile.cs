@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    public float damageMultiplier = 10f; // Adjust based on balance needs
+    public float damageMultiplier = 4f; // Adjust based on balance needs
     private Rigidbody2D rb;
 
     void Start()
