@@ -6,7 +6,7 @@ public class Health : MonoBehaviour
     public float maxHealth = 100f;
     public float currentHealth;
     private SpriteRenderer spriteRenderer;
-    public float fallDamageThreshold = 1f; // Minimum impact speed to take damage
+    public float fallDamageThreshold = 0.5f; // Minimum impact speed to take damage
     public float fallDamageMultiplier = 2f; // Adjust damage scaling
 
 

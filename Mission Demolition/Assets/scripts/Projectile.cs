@@ -1,9 +1,11 @@
+using System;
 using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
     public float damageMultiplier = 4f; // Adjust based on balance needs
     private Rigidbody2D rb;
+    private string[] damageable = { "Pillar", "Pig", "Ground" };
 
     void Start()
     {
@@ -12,7 +14,7 @@ public class Projectile : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        if (!collision.gameObject.name.Contains("Pillar")) return; // Prevent self-collision
+        if (Array.Exists<string>(damageable, element => element == collision.gameObject.name)) return; // Prevent self-collision
         float velocity = rb.linearVelocity.magnitude; // Get speed at impact
         float damage = velocity * damageMultiplier; // Calculate damage
 
@@ -22,6 +24,11 @@ public class Projectile : MonoBehaviour
         Health targetHealth = collision.gameObject.GetComponent<Health>();
         if (targetHealth != null)
         {
+            if (collision.gameObject.name == "Pig")
+            {
+                targetHealth.TakeDamage(targetHealth.currentHealth);
+                return;
+            }
             targetHealth.TakeDamage(damage);
         }
 

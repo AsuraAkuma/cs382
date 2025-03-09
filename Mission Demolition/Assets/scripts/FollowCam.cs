@@ -23,7 +23,7 @@ public class FollowCam : MonoBehaviour
         Rigidbody2D poiRigid = POI.GetComponent<Rigidbody2D>();
         if (((poiRigid != null) && poiRigid.IsSleeping()) || poiRigid.linearVelocity.x < 0.1f)
         {
-            poiRigid.linearDamping = 10;
+            // poiRigid.linearDamping = 5;
             POI = null;
             transform.position = originalPos;
         }
