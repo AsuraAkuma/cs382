@@ -1,0 +1,11 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/GameOver.uss?fileID=7433441132597879392&amp;guid=f3371fdf6f9e3b340a911d86301d0d76&amp;type=3#GameOver" />
+    <engine:VisualElement name="Stars" class="Stars" style="top: 15%;">
+        <engine:VisualElement name="Star1" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/bomb.png?fileID=2800000&amp;guid=37bc1ad9b041ff24bb20d0f6926febdd&amp;type=3#bomb&quot;); -unity-background-scale-mode: scale-to-fit; display: none;" />
+        <engine:VisualElement name="Star2" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/bomb.png?fileID=2800000&amp;guid=37bc1ad9b041ff24bb20d0f6926febdd&amp;type=3#bomb&quot;); -unity-background-scale-mode: scale-to-fit; display: none;" />
+        <engine:VisualElement name="Star3" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/bomb.png?fileID=2800000&amp;guid=37bc1ad9b041ff24bb20d0f6926febdd&amp;type=3#bomb&quot;); -unity-background-scale-mode: scale-to-fit; display: none;" />
+    </engine:VisualElement>
+    <engine:Label text="Score: 0" name="Score" class="title" style="font-size: 75px; top: 20%;" />
+    <engine:Button text="Main Menu" name="MainMenuButton" class="button" style="top: 41%;" />
+    <engine:Label text="Game Over" name="Title" class="title" />
+</engine:UXML>

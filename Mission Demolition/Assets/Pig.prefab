@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7915398387536088893}
   - component: {fileID: 9070811907186650494}
   - component: {fileID: -1732209372500746118}
+  - component: {fileID: 3460504058194542945}
   m_Layer: 0
   m_Name: Pig
   m_TagString: Untagged
@@ -79,7 +80,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: db2adb495ce34944597109477bff8a5a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -169,3 +170,15 @@ MonoBehaviour:
   currentHealth: 0
   fallDamageThreshold: 1
   fallDamageMultiplier: 2
+--- !u!114 &3460504058194542945
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9217453070099848509}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee8e5fd79c866854fa7b6ccd3b960bf5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
