@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/MainMenu.uss?fileID=7433441132597879392&amp;guid=52ae9e37b57427847b7b8d4abbf44fd6&amp;type=3#MainMenu" />
+    <ui:Label text="Mission Demolition" class="title" />
+    <ui:VisualElement name="ButtonContainer" class="ButtonContainer">
+        <ui:Button text="Start" name="StartButton" class="button" />
+        <ui:Button text="Settings" name="SettingsButton" class="button" />
+        <ui:Button text="Quit" name="QuitButton" class="button" />
+    </ui:VisualElement>
+    <ui:VisualElement name="BombImage" class="BombImage" style="height: 258px; width: 275px; top: 412px; left: 333px;" />
+</ui:UXML>

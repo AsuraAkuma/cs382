@@ -1,0 +1,8 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/SettingsMenu.uss?fileID=7433441132597879392&amp;guid=68483a5a56b89e74487b7860833e7ec7&amp;type=3#SettingsMenu" />
+    <engine:Label text="Settings" name="TItle" class="title" />
+    <engine:VisualElement name="Sliders" class="Sliders">
+        <engine:SliderInt label="Volume" value="42" high-value="100" name="volumeSlider" class="Slider" />
+        <engine:Button text="Close" name="closeButton" class="button" style="position: absolute; top: 124%;" />
+    </engine:VisualElement>
+</engine:UXML>

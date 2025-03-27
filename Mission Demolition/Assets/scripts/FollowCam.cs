@@ -9,8 +9,8 @@ public class FollowCam : MonoBehaviour
     void Awake()
     {
         camZ = this.transform.position.z;
-        originalPos = transform.position;
-        print(originalPos.x + " " + originalPos.y);
+        originalPos = new Vector3(0, 0, camZ);
+        // print(originalPos.x + " " + originalPos.y);
     }
 
     // Update is called once per frame
@@ -21,9 +21,10 @@ public class FollowCam : MonoBehaviour
         destination.z = camZ;
         this.transform.position = destination;
         Rigidbody2D poiRigid = POI.GetComponent<Rigidbody2D>();
-        if (((poiRigid != null) && poiRigid.IsSleeping()) || poiRigid.linearVelocity.x < 0.1f)
+        if (((poiRigid != null) && poiRigid.IsSleeping()) || (poiRigid.linearVelocity.x * 10000 < 0.0000000001f && poiRigid.linearVelocity.y * 10000 < 0.0000000001f))
         {
-            // poiRigid.linearDamping = 5;
+            GameController.CheckWin(); // Check win conditions
+            Destroy(POI);
             POI = null;
             transform.position = originalPos;
         }

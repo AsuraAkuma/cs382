@@ -94,6 +94,9 @@ public class Slingshot : MonoBehaviour
             lineRenderer.enabled = false;
 
             projectile = null;
+            GameController.shotsTaken++;
+            // GameController.CheckWin();
+            print(GameController.shotsTaken + " " + GameController.maxShots);
         }
         lineRenderer.SetPosition(1, projectilePos);
 

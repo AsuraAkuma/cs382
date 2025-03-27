@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2886760769432680361}
   - component: {fileID: 5346463428512405381}
   - component: {fileID: -3364510998836779278}
+  - component: {fileID: -7387574826854624572}
   m_Layer: 0
   m_Name: Pillar (horizontal)
   m_TagString: Untagged
@@ -106,16 +107,16 @@ Rigidbody2D:
   m_LinearDamping: 8
   m_AngularDamping: 0
   m_GravityScale: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: f899de3e4a4df30418f7331e8afd5310, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 2
+  m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 1
+  m_CollisionDetection: 0
   m_Constraints: 0
 --- !u!61 &5346463428512405381
 BoxCollider2D:
@@ -179,3 +180,16 @@ MonoBehaviour:
   currentHealth: 0
   fallDamageThreshold: 1
   fallDamageMultiplier: 10
+--- !u!114 &-7387574826854624572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6766264652112954941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8c20eb18d6f6af408356a61acf75cfe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damageMultiplier: 5
