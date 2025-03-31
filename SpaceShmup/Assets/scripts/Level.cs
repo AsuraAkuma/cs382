@@ -53,7 +53,7 @@ public class Level : MonoBehaviour
         else
         {
             Debug.Log("All waves completed!"); // Log a message when all waves are completed
-            gameController.levelCompleteUI.gameObject.SetActive(true); // Show the level complete UI
+            gameController.levelCompleteUI.rootVisualElement.style.display = DisplayStyle.Flex; // Hide the level complete UI initially
             StateController.gameState = State.LevelComplete; // Set the game state to level complete
             StateController.currentLevel = null; // Reset the current level
         }
