@@ -1,0 +1,33 @@
+.heading {
+    -unity-text-align: middle-center;
+    font-size: 150px;
+    color: rgb(255, 255, 255);
+    top: 20%;
+}
+
+.description {
+    color: rgb(255, 255, 255);
+    font-size: 40px;
+    -unity-text-align: middle-center;
+    top: 20%;
+    width: 50%;
+    left: 25%;
+}
+
+.startOverButton {
+    width: 15%;
+    max-height: 7%;
+    height: 7%;
+    background-color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
+    font-size: 40px;
+    -unity-font-style: bold;
+    left: 42.5%;
+    top: 30%;
+    -unity-text-align: middle-center;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    cursor: initial;
+}

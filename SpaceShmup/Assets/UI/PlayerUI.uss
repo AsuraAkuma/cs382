@@ -1,0 +1,21 @@
+.header-labels {
+    width: 25%;
+    max-height: 50px;
+    height: 50px;
+    top: 1%;
+    left: 1%;
+    flex-direction: row;
+}
+
+.header {
+    flex-grow: 1;
+    flex-direction: row;
+    max-height: 50px;
+}
+
+.start {
+    color: rgb(255, 255, 255);
+    -unity-text-align: middle-center;
+    font-size: 70px;
+    top: 40%;
+}

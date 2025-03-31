@@ -1,0 +1,6 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/GameOver.uss?fileID=7433441132597879392&amp;guid=ebb761fb65a137f44b386c5d381c382f&amp;type=3#GameOver" />
+    <engine:Label text="Game Over" name="Heading" class="heading" />
+    <engine:Label text="You made it to level 1 wave 1" name="Description" class="description" />
+    <engine:Button text="Start Over" name="StartOverButton" class="startOverButton" />
+</engine:UXML>
