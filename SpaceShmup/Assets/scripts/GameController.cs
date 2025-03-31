@@ -43,11 +43,11 @@ public class GameController : MonoBehaviour
             CreateWave(5, 1, 0.5f, 0.5f, AlienType.boss)
         };
 
-        levels[0] = CreateLevel(3, 60, wavesLvl1);
-        levels[1] = CreateLevel(3, 60, wavesLvl2);
-        levels[2] = CreateLevel(3, 60, wavesLvl3);
-        levels[3] = CreateLevel(3, 60, wavesLvl4);
-        levels[4] = CreateLevel(3, 60, wavesLvl5);
+        levels[0] = CreateLevel(1, 3, 60, wavesLvl1);
+        levels[1] = CreateLevel(2, 3, 60, wavesLvl2);
+        levels[2] = CreateLevel(3, 3, 60, wavesLvl3);
+        levels[3] = CreateLevel(4, 3, 60, wavesLvl4);
+        levels[4] = CreateLevel(5, 3, 60, wavesLvl5);
 
         if (spawnPoints[0] == null || spawnPoints[1] == null || spawnPoints[2] == null || spawnPoints[3] == null)
         {
@@ -103,10 +103,10 @@ public class GameController : MonoBehaviour
         return wave;
     }
 
-    private Level CreateLevel(int totalLives, int totalSeconds, Wave[] waves)
+    private Level CreateLevel(int levelNumber, int totalLives, int totalSeconds, Wave[] waves)
     {
         // Create a new GameObject for the level
-        GameObject levelObject = new GameObject("Level");
+        GameObject levelObject = new GameObject($"Level_{levelNumber}");
         Level level = levelObject.AddComponent<Level>();
 
         // Initialize the level properties
@@ -114,7 +114,8 @@ public class GameController : MonoBehaviour
         level.totalSeconds = totalSeconds;
         level.waves = waves;
         level.gameController = this;
-        level.levelNumber = levels.Length + 1; // Set the level number based on the current length of the levels array
+        level.levelNumber = levelNumber; // Set the level number based on the current length of the levels array
+        Debug.Log($"Level {levelNumber} created with {totalLives} lives and {totalSeconds} seconds.");
         return level;
     }
 
