@@ -1,13 +1,13 @@
 .heading {
     -unity-text-align: middle-center;
-    font-size: 150px;
+    font-size: 1000%;
     color: rgb(255, 255, 255);
     top: 20%;
 }
 
 .description {
     color: rgb(255, 255, 255);
-    font-size: 40px;
+    font-size: 300%;
     -unity-text-align: middle-center;
     top: 20%;
     width: 50%;
@@ -20,7 +20,7 @@
     height: 7%;
     background-color: rgb(255, 255, 255);
     color: rgb(0, 0, 0);
-    font-size: 40px;
+    font-size: 250%;
     -unity-font-style: bold;
     left: 42.5%;
     top: 30%;
