@@ -1,11 +1,12 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Player : MonoBehaviour
 {
     public GameObject primaryPrefab; // The bullet prefab to be instantiated when the player shoots
     public GameObject secondaryPrefab; // The bullet prefab to be instantiated when the player shoots
     public float bulletSpeed = 10; // Speed of the bullet, can be adjusted for bullet speed
-    private float fireRate = 0.0f; // Rate of fire for the player's bullets
+    private float fireRate = 0.1f; // Rate of fire for the player's bullets
     public int bulletDamage = 10; // The damage dealt by the player's bullets
     public int primaryAmmoCount = 100; // The player's primary ammo count
     public int primaryAmmoReserve = 1000; // The player's primary ammo reserve
@@ -16,14 +17,16 @@ public class Player : MonoBehaviour
     private int playerSpeed = 7; // Speed of the player character, can be adjusted for movement speed
     private float leftCameraBorder;
     private float rightCameraBorder;
+    public GameController gameController; // Reference to the GameController script
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Awake()
+    void Start()
     {
         // Initialize camera borders here
         leftCameraBorder = -Camera.main.aspect * Camera.main.orthographicSize;
         rightCameraBorder = Camera.main.aspect * Camera.main.orthographicSize;
         StateController.playerHealth = playerHealth;
+        InvokeRepeating("RegenerateAmmo", 5f, 5f);
     }
 
     // Update is called once per frame
@@ -80,6 +83,7 @@ public class Player : MonoBehaviour
         // Apply a force to the bullet to make it move upwards
         rb.AddForce(Vector2.up * bulletSpeed, ForceMode2D.Impulse);
         primaryAmmoCount--; // Reduce the player's primary ammo count
+        gameController.playerUI.rootVisualElement.Q<Label>("Ammo").text = $"Ammo: {primaryAmmoCount}/100 ({primaryAmmoReserve})\n{secondaryAmmoCount}/10 ({secondaryAmmoReserve})"; // Update the primary ammo count in the UI
         Invoke("allowShoot", fireRate);
     }
     void secondaryShoot()
@@ -93,6 +97,7 @@ public class Player : MonoBehaviour
         // Apply a force to the bullet to make it move upwards
         rb.AddForce(Vector2.up * bulletSpeed, ForceMode2D.Impulse);
         secondaryAmmoCount--; // Reduce the player's secondary ammo count
+        gameController.playerUI.rootVisualElement.Q<Label>("Ammo").text = $"Ammo: {primaryAmmoCount}/100 ({primaryAmmoReserve})\n{secondaryAmmoCount}/10 ({secondaryAmmoReserve})"; // Update the primary ammo count in the UI
         Invoke("allowShoot", fireRate);
     }
     void reload()
@@ -127,18 +132,31 @@ public class Player : MonoBehaviour
                 secondaryAmmoReserve = 0; // Set the secondary ammo reserve to zero
             }
         }
+        gameController.playerUI.rootVisualElement.Q<Label>("Ammo").text = $"Ammo: {primaryAmmoCount}/100 ({primaryAmmoReserve})\n{secondaryAmmoCount}/10 ({secondaryAmmoReserve})"; // Update the primary ammo count in the UI
         Invoke("allowShoot", fireRate);
     }
     void allowShoot()
     {
         canShoot = true; // Allow the player to shoot again
     }
-
-    void OnCollisionEnter2D(Collision2D collision)
+    void RegenerateAmmo()
     {
-        if (collision.gameObject.name.Contains("Alien"))
+        // Regenerate primary ammo
+        if (primaryAmmoReserve <= 990)
         {
-            Destroy(gameObject); // Destroy the player if it collides with an alien
+            primaryAmmoReserve += 10;
         }
+
+        // Regenerate secondary ammo
+        if (secondaryAmmoReserve <= 99)
+        {
+            secondaryAmmoReserve += 1;
+        }
+
+        // Update the ammo count in the UI
+        gameController.playerUI.rootVisualElement.Q<Label>("Ammo").text =
+            $"Ammo: {primaryAmmoCount}/100 ({primaryAmmoReserve})\n{secondaryAmmoCount}/10 ({secondaryAmmoReserve})";
+
+        Debug.Log("Ammo regenerated!");
     }
 }

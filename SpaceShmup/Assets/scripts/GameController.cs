@@ -10,8 +10,10 @@ public class GameController : MonoBehaviour
     public UIDocument playerUI; // Reference to the UI document for displaying game information
     public UIDocument gameOverUI; // Reference to the UI document for displaying game over information
     public UIDocument levelCompleteUI; // Reference to the UI document for displaying level complete information
+    public UIDocument pausedUI; // Reference to the UI document for displaying paused information
+    public Button quitGameButton;
     public Button gameOverButton; // Reference to the Game Over button
-    void Awake()
+    void Start()
     {
         levels = new Level[5]; // Initialize the levels array with 5 levels
 
@@ -65,22 +67,33 @@ public class GameController : MonoBehaviour
         }
 
         gameOverButton = gameOverUI.rootVisualElement.Q<Button>("StartOverButton");
+        quitGameButton = pausedUI.rootVisualElement.Q<Button>("QuitGame");
         if (gameOverButton == null)
         {
             Debug.LogError("StartOverButton not found in GameOverUI!");
         }
         gameOverUI.rootVisualElement.style.display = DisplayStyle.None; // Hide the game over UI initially
         levelCompleteUI.rootVisualElement.style.display = DisplayStyle.None; // Hide the level complete UI initially
+        pausedUI.rootVisualElement.style.display = DisplayStyle.None; // Hide the paused UI initially
+
+
+        gameOverButton.RegisterCallback<ClickEvent>(ev => OnGameOverButtonClicked()); // Register the button click event
+        quitGameButton.RegisterCallback<ClickEvent>(ev => OnQuitGameButtonClicked());
+
     }
 
     void OnEnable()
     {
+        gameOverButton = gameOverUI.rootVisualElement.Q<Button>("StartOverButton");
+        quitGameButton = pausedUI.rootVisualElement.Q<Button>("QuitGame");
         gameOverButton.RegisterCallback<ClickEvent>(ev => OnGameOverButtonClicked()); // Register the button click event
+        quitGameButton.RegisterCallback<ClickEvent>(ev => OnQuitGameButtonClicked());
     }
 
     void OnDisable()
     {
         gameOverButton.UnregisterCallback<ClickEvent>(ev => OnGameOverButtonClicked()); // Unregister the button click event
+        quitGameButton.UnregisterCallback<ClickEvent>(ev => OnQuitGameButtonClicked());
     }
     private Wave CreateWave(int waveNumber, int numberOfAliens, float spawnInterval, float spawnDelay, AlienType.AlienTypeData alienType)
     {
@@ -128,21 +141,30 @@ public class GameController : MonoBehaviour
                     StartGame(); // Call the method to start the game
                     playerUI.rootVisualElement.Q<Label>("Start").style.display = DisplayStyle.None; // Hide the start label in the UI
                 }
+                if (Input.GetKeyDown(KeyCode.Escape)) // Check if the escape key is pressed
+                {
+                    OnQuitGameButtonClicked();
+                }
             }
             if (StateController.gameState == State.Playing) // Check if the game is currently playing
             {
                 if (Input.GetKeyDown(KeyCode.Escape)) // Check if the escape key is pressed
                 {
+
                     StateController.gameState = State.Paused; // Set the game state to not playing
+                    playerUI.rootVisualElement.style.display = DisplayStyle.None; // Hide the player UI
+                    pausedUI.rootVisualElement.style.display = DisplayStyle.Flex; // Show the paused UI
                     Time.timeScale = 0; // Pause the game by setting the time scale to 0
                     Debug.Log("Game paused!"); // Log a message indicating the game is paused
                 }
             }
-            if (StateController.gameState == State.Paused) // Check if the game is paused
+            else if (StateController.gameState == State.Paused) // Check if the game is paused
             {
                 if (Input.GetKeyDown(KeyCode.Escape)) // Check if the space key is pressed
                 {
                     StateController.gameState = State.Playing; // Set the game state to playing
+                    playerUI.rootVisualElement.style.display = DisplayStyle.Flex; // Hide the player UI
+                    pausedUI.rootVisualElement.style.display = DisplayStyle.None; // Hide the paused UI
                     Time.timeScale = 1; // Resume the game by setting the time scale to 1
                     Debug.Log("Game resumed!"); // Log a message indicating the game is resumed
                 }
@@ -175,6 +197,9 @@ public class GameController : MonoBehaviour
             {
                 if (Input.GetKeyDown(KeyCode.Space)) // Check if the space key is pressed
                 {
+                    playerUI.rootVisualElement.style.display = DisplayStyle.None; // Hide the game over UI initially
+                    gameOverUI.rootVisualElement.style.display = DisplayStyle.Flex; // Hide the game over UI initially
+                    levelCompleteUI.rootVisualElement.style.display = DisplayStyle.None; // Hide the level complete UI initially
                     StateController.gameState = State.NotPlaying; // Set the game state to not playing
                     Debug.Log("Game over! Press Space to start a new game."); // Log a message indicating the game is over
                 }
@@ -193,5 +218,11 @@ public class GameController : MonoBehaviour
     public void OnGameOverButtonClicked()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void OnQuitGameButtonClicked()
+    {
+        // Check if in editor or standalone build
+        Application.Quit();
     }
 }

@@ -1,9 +1,10 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/PlayerUI.uss?fileID=7433441132597879392&amp;guid=c8b092d2fbcbb3141850fda174b9661d&amp;type=3#PlayerUI" />
     <engine:VisualElement name="Header" class="header">
-        <engine:Label text="Level 1" name="Level" class="header-labels" style="font-size: 50px; color: rgb(255, 255, 255); -unity-font-style: bold; -unity-text-align: middle-left;" />
-        <engine:Label text="Wave 1" name="Wave" class="header-labels" style="font-size: 50px; color: rgb(255, 255, 255); -unity-font-style: bold; -unity-text-align: middle-left;" />
-        <engine:Label text="HP 100/100" name="HP" class="header-labels" style="font-size: 50px; color: rgb(255, 255, 255); -unity-font-style: bold; -unity-text-align: middle-left;" />
+        <engine:Label text="Level 1" name="Level" class="header-labels" />
+        <engine:Label text="Wave 1" name="Wave" class="header-labels" />
+        <engine:Label text="HP 100/100" name="HP" class="header-labels" />
+        <engine:Label text="Ammo 100/100 (1000)&#10;10/10 (100)" name="Ammo" class="header-labels" style="-unity-text-align: upper-right; width: auto;" />
     </engine:VisualElement>
     <engine:Label text="Press Space to start . . ." name="Start" class="start" />
     <engine:VisualElement name="HowToPlay" style="flex-grow: 1; width: 350px; max-height: 200px; top: auto; height: 200px; left: 10px; position: absolute; bottom: 0; right: auto;">

@@ -21,12 +21,9 @@ public class Alien : MonoBehaviour
         attackPower = type.attackPower;
     }
 
-    void Awake()
+    void Start()
     {
         direction = 1; // Set the initial direction of the alien
-        health = 100; // Set the initial health of the alien
-        speed = 2; // Set the initial speed of the alien
-        attackPower = 10; // Set the initial attack power of the alien
         leftCameraBorder = -Camera.main.aspect * Camera.main.orthographicSize;
         rightCameraBorder = Camera.main.aspect * Camera.main.orthographicSize;
         player = GameObject.Find("Player").GetComponent<Player>(); // Get the player component
@@ -50,6 +47,7 @@ public class Alien : MonoBehaviour
         {
             health -= player.bulletDamage / 2; // Reduce the alien's health by the bullet's damage
             Destroy(collision.gameObject); // Destroy the bullet
+            print(health + " : " + player.bulletDamage / 2);
             if (health <= 0)
             {
                 Die(); // Call the Die method instead of directly destroying the alien
