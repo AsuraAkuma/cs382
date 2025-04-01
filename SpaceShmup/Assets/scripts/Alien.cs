@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Alien : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class Alien : MonoBehaviour
     private float leftCameraBorder;
     private float rightCameraBorder;
     private Player player;
+    public GameController gameController;
     private int direction; // Direction of movement for the alien
     public Alien() { }
 
@@ -35,7 +37,7 @@ public class Alien : MonoBehaviour
         if (canMove)
         {
             transform.position = new Vector3(transform.position.x + (speed * direction * Time.deltaTime), transform.position.y - (speed / 10 * Time.deltaTime), transform.position.z); // Move the alien based on speed and direction
-            if (transform.position.x - (transform.localScale.x / 2.1) <= leftCameraBorder || transform.position.x + (transform.localScale.x / 2.1) >= rightCameraBorder)
+            if ((transform.position.x - transform.localScale.x * 2.5f <= leftCameraBorder && direction == -1) || (transform.position.x + transform.localScale.x * 2.5f >= rightCameraBorder && direction == 1))
             {
                 direction *= -1; // Reverse direction
             }

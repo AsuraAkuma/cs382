@@ -69,6 +69,7 @@ public class Wave : MonoBehaviour
                 alien.speed = AlienType.speed; // Set the alien's speed based on the type
                 alien.attackPower = AlienType.attackPower; // Set the alien's attack power based on the type
                 alien.name = AlienType.name; // Set the alien's name based on the type
+                alien.gameController = gameController; // Set the reference to the GameController
             }
             else
             {

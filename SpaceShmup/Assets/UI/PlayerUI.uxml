@@ -6,4 +6,10 @@
         <engine:Label text="HP 100/100" name="HP" class="header-labels" style="font-size: 50px; color: rgb(255, 255, 255); -unity-font-style: bold; -unity-text-align: middle-left;" />
     </engine:VisualElement>
     <engine:Label text="Press Space to start . . ." name="Start" class="start" />
+    <engine:VisualElement name="HowToPlay" style="flex-grow: 1; width: 350px; max-height: 200px; top: auto; height: 200px; left: 10px; position: absolute; bottom: 0; right: auto;">
+        <engine:Label text="Space - Primary Fire" name="Shoot" style="color: rgb(255, 255, 255); font-size: 30px;" />
+        <engine:Label text="Shift - Secondary Fire" name="Shoot2" style="color: rgb(255, 255, 255); font-size: 30px;" />
+        <engine:Label text="A - Move Left" name="MoveLeft" style="color: rgb(255, 255, 255); font-size: 30px;" />
+        <engine:Label text="D - Move Right" name="MoveLeft" style="color: rgb(255, 255, 255); font-size: 30px;" />
+    </engine:VisualElement>
 </engine:UXML>

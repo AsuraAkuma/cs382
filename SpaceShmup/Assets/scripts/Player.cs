@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
     public int primaryAmmoReserve = 1000; // The player's primary ammo reserve
     public int secondaryAmmoCount = 10; // The player's secondary ammo count
     public int secondaryAmmoReserve = 100; // The player's secondary ammo reserve
+    public int playerHealth = 100; // The player's health
     public bool canShoot = true; // Flag to determine if the player can shoot or not, useful for controlling shooting in certain conditions
     private int playerSpeed = 7; // Speed of the player character, can be adjusted for movement speed
     private float leftCameraBorder;
@@ -22,6 +23,7 @@ public class Player : MonoBehaviour
         // Initialize camera borders here
         leftCameraBorder = -Camera.main.aspect * Camera.main.orthographicSize;
         rightCameraBorder = Camera.main.aspect * Camera.main.orthographicSize;
+        StateController.playerHealth = playerHealth;
     }
 
     // Update is called once per frame

@@ -12,7 +12,8 @@ GameObject:
   - component: {fileID: 4121547450055246646}
   - component: {fileID: 17215268074166395}
   - component: {fileID: 6824217355587119380}
-  m_Layer: 0
+  - component: {fileID: 5993594177488836719}
+  m_Layer: 3
   m_Name: Scout
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -150,3 +151,30 @@ MonoBehaviour:
   health: 0
   speed: 0
   attackPower: 0
+--- !u!50 &5993594177488836719
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 78621746328644147}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 0.0001
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 8
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4

@@ -17,8 +17,8 @@ public class GameController : MonoBehaviour
 
         Wave[] wavesLvl1 = {
             CreateWave(1, 5, 1.0f, 0.5f, AlienType.scout),
-            // CreateWave(2, 10, 1.0f, 0.5f, AlienType.scout),
-            // CreateWave(3, 15, 1.0f, 0.5f, AlienType.scout)
+            CreateWave(2, 10, 1.0f, 0.5f, AlienType.scout),
+            CreateWave(3, 15, 1.0f, 0.5f, AlienType.scout)
         };
         Wave[] wavesLvl2 = {
             CreateWave(1, 5, 0.5f, 0.5f, AlienType.warrior),
@@ -44,10 +44,10 @@ public class GameController : MonoBehaviour
         };
 
         levels[0] = CreateLevel(1, 3, 60, wavesLvl1);
-        // levels[1] = CreateLevel(2, 3, 60, wavesLvl2);
-        // levels[2] = CreateLevel(3, 3, 60, wavesLvl3);
-        // levels[3] = CreateLevel(4, 3, 60, wavesLvl4);
-        // levels[4] = CreateLevel(5, 3, 60, wavesLvl5);
+        levels[1] = CreateLevel(2, 3, 60, wavesLvl2);
+        levels[2] = CreateLevel(3, 3, 60, wavesLvl3);
+        levels[3] = CreateLevel(4, 3, 60, wavesLvl4);
+        levels[4] = CreateLevel(5, 3, 60, wavesLvl5);
 
         if (spawnPoints[0] == null || spawnPoints[1] == null || spawnPoints[2] == null || spawnPoints[3] == null)
         {
@@ -119,7 +119,6 @@ public class GameController : MonoBehaviour
 
     void Update()
     {
-        print(StateController.gameState); // Log the current game state for debugging purposes
         if (StateController.gameState != State.transitioning)
         {
             if (StateController.gameState == State.NotPlaying) // Check if the game is not playing
@@ -150,25 +149,26 @@ public class GameController : MonoBehaviour
             }
             if (StateController.gameState == State.LevelComplete) // Check if the level is complete
             {
-                print("Level complete!"); // Log a message indicating the level is complete
-                levelCompleteUI.gameObject.SetActive(true); // Show the level complete UI
                 if (Input.GetKeyDown(KeyCode.Space)) // Check if the space key is pressed
                 {
-                    if (levels.Length == 0) // Check if there are no more levels left
+                    levels = levels[1..]; // Remove the first level from the array
+                    if (levels[0] != null) // Check if there are no more levels left
+                    {
+                        StateController.currentLevel = levels[0]; // Set the current level to the next level
+                        StateController.gameState = State.transitioning; // Set the game state to transitioning
+                        levelCompleteUI.rootVisualElement.style.display = DisplayStyle.None; // Hide the level complete UI initially
+                        StateController.currentLevel.startWave(); // Start the first wave of the current level
+                    }
+                    else
                     {
                         StateController.gameState = State.GameOver; // Set the game state to game over
                         playerUI.rootVisualElement.style.display = DisplayStyle.None; // Hide the game over UI initially
                         gameOverUI.rootVisualElement.style.display = DisplayStyle.Flex; // Hide the game over UI initially
-                        Debug.Log("No more levels! Game over!"); // Log a message indicating no more levels
-                    }
-                    else
-                    {
-                        StateController.gameState = State.transitioning; // Set the game state to transitioning
                         levelCompleteUI.rootVisualElement.style.display = DisplayStyle.None; // Hide the level complete UI initially
-                        levels = levels[1..]; // Remove the first level from the array
-                        StateController.currentLevel = levels[0]; // Set the current level to the next level
-                        StateController.currentLevel.startWave(); // Start the first wave of the current level
+                        gameOverUI.rootVisualElement.Q<Label>("Description").text = $"You made it to level {StateController.currentLevel.levelNumber} wave {StateController.currentLevel.currentWave.WaveNumber}"; // Update the game over text
+                        Debug.Log("No more levels! Game over!"); // Log a message indicating no more levels  
                     }
+
                 }
             }
             if (StateController.gameState == State.GameOver) // Check if the game is over
