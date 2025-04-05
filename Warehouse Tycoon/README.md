@@ -21,4 +21,4 @@
 - Employee Manager - Left side panel where you can view possible new hires and current employees
 - - New Hire Page - Can hire new employees
 - - Current Employees Page - Can move, send home, transfer departments, and fire
-- Department Manager - Center panel where you can view all departments, manage 
+- Department Manager - Center panel where you can view all departments, manage each department, disable them, and destroy them
