@@ -172,6 +172,144 @@
 - **Motivation** – Increases the likelihood that employees will complete training and improve their skills. 
     - **Affected Stats** - (Stamina, Experience)  
 
+### **Manager Department-Specific Stats**
+
+#### **HR Manager**  
+- **Morale Boost** – Raises overall employee happiness, decreasing turnover and burnout.  
+  - **Affected Stats** – (Stamina, Efficiency)  
+- **Retention Strategy** – Implements plans to keep skilled employees long-term.  
+  - **Affected Stats** – (Experience, Focus)  
+- **Policy Enforcement** – Maintains fairness and order across the workforce.  
+  - **Affected Stats** – (Focus, Efficiency)  
+
+#### **IT Manager**  
+- **Infrastructure Oversight** – Ensures all systems are up-to-date and functional.  
+  - **Affected Stats** – (Efficiency, Focus)  
+- **Incident Response** – Responds swiftly to tech outages or breaches.  
+  - **Affected Stats** – (Speed, Focus)  
+- **Tech Budgeting** – Allocates resources to maintain and upgrade systems effectively.  
+  - **Affected Stats** – (Efficiency, Experience)  
+
+#### **Operations Manager**  
+- **Process Optimization** – Refines workflows to reduce bottlenecks and waste.  
+  - **Affected Stats** – (Efficiency, Speed)  
+- **Cross-Department Sync** – Improves coordination across all departments.  
+  - **Affected Stats** – (Efficiency, Focus)  
+- **KPI Monitoring** – Tracks performance metrics and adjusts for better output.  
+  - **Affected Stats** – (Experience, Efficiency)  
+
+#### **Inbound Manager**  
+- **Dock Flow Management** – Coordinates truck schedules and dock availability.  
+  - **Affected Stats** – (Speed, Efficiency)  
+- **Receiving Accuracy** – Oversees item intake to prevent errors or losses.  
+  - **Affected Stats** – (Focus, Efficiency)  
+- **Supplier Coordination** – Communicates effectively with suppliers to avoid delays.  
+  - **Affected Stats** – (Experience, Efficiency)  
+
+#### **Sorting Manager**  
+- **Sort Line Oversight** – Ensures sorting stations are staffed and running optimally.  
+  - **Affected Stats** – (Efficiency, Speed)  
+- **Error Reduction Planning** – Introduces checks to catch and fix misroutes.  
+  - **Affected Stats** – (Focus, Efficiency)  
+- **Peak Prep** – Prepares sorting teams for high-volume periods.  
+  - **Affected Stats** – (Stamina, Efficiency)  
+
+#### **Repacking Manager**  
+- **Quality Check** – Oversees that all repacked items meet safety and presentation standards.  
+  - **Affected Stats** – (Focus, Efficiency)  
+- **Material Allocation** – Ensures packing supplies are used effectively with minimal waste.  
+  - **Affected Stats** – (Efficiency, Experience)  
+- **Repack Flow** – Maintains a smooth flow of items through the repack area.  
+  - **Affected Stats** – (Speed, Efficiency)  
+
+#### **Palletizing Manager**  
+- **Stacking Supervision** – Monitors pallet builds for space efficiency and safety.  
+  - **Affected Stats** – (Efficiency, Focus)  
+- **Load Forecasting** – Predicts volume changes to ensure resource availability.  
+  - **Affected Stats** – (Experience, Efficiency)  
+- **Safety Checks** – Reduces risk of unstable loads or heavy-lift injuries.  
+  - **Affected Stats** – (Stamina, Focus)  
+
+#### **Waterspidering Manager**  
+- **Route Planning** – Optimizes delivery and retrieval paths inside the warehouse.  
+  - **Affected Stats** – (Speed, Efficiency)  
+- **Support Coordination** – Anticipates which teams will need supplies next.  
+  - **Affected Stats** – (Focus, Efficiency)  
+- **Load Distribution** – Balances workloads among waterspiders for maximum output.  
+  - **Affected Stats** – (Efficiency, Stamina)  
+
+#### **FluidLoad Manager**  
+- **Truck Staging** – Plans and queues trucks for faster turnaround times.  
+  - **Affected Stats** – (Speed, Efficiency)  
+- **Team Synchronization** – Ensures fluidload team moves in harmony.  
+  - **Affected Stats** – (Efficiency, Focus)  
+- **Loading Oversight** – Ensures each load is balanced and secure.  
+  - **Affected Stats** – (Focus, Strength)  
+
+#### **Quality Control Manager**  
+- **Inspection Protocols** – Establishes inspection standards for product quality.  
+  - **Affected Stats** – (Focus, Experience)  
+- **Defect Reporting** – Ensures consistent tracking and communication of quality issues.  
+  - **Affected Stats** – (Efficiency, Focus)  
+- **Continuous Improvement** – Develops methods to improve product standards over time.  
+  - **Affected Stats** – (Experience, Efficiency)  
+
+#### **Outbound Manager**  
+- **Load Scheduling** – Coordinates outbound shipments to meet deadlines.  
+  - **Affected Stats** – (Efficiency, Speed)  
+- **Accuracy Oversight** – Verifies all orders match customer and shipping data.  
+  - **Affected Stats** – (Focus, Efficiency)  
+- **Carrier Coordination** – Communicates with transport teams to reduce delays.  
+  - **Affected Stats** – (Experience, Efficiency)  
+
+#### **Maintenance Manager**  
+- **Repair Workflow** – Assigns and monitors repairs across all zones.  
+  - **Affected Stats** – (Efficiency, Speed)  
+- **Part Inventory** – Keeps track of tools and replacement parts.  
+  - **Affected Stats** – (Focus, Experience)  
+- **Maintenance Scheduling** – Plans preventative checks to avoid breakdowns.  
+  - **Affected Stats** – (Stamina, Efficiency)  
+
+#### **Robotics Manager**  
+- **Automation Planning** – Strategizes how robotics can streamline tasks.  
+  - **Affected Stats** – (Efficiency, Experience)  
+- **Firmware Management** – Keeps software and firmware updated across all robotics.  
+  - **Affected Stats** – (Focus, Efficiency)  
+- **Robot Uptime** – Ensures all machines stay active and functioning.  
+  - **Affected Stats** – (Speed, Efficiency)  
+
+#### **Safety Manager**  
+- **Audit Execution** – Conducts thorough safety inspections.  
+  - **Affected Stats** – (Focus, Experience)  
+- **Training Enforcement** – Makes sure staff complete safety training.  
+  - **Affected Stats** – (Experience, Efficiency)  
+- **Incident Review** – Quickly analyzes and responds to safety incidents.  
+  - **Affected Stats** – (Focus, Speed)  
+
+#### **Cleaning Manager**  
+- **Zone Prioritization** – Assigns cleaners based on traffic and needs.  
+  - **Affected Stats** – (Efficiency, Focus)  
+- **Supply Management** – Keeps cleaning tools and supplies organized and stocked.  
+  - **Affected Stats** – (Experience, Efficiency)  
+- **Cleanliness Standards** – Maintains consistent quality across all zones.  
+  - **Affected Stats** – (Focus, Stamina)  
+
+#### **Security Manager**  
+- **Surveillance Oversight** – Ensures all cameras and alarm systems are monitored.  
+  - **Affected Stats** – (Focus, Experience)  
+- **Patrol Routing** – Plans the most efficient patrol paths.  
+  - **Affected Stats** – (Speed, Efficiency)  
+- **Threat Assessment** – Evaluates risks and makes adjustments to reduce vulnerabilities.  
+  - **Affected Stats** – (Focus, Efficiency)  
+
+#### **Learning & Development Manager**  
+- **Curriculum Design** – Creates training plans tailored to each role.  
+  - **Affected Stats** – (Experience, Efficiency)  
+- **Progress Tracking** – Monitors employee learning milestones.  
+  - **Affected Stats** – (Focus, Experience)  
+- **Upskilling Strategy** – Identifies and implements skill growth opportunities.  
+  - **Affected Stats** – (Efficiency, Experience)  
+
 ### Traits / Modifiers  
 
 #### **HR (Human Resources)**  
@@ -309,3 +447,19 @@
     - **Primary Stat Bonus**: +10% Efficiency (Better knowledge sharing)
 - **Motivational Speaker** – Increases employee engagement in training, leading to faster progress.
     - **Primary Stat Bonus**: +10% Stamina (Higher training endurance)
+
+### Department Specific Actions
+
+#### **HR Manager**
+**Primary Task:**  
+- **Manage Hiring Strategy** – Review department needs and authorize recruitment for new employees. The player decides which roles to prioritize, budget allocations, and approve headcount increases.
+
+**Secondary Task:**  
+- **Resolve Employee Conflicts** – Occasionally, random conflict events appear between employees. The HR Manager must choose how to handle them (e.g. mediation, warnings, transfers), impacting morale and productivity.
+
+#### **HR Employee**
+**Primary Task:**  
+- **Onboard New Hires** – Guide new employees through a checklist of onboarding steps (e.g. assign mentor, set up training, complete paperwork). Faster onboarding = quicker productivity.
+
+**Secondary Task:**  
+- **Update Employee Records** – Periodically update or correct employee info (e.g. department transfer, promotion, emergency contact). Could be a minigame where players match data or complete forms under a timer.

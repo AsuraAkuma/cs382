@@ -9,7 +9,8 @@ public class Department : MonoBehaviour
     public string departmentName = null; // Name of the department
     public List<KeyValuePair<string, int>> stats = null; // Replace Dictionary with List
     public List<KeyValuePair<string, int>> statTimes = null; // Replace Dictionary with List
-    public ActionRequest[] actionRequests = { }; // Array of action requests associated with this department
+    public List<ActionRequest> newActionRequests = new List<ActionRequest>(); // Array of new action requests associated with this department
+    public List<ActionRequest> claimedActionRequests = new List<ActionRequest>(); // Array of claimed action requests associated with this department
     public int departmentId = 0; // Unique identifier for the department
     public int departmentLevel = 1; // Level of the department
     public int departmentExp = 0; // Experience points of the department
