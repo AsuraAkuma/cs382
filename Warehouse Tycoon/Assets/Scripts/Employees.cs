@@ -240,6 +240,10 @@ public class Employee : MonoBehaviour
             Debug.Log($"{employeeName} has leveled up to level {level}!");
         }
     }
+    public float GetStatAverage()
+    {
+        return Mathf.Min(2f, (GetSpeed() + GetEfficiency() + GetStamina() + GetStrength() + GetFocus() + GetExperience()) / 6);
+    }
     public void SyncTraits()
     {
         // Combine all traits into one for the employee
@@ -265,7 +269,6 @@ public class HREmployee : Employee
     protected float empathy;           // Increases morale and reduces turnover
     protected float conflictResolution;// Ability to handle disputes
     protected float recruiting;        // Increases likelihood of hiring skilled employees
-                                       // Employee traits
 
     public new float GetStamina()
     {
@@ -291,6 +294,7 @@ public class HREmployee : Employee
     {
         return Mathf.Min(2f, strength + combinedTraits.strength);
     }
+
     public new void PrimaryAction()
     {
         if (actionState != ActionState.State.Idle)
@@ -364,7 +368,7 @@ public class HREmployee : Employee
         }
         // Simulate chance of success based on focus
         float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetFocus())
+        if (successChance <= GetStatAverage())
         {
             Debug.Log($"HR Employee {employeeName} successfully handled the ticket.");
             // Update action request status to completed
@@ -414,6 +418,7 @@ public class HRManager : HREmployee
     {
         return Mathf.Min(2f, experience + retentionStrategy + combinedTraits.experience);
     }
+
     public new void PrimaryAction()
     {
         if (actionState != ActionState.State.Idle)
@@ -582,6 +587,7 @@ public class ITEmployee : Employee
     {
         return Mathf.Min(2f, experience + combinedTraits.experience);
     }
+
     public new void PrimaryAction()
     {
         if (actionState != ActionState.State.Idle)
@@ -652,7 +658,7 @@ public class ITEmployee : Employee
         }
         // Simulate chance of success based on focus
         float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetFocus())
+        if (successChance <= GetStatAverage())
         {
             Debug.Log($"IT Employee {employeeName} successfully handled the action request.");
             // Update action request status to completed
@@ -700,6 +706,92 @@ public class ITManager : ITEmployee
     public new float GetExperience()
     {
         return Mathf.Min(2f, experience + techBudgeting + combinedTraits.experience);
+    }
+    public new void PrimaryAction()
+    {
+        if (actionState != ActionState.State.Idle)
+        {
+            Debug.Log($"IT Manager {employeeName} is busy with another action.");
+            return;
+        }
+        Debug.Log($"IT Manager {employeeName} is performing a primary action.");
+        // Check if there are any action requests available in the department
+        if (department.newActionRequests.Count == 0)
+        {
+            Debug.Log($"IT Manager {employeeName} has no action requests to handle.");
+            return;
+        }
+        // Get the first action request from the department
+        ActionRequest actionRequest = department.newActionRequests[0];
+        StartCoroutine(HandleActionProcess(actionRequest));
+    }
+    public new void SecondaryAction()
+    {
+        if (actionState != ActionState.State.Idle)
+        {
+            Debug.Log($"IT Manager {employeeName} is busy with another action.");
+            return;
+        }
+        Debug.Log($"IT Manager {employeeName} is performing a secondary action.");
+        // Check for claimedActionRequests in the department
+        if (department.claimedActionRequests.Count == 0)
+        {
+            Debug.Log($"IT Manager {employeeName} has no claimed action requests to review.");
+            return;
+        }
+        // Give experience points based on claimedActionRequests count
+        int experiencePoints = department.claimedActionRequests.Count * 5;
+        // Update employee experience and check for level up
+        AddExperience(experiencePoints);
+        // Clear claimedActionRequests after review
+        department.claimedActionRequests.Clear();
+    }
+    public new void CancelAction()
+    {
+        if (actionState != ActionState.State.Idle)
+        {
+            Debug.Log($"IT Manager {employeeName} has canceled the current action.");
+            StopAllCoroutines(); // Stop all ongoing actions
+            actionState = ActionState.State.Idle; // Set state to idle
+        }
+        else
+        {
+            Debug.Log($"IT Manager {employeeName} is not currently working on any action.");
+        }
+    }
+    IEnumerator HandleActionProcess(ActionRequest actionRequest)
+    {
+        actionState = ActionState.State.Working;
+        yield return StartCoroutine(HandleActionRequest(actionRequest));
+        actionState = ActionState.State.Idle;
+    }
+    IEnumerator HandleActionRequest(ActionRequest actionRequest)
+    {
+        // Simulate action request handling process
+        Debug.Log($"IT Manager {employeeName} is handling an action request.");
+        for (int i = 0; i < department.statTimes.Count; i++)
+        {
+            // Perform action based on department statTimes
+            Debug.Log($"IT Manager {employeeName} is performing action {department.statTimes[i].Key}({i + 1}) for {department.statTimes[i].Value} seconds.");
+            yield return new WaitForSeconds(department.statTimes[i].Value);
+        }
+        // Simulate chance of success based on focus
+        float successChance = Random.Range(0f, 2f);
+        if (successChance <= GetStatAverage())
+        {
+            Debug.Log($"IT Manager {employeeName} successfully handled the action request.");
+            // Update action request status to completed
+            actionRequest.status = ActionRequest.StatusType.Type.Completed;
+        }
+        else
+        {
+            Debug.Log($"IT Manager {employeeName} failed to handle the action request.");
+            // Update action request status to failed
+            actionRequest.status = ActionRequest.StatusType.Type.Failed;
+        }
+        department.claimedActionRequests.Add(actionRequest);
+        department.newActionRequests.Remove(actionRequest);
+        AddExperience(10); // Add experience for handling the action request
     }
 }
 public class OperationsEmployee : Employee
@@ -799,7 +891,7 @@ public class OperationsEmployee : Employee
             yield return new WaitForSeconds(department.statTimes[i].Value);
         }
         float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetFocus())
+        if (successChance <= GetStatAverage())
         {
             Debug.Log($"Operations Employee {employeeName} successfully handled the action request.");
             actionRequest.status = ActionRequest.StatusType.Type.Completed;
@@ -846,6 +938,7 @@ public class OperationsManager : OperationsEmployee
     {
         return Mathf.Min(2f, experience + kpiMonitoring + combinedTraits.experience);
     }
+
 }
 
 public class InboundEmployee : Employee
@@ -945,7 +1038,7 @@ public class InboundEmployee : Employee
             yield return new WaitForSeconds(department.statTimes[i].Value);
         }
         float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetFocus())
+        if (successChance <= GetStatAverage())
         {
             Debug.Log($"Inbound Employee {employeeName} successfully handled the action request.");
             actionRequest.status = ActionRequest.StatusType.Type.Completed;
@@ -992,6 +1085,7 @@ public class InboundManager : InboundEmployee
     {
         return Mathf.Min(2f, experience + supplierCoordination + combinedTraits.experience);
     }
+
 }
 public class OutboundEmployee : Employee
 {
@@ -1090,7 +1184,7 @@ public class OutboundEmployee : Employee
             yield return new WaitForSeconds(department.statTimes[i].Value);
         }
         float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetFocus())
+        if (successChance <= GetStatAverage())
         {
             Debug.Log($"Outbound Employee {employeeName} successfully handled the action request.");
             actionRequest.status = ActionRequest.StatusType.Type.Completed;
@@ -1137,6 +1231,7 @@ public class OutboundManager : OutboundEmployee
     {
         return Mathf.Min(2f, experience + carrierCoordination + combinedTraits.experience);
     }
+
 }
 public class SortingEmployee : Employee
 {
@@ -1235,7 +1330,7 @@ public class SortingEmployee : Employee
             yield return new WaitForSeconds(department.statTimes[i].Value);
         }
         float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetFocus())
+        if (successChance <= GetStatAverage())
         {
             Debug.Log($"Sorting Employee {employeeName} successfully handled the action request.");
             actionRequest.status = ActionRequest.StatusType.Type.Completed;
@@ -1282,6 +1377,7 @@ public class SortingManager : SortingEmployee
     {
         return Mathf.Min(2f, experience + +combinedTraits.experience);
     }
+
 }
 public class RepackingEmployee : Employee
 {
@@ -1379,7 +1475,7 @@ public class RepackingEmployee : Employee
             yield return new WaitForSeconds(department.statTimes[i].Value);
         }
         float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetFocus())
+        if (successChance <= GetStatAverage())
         {
             Debug.Log($"Repacking Employee {employeeName} successfully handled the action request.");
             actionRequest.status = ActionRequest.StatusType.Type.Completed;
@@ -1426,6 +1522,7 @@ public class RepackingManager : RepackingEmployee
     {
         return Mathf.Min(2f, experience + materialAllocation + combinedTraits.experience);
     }
+
 }
 public class PalletizingEmployee : Employee
 {
@@ -1524,7 +1621,7 @@ public class PalletizingEmployee : Employee
             yield return new WaitForSeconds(department.statTimes[i].Value);
         }
         float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetFocus())
+        if (successChance <= GetStatAverage())
         {
             Debug.Log($"Palletizing Employee {employeeName} successfully handled the action request.");
             actionRequest.status = ActionRequest.StatusType.Type.Completed;
@@ -1570,6 +1667,7 @@ public class PalletizingManager : PalletizingEmployee
     {
         return Mathf.Min(2f, experience + loadForecasting + combinedTraits.experience);
     }
+
 }
 public class WaterSpiderEmployee : Employee
 {
@@ -1668,7 +1766,7 @@ public class WaterSpiderEmployee : Employee
             yield return new WaitForSeconds(department.statTimes[i].Value);
         }
         float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetFocus())
+        if (successChance <= GetStatAverage())
         {
             Debug.Log($"Water Spider Employee {employeeName} successfully handled the action request.");
             actionRequest.status = ActionRequest.StatusType.Type.Completed;
@@ -1715,6 +1813,7 @@ public class WaterSpiderManager : WaterSpiderEmployee
     {
         return Mathf.Min(2f, experience + +combinedTraits.experience);
     }
+
 }
 public class FluidLoadEmployee : Employee
 {
@@ -1813,7 +1912,7 @@ public class FluidLoadEmployee : Employee
             yield return new WaitForSeconds(department.statTimes[i].Value);
         }
         float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetFocus())
+        if (successChance <= GetStatAverage())
         {
             Debug.Log($"Fluid Load Employee {employeeName} successfully handled the action request.");
             actionRequest.status = ActionRequest.StatusType.Type.Completed;
@@ -1859,6 +1958,7 @@ public class FluidLoadManager : FluidLoadEmployee
     {
         return Mathf.Min(2f, experience + +combinedTraits.experience);
     }
+
 }
 public class QualityControlEmployee : Employee
 {
@@ -1957,7 +2057,7 @@ public class QualityControlEmployee : Employee
             yield return new WaitForSeconds(department.statTimes[i].Value);
         }
         float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetFocus())
+        if (successChance <= GetStatAverage())
         {
             Debug.Log($"Quality Control Employee {employeeName} successfully handled the action request.");
             actionRequest.status = ActionRequest.StatusType.Type.Completed;
@@ -2004,6 +2104,7 @@ public class QualityControlManager : QualityControlEmployee
     {
         return Mathf.Min(2f, experience + inspectionProtocols + continuousImprovement + combinedTraits.experience);
     }
+
 }
 public class MaintenanceEmployee : Employee
 {
@@ -2102,7 +2203,7 @@ public class MaintenanceEmployee : Employee
             yield return new WaitForSeconds(department.statTimes[i].Value);
         }
         float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetFocus())
+        if (successChance <= GetStatAverage())
         {
             Debug.Log($"Maintenance Employee {employeeName} successfully handled the action request.");
             actionRequest.status = ActionRequest.StatusType.Type.Completed;
@@ -2148,6 +2249,7 @@ public class MaintenanceManager : MaintenanceEmployee
     {
         return Mathf.Min(2f, experience + partInventory + combinedTraits.experience);
     }
+
 }
 public class RoboticsEmployee : Employee
 {
@@ -2246,7 +2348,7 @@ public class RoboticsEmployee : Employee
             yield return new WaitForSeconds(department.statTimes[i].Value);
         }
         float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetFocus())
+        if (successChance <= GetStatAverage())
         {
             Debug.Log($"Robotics Employee {employeeName} successfully handled the action request.");
             actionRequest.status = ActionRequest.StatusType.Type.Completed;
@@ -2292,6 +2394,7 @@ public class RoboticsManager : RoboticsEmployee
     {
         return Mathf.Min(2f, experience + automationPlanning + combinedTraits.experience);
     }
+
 }
 public class SecurityEmployee : Employee
 {
@@ -2390,7 +2493,7 @@ public class SecurityEmployee : Employee
             yield return new WaitForSeconds(department.statTimes[i].Value);
         }
         float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetFocus())
+        if (successChance <= GetStatAverage())
         {
             Debug.Log($"Security Employee {employeeName} successfully handled the action request.");
             actionRequest.status = ActionRequest.StatusType.Type.Completed;
@@ -2437,6 +2540,7 @@ public class SecurityManager : SecurityEmployee
     {
         return Mathf.Min(2f, experience + surveillanceOversight + combinedTraits.experience);
     }
+
 }
 public class CleaningEmployee : Employee
 {
@@ -2534,7 +2638,7 @@ public class CleaningEmployee : Employee
             yield return new WaitForSeconds(department.statTimes[i].Value);
         }
         float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetFocus())
+        if (successChance <= GetStatAverage())
         {
             Debug.Log($"Cleaning Employee {employeeName} successfully handled the action request.");
             actionRequest.status = ActionRequest.StatusType.Type.Completed;
@@ -2580,6 +2684,7 @@ public class CleaningManager : CleaningEmployee
     {
         return Mathf.Min(2f, experience + supplyManagement + combinedTraits.experience);
     }
+
 }
 public class LearningEmployee : Employee
 {
@@ -2678,7 +2783,7 @@ public class LearningEmployee : Employee
             yield return new WaitForSeconds(department.statTimes[i].Value);
         }
         float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetFocus())
+        if (successChance <= GetStatAverage())
         {
             Debug.Log($"Learning Employee {employeeName} successfully handled the action request.");
             actionRequest.status = ActionRequest.StatusType.Type.Completed;
@@ -2723,6 +2828,7 @@ public class LearningManager : LearningEmployee
     {
         return Mathf.Min(2f, strength + combinedTraits.strength);
     }
+
 }
 public class SafetyEmployee : Employee
 {
@@ -2820,7 +2926,7 @@ public class SafetyEmployee : Employee
             yield return new WaitForSeconds(department.statTimes[i].Value);
         }
         float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetFocus())
+        if (successChance <= GetStatAverage())
         {
             Debug.Log($"Safety Employee {employeeName} successfully handled the action request.");
             actionRequest.status = ActionRequest.StatusType.Type.Completed;
@@ -2866,5 +2972,6 @@ public class SafetyManager : SafetyEmployee
     {
         return Mathf.Min(2f, experience + trainingEnforcement + auditExecution + combinedTraits.experience);
     }
+
 }
 #endregion
