@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 public static class EmployeeTraits
 {
 
@@ -99,7 +101,7 @@ public class TraitValues
     public DepartmentTypes.Type departmentType;
 
     // Method to combine traits
-    public static TraitValues CombineTraits(params TraitValues[] traits)
+    public static TraitValues CombineTraits(List<TraitValues> traits)
     {
         TraitValues combined = new TraitValues();
         foreach (var trait in traits)

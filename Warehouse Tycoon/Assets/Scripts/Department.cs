@@ -16,10 +16,8 @@ public class Department : MonoBehaviour
     public int departmentExp = 0; // Experience points of the department
     public DepartmentTypes.Type departmentType = DepartmentTypes.Type.None; // Type of the department (e.g., HR, IT, etc.)
     public int managerCapacity = 0; // Maximum number of managers that can work in this department
-    public int managerCount = 0; // Current number of managers in this department
-    public int employeeCount = 0; // Current number of employees in this department
     public int employeeCapacity = 0; // Maximum number of employees that can work in this department
-    public Employee[] employees = null; // Array of employees in this department
+    public List<Employee> employees = null; // Array of employees in this department
     public string ToJson()
     {
         return JsonUtility.ToJson(this);
@@ -93,7 +91,9 @@ public class IT : Department
             this.stats = new List<KeyValuePair<string, int>>
             {
                 new KeyValuePair<string, int>("Support", 1),
-                new KeyValuePair<string, int>("Maintenance", 1)
+                new KeyValuePair<string, int>("Maintenance", 1),
+                new KeyValuePair<string, int>("Troubleshooting", 1),
+                new KeyValuePair<string, int>("Upgrades", 1)
             };
         }
         else

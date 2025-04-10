@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
 using System.Text;
+using System.Collections.Generic;
 
 public class Globals
 {
@@ -16,17 +17,22 @@ public class Globals
     public static int warehouseValue;
     public static int warehouseExp;
     public static int warehouseEmployeeCount;
-    public static Employee[] warehouseEmployees; // Array of employees in the warehouse
+    public static List<Employee> warehouseEmployees; // Array of employees in the warehouse
+    public static List<Employee> newHires; // Array of new hires in the warehouse
+    public static int newHireCount; // Number of new hires in the warehouse
     public static int warehouseMaxEmployees; // Maximum number of employees allowed in the warehouse
     // Department data
-    public static Department[] departments; // Array of departments in the warehouse
+    public static List<Department> departments; // Array of departments in the warehouse
     public static int departmentCount; // Number of departments in the warehouse
     // Player data
     public static int playerId;
-    public static string playerName;
-    public static int playerLevel;
-    public static int playerExp;
-
+    public static string playerName = "Guest"; // Default player name
+    public static int playerLevel = 1; // Player's current level
+    public static double playerExp = 0; // Player's current experience points
+    public static int playerExpMultiplier = 250; // Multiplier for experience points gained
+    public static double playerMoney = 0; // Amount of money the player has
+    public static double playerMaxMoney = 99999999999; // Maximum amount of money the player can have
+    public static int playerMaxLevel = 100; // Maximum level the player can reach
     public IEnumerator Save()
     {
         // Create a JSON object with the data to send

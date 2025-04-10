@@ -452,14 +452,238 @@
 
 #### **HR Manager**
 **Primary Task:**  
-- **Manage Hiring Strategy** – Review department needs and authorize recruitment for new employees. The player decides which roles to prioritize, budget allocations, and approve headcount increases.
+- **Talent Acquisition** – Analyze warehouse needs, review new hire applicants, hire the most suitable applicant.
 
 **Secondary Task:**  
 - **Resolve Employee Conflicts** – Occasionally, random conflict events appear between employees. The HR Manager must choose how to handle them (e.g. mediation, warnings, transfers), impacting morale and productivity.
 
 #### **HR Employee**
 **Primary Task:**  
-- **Onboard New Hires** – Guide new employees through a checklist of onboarding steps (e.g. assign mentor, set up training, complete paperwork). Faster onboarding = quicker productivity.
+- **Handle Tickets** – Recieve new tickets from employees, identify the issue they are having, and resolve the issue.
 
 **Secondary Task:**  
-- **Update Employee Records** – Periodically update or correct employee info (e.g. department transfer, promotion, emergency contact). Could be a minigame where players match data or complete forms under a timer.
+- **Review Old Tickets** – Look into old tickets to gain experience.
+
+#### **IT Manager**  
+**Primary Task:**  
+- **System Monitoring** – Oversee critical systems and software used in the warehouse. Detect and resolve errors to avoid workflow disruption.
+
+**Secondary Task:**  
+- **Approve Tech Requests** – Review and approve or deny IT hardware/software requests submitted by employees.
+
+#### **IT Employee**  
+**Primary Task:**  
+- **Fix Technical Issues** – Respond to reported technical issues such as malfunctioning devices, slow network, or software errors.
+
+**Secondary Task:**  
+- **Run Diagnostics** – Perform regular diagnostics on equipment and systems to prevent future issues.
+
+#### **Operations Manager**  
+**Primary Task:**  
+- **Oversee Department Performance** – Monitor overall workflow and performance metrics across departments. Reassign resources if needed.
+
+**Secondary Task:**  
+- **Implement Process Improvements** – Analyze bottlenecks and suggest workflow optimizations to improve warehouse efficiency.
+
+#### **Operations Employee**  
+**Primary Task:**  
+- **Assist with Scheduling** – Help create shift schedules, accounting for employee availability and workload demands.
+
+**Secondary Task:**  
+- **Update Performance Logs** – Record departmental metrics for analysis and reporting.
+
+#### **Inbound Manager**  
+**Primary Task:**  
+- **Coordinate Inbound Shipments** – Schedule and receive incoming shipments. Ensure materials are scanned and stored properly.
+
+**Secondary Task:**  
+- **Vendor Communication** – Communicate with suppliers to address delivery delays or damaged goods.
+
+#### **Inbound Employee**  
+**Primary Task:**  
+- **Unload Shipments** – Receive and unload materials, verifying the contents against delivery records.
+
+**Secondary Task:**  
+- **Label and Sort Items** – Label incoming items and sort them by destination within the warehouse.
+
+#### **Sorting Manager**  
+**Primary Task:**  
+- **Optimize Sorting Layout** – Design and adjust sorting lines to minimize movement and time spent handling items.
+
+**Secondary Task:**  
+- **Audit Sort Accuracy** – Randomly check sorted bins for errors and retrain staff if needed.
+
+#### **Sorting Employee**  
+**Primary Task:**  
+- **Sort Packages** – Use scanning tools to sort packages into their designated areas.
+
+**Secondary Task:**  
+- **Clear Backlogs** – Work overtime or in shifts to handle unexpected spikes in incoming items.
+
+#### **Repacking Manager**  
+**Primary Task:**  
+- **Manage Packaging Supplies** – Ensure an adequate supply of boxes, fillers, and labels are available for repacking operations.
+
+**Secondary Task:**  
+- **Quality Check Repacked Items** – Inspect repacked items for damage or improper packing.
+
+#### **Repacking Employee**  
+**Primary Task:**  
+- **Repack Damaged or Mixed Items** – Open and repackage items that were damaged or incorrectly packed.
+
+**Secondary Task:**  
+- **Weigh and Label Boxes** – Ensure accurate weight and shipping labels are applied to repacked goods.
+
+#### **Palletizing Manager**  
+**Primary Task:**  
+- **Plan Pallet Configurations** – Define how boxes are stacked on pallets to optimize space and stability.
+
+**Secondary Task:**  
+- **Check Load Balance** – Ensure that each pallet meets weight and safety standards before shipment.
+
+#### **Palletizing Employee**  
+**Primary Task:**  
+- **Load Boxes onto Pallets** – Physically stack and secure boxes on pallets using strapping tools.
+
+**Secondary Task:**  
+- **Move Finished Pallets** – Transport finished pallets to staging areas using pallet jacks.
+
+#### **Water Spidering Manager**  
+**Primary Task:**  
+- **Create Delivery Routes** – Plan efficient supply routes for water spiders to reduce downtime in production areas.
+
+**Secondary Task:**  
+- **Inventory Checks** – Oversee supply inventory to ensure essential materials are always available.
+
+#### **Water Spidering Employee**  
+**Primary Task:**  
+- **Deliver Supplies** – Bring needed materials (tape, boxes, equipment) to workers on the floor.
+
+**Secondary Task:**  
+- **Remove Full Pallets** – Take full pallets from workstations to the appropriate outbound or staging area.
+
+#### **Fluid Load Manager**  
+**Primary Task:**  
+- **Schedule Load Crews** – Assign load crews to trucks and docks, ensuring manpower is evenly distributed.
+
+**Secondary Task:**  
+- **Inspect Loading Zones** – Monitor safety and efficiency in active truck loading zones.
+
+#### **Fluid Load Employee**  
+**Primary Task:**  
+- **Load Trucks Manually** – Carefully stack boxes by hand into trucks wearing safety gear.
+
+**Secondary Task:**  
+- **Secure Freight** – Use straps and spacers to secure loads and prevent shifting during transit.
+
+#### **Quality Control Manager**  
+**Primary Task:**  
+- **Define QC Protocols** – Set standards and procedures for inspecting items throughout the warehouse.
+
+**Secondary Task:**  
+- **Handle Defect Reports** – Review reports of defective products and decide on disposal or return.
+
+#### **Quality Control Employee**  
+**Primary Task:**  
+- **Inspect Products** – Check items at various stages for damage, expiration, or mislabeling.
+
+**Secondary Task:**  
+- **Document Issues** – Record product defects in the QC system for future audits.
+
+#### **Outbound Manager**  
+**Primary Task:**  
+- **Oversee Shipment Accuracy** – Ensure orders leaving the warehouse match packing slips and are on schedule.
+
+**Secondary Task:**  
+- **Coordinate with Carriers** – Communicate with shipping companies for pickups and special delivery instructions.
+
+#### **Outbound Employee**  
+**Primary Task:**  
+- **Scan and Ship Orders** – Final check and scanning of boxes before loading onto trucks.
+
+**Secondary Task:**  
+- **Organize Staging Area** – Group outgoing shipments for efficient loading and prevent mix-ups.
+
+#### **Maintenance Manager**  
+**Primary Task:**  
+- **Plan Maintenance Schedule** – Organize preventative maintenance routines for all equipment.
+
+**Secondary Task:**  
+- **Order Repair Parts** – Keep track of parts inventory and place orders as needed.
+
+#### **Maintenance Employee**  
+**Primary Task:**  
+- **Fix Equipment** – Perform repairs on forklifts, conveyors, and other warehouse machinery.
+
+**Secondary Task:**  
+- **Emergency Response** – Respond to sudden equipment failures during operations.
+
+#### **Robotics Manager**  
+**Primary Task:**  
+- **Monitor Robotics System** – Oversee robot arm functionality and workflow integrations.
+
+**Secondary Task:**  
+- **Schedule Updates** – Apply firmware or software updates to robotic systems.
+
+#### **Robotics Employee**  
+**Primary Task:**  
+- **Calibrate Robots** – Adjust robot arms for precision stacking and movement.
+
+**Secondary Task:**  
+- **Clean Robot Sensors** – Keep vision systems and sensors clean for accurate operation.
+
+#### **Safety Manager**  
+**Primary Task:**  
+- **Conduct Safety Inspections** – Walk through the warehouse checking for hazards or violations.
+
+**Secondary Task:**  
+- **Organize Drills** – Schedule and lead emergency drills (e.g. fire, spill, earthquake).
+
+#### **Safety Employee**  
+**Primary Task:**  
+- **Log Safety Incidents** – Record accidents, near misses, and unsafe behavior.
+
+**Secondary Task:**  
+- **Distribute Safety Gear** – Hand out and monitor use of gloves, helmets, goggles, etc.
+
+#### **Cleaning Manager**  
+**Primary Task:**  
+- **Plan Cleaning Rotations** – Assign cleaning staff to zones and monitor cleaning frequency.
+
+**Secondary Task:**  
+- **Inspect Cleanliness Levels** – Perform checks to ensure hygiene standards are maintained.
+
+#### **Cleaning Employee**  
+**Primary Task:**  
+- **Clean Designated Zones** – Sweep, mop, and sanitize areas including breakrooms and work floors.
+
+**Secondary Task:**  
+- **Restock Supplies** – Refill soap, paper towels, and cleaning materials.
+
+#### **Security Manager**  
+**Primary Task:**  
+- **Oversee Surveillance** – Monitor security camera footage and investigate suspicious behavior.
+
+**Secondary Task:**  
+- **Set Security Protocols** – Define procedures for access control, lockdowns, and intrusions.
+
+#### **Security Employee**  
+**Primary Task:**  
+- **Perform Patrols** – Regularly check entry points, restricted areas, and exits.
+
+**Secondary Task:**  
+- **Check Badges** – Ensure all personnel have proper ID and restrict unauthorized access.
+
+#### **Learning and Development Manager**  
+**Primary Task:**  
+- **Design Training Programs** – Develop modules for onboarding, promotions, and cross-training.
+
+**Secondary Task:**  
+- **Evaluate Trainee Progress** – Track performance of employees undergoing training.
+
+#### **Learning and Development Employee**  
+**Primary Task:**  
+- **Host Training Sessions** – Conduct sessions on equipment use, safety, or company policy.
+
+**Secondary Task:**  
+- **Assist with Onboarding** – Help new hires complete orientation and paperwork.
