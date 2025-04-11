@@ -7,8 +7,6 @@ public class Department : MonoBehaviour
 {
     public int capacity = 0; // Maximum number of employees that can work in this department
     public string departmentName = null; // Name of the department
-    public List<KeyValuePair<string, int>> stats = null; // Replace Dictionary with List
-    public List<KeyValuePair<string, int>> statTimes = null; // Replace Dictionary with List
     public List<ActionRequest> newActionRequests = new List<ActionRequest>(); // Array of new action requests associated with this department
     public List<ActionRequest> claimedActionRequests = new List<ActionRequest>(); // Array of claimed action requests associated with this department
     public int departmentId = 0; // Unique identifier for the department
@@ -18,6 +16,7 @@ public class Department : MonoBehaviour
     public int managerCapacity = 0; // Maximum number of managers that can work in this department
     public int employeeCapacity = 0; // Maximum number of employees that can work in this department
     public List<Employee> employees = null; // Array of employees in this department
+    public List<Disablers.Disabler> disablers = new List<Disablers.Disabler>(); // Array of disablers associated with this department
     public string ToJson()
     {
         return JsonUtility.ToJson(this);
@@ -26,6 +25,76 @@ public class Department : MonoBehaviour
     public static T FromJson<T>(string json) where T : Department
     {
         return JsonUtility.FromJson<T>(json);
+    }
+
+    public void AddActionRequest(ActionRequest actionRequest)
+    {
+        if (!newActionRequests.Contains(actionRequest))
+        {
+            newActionRequests.Add(actionRequest);
+        }
+    }
+    public void ClaimActionRequest(ActionRequest actionRequest)
+    {
+        if (!claimedActionRequests.Contains(actionRequest))
+        {
+            claimedActionRequests.Add(actionRequest);
+        }
+        if (newActionRequests.Contains(actionRequest))
+        {
+            newActionRequests.Remove(actionRequest);
+        }
+    }
+    public void RemoveActionRequest(ActionRequest actionRequest)
+    {
+        if (claimedActionRequests.Contains(actionRequest))
+        {
+            claimedActionRequests.Remove(actionRequest);
+        }
+        if (newActionRequests.Contains(actionRequest))
+        {
+            claimedActionRequests.Remove(actionRequest);
+        }
+    }
+    public void AddDisabler(Disablers.Disabler disabler)
+    {
+        if (!disablers.Contains(disabler))
+        {
+            disablers.Add(disabler);
+        }
+        if (!Globals.disabledDepartments.Contains(this))
+        {
+            Globals.disabledDepartments.Add(this);
+        }
+    }
+    public void RemoveDisabler(Disablers.Disabler disabler)
+    {
+        if (disablers.Contains(disabler))
+        {
+            disablers.Remove(disabler);
+        }
+        if (disablers.Count == 0 && Globals.disabledDepartments.Contains(this))
+        {
+            Globals.disabledDepartments.Remove(this);
+        }
+    }
+    public void AddEmployee(Employee employee)
+    {
+        if (employees == null)
+        {
+            employees = new List<Employee>();
+        }
+        if (!employees.Contains(employee))
+        {
+            employees.Add(employee);
+        }
+    }
+    public void RemoveEmployee(Employee employee)
+    {
+        if (employees != null && employees.Contains(employee))
+        {
+            employees.Remove(employee);
+        }
     }
 }
 
@@ -37,30 +106,7 @@ public class HR : Department
     {
         departmentName = name;
         capacity = cap;
-        this.stats = stats;
-        statTimes = new List<KeyValuePair<string, int>>
-        {
-            new KeyValuePair<string, int>("Assessment", 5), // Time taken for assessment
-            new KeyValuePair<string, int>("Investigation", 5), // Time taken for investigation
-            new KeyValuePair<string, int>("Analysis", 5), // Time taken for analysis
-            new KeyValuePair<string, int>("Resolution", 5) // Time taken for resolution
-        };
-        if (stats == null)
-        {
-            this.stats = new List<KeyValuePair<string, int>>
-            {
-                new KeyValuePair<string, int>("Assessment", 1),
-                new KeyValuePair<string, int>("Investigation", 1),
-                new KeyValuePair<string, int>("Analysis", 1),
-                new KeyValuePair<string, int>("Resolution", 1)
-            };
-        }
-        else
-        {
-            this.stats = stats;
-        }
     }
-
 
     // Create ticket function
     public void CreateTicket(string ticketType, string description)
@@ -78,28 +124,6 @@ public class IT : Department
     {
         departmentName = name;
         capacity = cap;
-        this.stats = stats;
-        statTimes = new List<KeyValuePair<string, int>>
-        {
-            new KeyValuePair<string, int>("Support", 5), // Time taken for support tasks
-            new KeyValuePair<string, int>("Maintenance", 5), // Time taken for maintenance tasks
-            new KeyValuePair<string, int>("Troubleshooting", 5), // Time taken for troubleshooting
-            new KeyValuePair<string, int>("Upgrades", 5) // Time taken for upgrades
-        };
-        if (stats == null)
-        {
-            this.stats = new List<KeyValuePair<string, int>>
-            {
-                new KeyValuePair<string, int>("Support", 1),
-                new KeyValuePair<string, int>("Maintenance", 1),
-                new KeyValuePair<string, int>("Troubleshooting", 1),
-                new KeyValuePair<string, int>("Upgrades", 1)
-            };
-        }
-        else
-        {
-            this.stats = stats;
-        }
     }
 }
 
@@ -111,28 +135,6 @@ public class Operations : Department
     {
         departmentName = name;
         capacity = cap;
-        this.stats = stats;
-        statTimes = new List<KeyValuePair<string, int>>
-        {
-            new KeyValuePair<string, int>("FlowManagement", 60), // Time taken for flow management tasks
-            new KeyValuePair<string, int>("IssueResolution", 60), // Time taken for issue resolution
-            new KeyValuePair<string, int>("MoraleBoost", 60), // Time taken for morale boosting activities
-            new KeyValuePair<string, int>("Supervision", 60) // Time taken for supervision tasks
-        };
-        if (stats == null)
-        {
-            this.stats = new List<KeyValuePair<string, int>>
-            {
-                new KeyValuePair<string, int>("FlowManagement", 1),
-                new KeyValuePair<string, int>("IssueResolution", 1),
-                new KeyValuePair<string, int>("MoraleBoost", 1),
-                new KeyValuePair<string, int>("Supervision", 1)
-            };
-        }
-        else
-        {
-            this.stats = stats;
-        }
     }
 }
 
@@ -144,26 +146,6 @@ public class Inbound : Department
     {
         departmentName = name;
         capacity = cap;
-        this.stats = stats;
-        statTimes = new List<KeyValuePair<string, int>>
-        {
-            new KeyValuePair<string, int>("Receiving", 60), // Time taken for receiving tasks
-            new KeyValuePair<string, int>("Sorting", 30), // Time taken for sorting tasks
-            new KeyValuePair<string, int>("Throwing", 30) // Time taken for throwing tasks
-        };
-        if (stats == null)
-        {
-            this.stats = new List<KeyValuePair<string, int>>
-            {
-                new KeyValuePair<string, int>("Receiving", 1),
-                new KeyValuePair<string, int>("Sorting", 1),
-                new KeyValuePair<string, int>("Throwing", 1)
-            };
-        }
-        else
-        {
-            this.stats = stats;
-        }
     }
 }
 
@@ -175,20 +157,6 @@ public class Sorting : Department
     {
         departmentName = name;
         capacity = cap;
-        this.stats = stats;
-        statTimes = null; // Sorting department does not have specific time stats for tasks
-        if (stats == null)
-        {
-            this.stats = new List<KeyValuePair<string, int>>
-            {
-                new KeyValuePair<string, int>("Accuracy", 1), // Accuracy of sorting items
-                new KeyValuePair<string, int>("Speed", 1) // Speed of sorting items
-            };
-        }
-        else
-        {
-            this.stats = stats;
-        }
     }
 }
 
@@ -200,26 +168,6 @@ public class Repacking : Department
     {
         departmentName = name;
         capacity = cap;
-        this.stats = stats;
-        statTimes = new List<KeyValuePair<string, int>>
-        {
-            new KeyValuePair<string, int>("PackageOpening", 5), // Time taken for package opening
-            new KeyValuePair<string, int>("ItemSorting", 30), // Time taken for item sorting
-            new KeyValuePair<string, int>("Repackaging", 10) // Time taken for repackaging
-        };
-        if (stats == null)
-        {
-            this.stats = new List<KeyValuePair<string, int>>
-            {
-                new KeyValuePair<string, int>("PackageOpening", 1),
-                new KeyValuePair<string, int>("ItemSorting", 1),
-                new KeyValuePair<string, int>("Repackaging", 1)
-            };
-        }
-        else
-        {
-            this.stats = stats;
-        }
     }
 }
 
@@ -231,30 +179,6 @@ public class Palletizing : Department
     {
         departmentName = name;
         capacity = cap;
-        this.stats = stats;
-        statTimes = new List<KeyValuePair<string, int>>
-        {
-            new KeyValuePair<string, int>("Opening", 10), // Time taken for opening tasks
-            new KeyValuePair<string, int>("Palletizing", 60), // Time taken for palletizing tasks
-            new KeyValuePair<string, int>("Wrapping", 30), // Time taken for wrapping tasks
-            new KeyValuePair<string, int>("Labeling", 10), // Time taken for labeling tasks
-            new KeyValuePair<string, int>("Closing", 10) // Time taken for closing tasks
-        };
-        if (stats == null)
-        {
-            this.stats = new List<KeyValuePair<string, int>>
-            {
-                new KeyValuePair<string, int>("Opening", 1),
-                new KeyValuePair<string, int>("Palletizing", 1), // Putting boxes into pallets
-                new KeyValuePair<string, int>("Wrapping", 1),
-                new KeyValuePair<string, int>("Labeling", 1),
-                new KeyValuePair<string, int>("Closing", 1)
-            };
-        }
-        else
-        {
-            this.stats = stats;
-        }
     }
 }
 
@@ -266,26 +190,6 @@ public class WaterSpidering : Department
     {
         departmentName = name;
         capacity = cap;
-        this.stats = stats;
-        statTimes = new List<KeyValuePair<string, int>>
-        {
-            new KeyValuePair<string, int>("Delivery", 5), // Time taken for delivery tasks
-            new KeyValuePair<string, int>("Restocking", 5), // Time taken for restocking tasks
-            new KeyValuePair<string, int>("InventoryCheck", 5) // Time taken for inventory check tasks
-        };
-        if (stats == null)
-        {
-            this.stats = new List<KeyValuePair<string, int>>
-            {
-                new KeyValuePair<string, int>("Delivery", 1),
-                new KeyValuePair<string, int>("Restocking", 1),
-                new KeyValuePair<string, int>("InventoryCheck", 1)
-            };
-        }
-        else
-        {
-            this.stats = stats;
-        }
     }
 }
 
@@ -297,32 +201,6 @@ public class FluidLoad : Department
     {
         departmentName = name;
         capacity = cap;
-        this.stats = stats;
-        statTimes = new List<KeyValuePair<string, int>>
-        {
-            new KeyValuePair<string, int>("DoorOpening", 5), // Time taken for door opening
-            new KeyValuePair<string, int>("FluidLoading", 60), // Time taken for fluid loading
-            new KeyValuePair<string, int>("WallChecking", 5), // Time taken for wall checking
-            new KeyValuePair<string, int>("DoorClosing", 5), // Time taken for door closing
-            new KeyValuePair<string, int>("TruckDeparting", 10), // Time taken for truck departing
-            new KeyValuePair<string, int>("TruckArriving", 10) // Time taken for truck arriving
-        };
-        if (stats == null)
-        {
-            this.stats = new List<KeyValuePair<string, int>>
-            {
-                new KeyValuePair<string, int>("DoorOpening", 1),
-                new KeyValuePair<string, int>("FluidLoading", 1),
-                new KeyValuePair<string, int>("WallChecking", 1),
-                new KeyValuePair<string, int>("DoorClosing", 1),
-                new KeyValuePair<string, int>("TruckDeparting", 1),
-                new KeyValuePair<string, int>("TruckArriving", 1)
-            };
-        }
-        else
-        {
-            this.stats = stats;
-        }
     }
 }
 
@@ -334,26 +212,6 @@ public class QualityControl : Department
     {
         departmentName = name;
         capacity = cap;
-        this.stats = stats;
-        statTimes = new List<KeyValuePair<string, int>>
-        {
-            new KeyValuePair<string, int>("Inspection", 5), // Time taken for inspection tasks
-            new KeyValuePair<string, int>("Testing", 5), // Time taken for testing tasks
-            new KeyValuePair<string, int>("Reporting", 5) // Time taken for reporting tasks
-        };
-        if (stats == null)
-        {
-            this.stats = new List<KeyValuePair<string, int>>
-            {
-                new KeyValuePair<string, int>("Inspection", 1),
-                new KeyValuePair<string, int>("Testing", 1),
-                new KeyValuePair<string, int>("Reporting", 1)
-            };
-        }
-        else
-        {
-            this.stats = stats;
-        }
     }
 }
 
@@ -365,32 +223,6 @@ public class Outbound : Department
     {
         departmentName = name;
         capacity = cap;
-        this.stats = stats;
-        statTimes = new List<KeyValuePair<string, int>>
-        {
-            new KeyValuePair<string, int>("DoorOpening", 5), // Time taken for door opening
-            new KeyValuePair<string, int>("DockLoading", 30), // Time taken for fluid loading
-            new KeyValuePair<string, int>("LoadSecurement", 5), // Time taken for wall checking
-            new KeyValuePair<string, int>("DoorClosing", 5), // Time taken for door closing
-            new KeyValuePair<string, int>("TruckDeparting", 10), // Time taken for truck departing
-            new KeyValuePair<string, int>("TruckArriving", 10) // Time taken for truck arriving
-        };
-        if (stats == null)
-        {
-            this.stats = new List<KeyValuePair<string, int>>
-            {
-                new KeyValuePair<string, int>("DoorOpening", 1),
-                new KeyValuePair<string, int>("DockLoading", 1),
-                new KeyValuePair<string, int>("LoadSecurement", 1),
-                new KeyValuePair<string, int>("DoorClosing", 1),
-                new KeyValuePair<string, int>("TruckDeparting", 1),
-                new KeyValuePair<string, int>("TruckArriving", 1)
-            };
-        }
-        else
-        {
-            this.stats = stats;
-        }
     }
 }
 
@@ -402,26 +234,6 @@ public class Maintenance : Department
     {
         departmentName = name;
         capacity = cap;
-        this.stats = stats;
-        statTimes = new List<KeyValuePair<string, int>>
-        {
-            new KeyValuePair<string, int>("Inspection", 10), // Time taken for inspection tasks
-            new KeyValuePair<string, int>("Repair", 30), // Time taken for repair tasks
-            new KeyValuePair<string, int>("Maintenance", 30) // Time taken for maintenance tasks
-        };
-        if (stats == null)
-        {
-            this.stats = new List<KeyValuePair<string, int>>
-            {
-                new KeyValuePair<string, int>("Inspection", 1),
-                new KeyValuePair<string, int>("Repair", 1),
-                new KeyValuePair<string, int>("Maintenance", 1)
-            };
-        }
-        else
-        {
-            this.stats = stats;
-        }
     }
 }
 
@@ -433,30 +245,6 @@ public class Robotics : Department
     {
         departmentName = name;
         capacity = cap;
-        this.stats = stats;
-        statTimes = new List<KeyValuePair<string, int>>
-        {
-            new KeyValuePair<string, int>("Scan", 2),
-            new KeyValuePair<string, int>("Sort", 2),
-            new KeyValuePair<string, int>("Placement", 2),
-            new KeyValuePair<string, int>("Reset", 1),
-            new KeyValuePair<string, int>("PalletSwap", 10)
-        };
-        if (stats == null)
-        {
-            this.stats = new List<KeyValuePair<string, int>>
-            {
-                new KeyValuePair<string, int>("Scan", 1),
-                new KeyValuePair<string, int>("Sort", 1),
-                new KeyValuePair<string, int>("Placement", 1),
-                new KeyValuePair<string, int>("Reset", 1),
-                new KeyValuePair<string, int>("PalletSwap", 1)
-            };
-        }
-        else
-        {
-            this.stats = stats;
-        }
     }
 }
 
@@ -468,26 +256,6 @@ public class Safety : Department
     {
         departmentName = name;
         capacity = cap;
-        this.stats = stats;
-        statTimes = new List<KeyValuePair<string, int>>
-        {
-            new KeyValuePair<string, int>("Inspection", 5), // Time taken for inspection tasks
-            new KeyValuePair<string, int>("Response", 30), // Time taken for training tasks
-            new KeyValuePair<string, int>("Treatment", 60) // Time taken for reporting tasks
-        };
-        if (stats == null)
-        {
-            this.stats = new List<KeyValuePair<string, int>>
-            {
-                new KeyValuePair<string, int>("Inspection", 1),
-                new KeyValuePair<string, int>("Response", 1),
-                new KeyValuePair<string, int>("Treatment", 1)
-            };
-        }
-        else
-        {
-            this.stats = stats;
-        }
     }
 }
 
@@ -499,24 +267,6 @@ public class Cleaning : Department
     {
         departmentName = name;
         capacity = cap;
-        this.stats = stats;
-        statTimes = new List<KeyValuePair<string, int>>
-        {
-            new KeyValuePair<string, int>("Inspection", 5), // Time taken for inspection tasks
-            new KeyValuePair<string, int>("Cleaning", 30) // Time taken for cleaning tasks
-        };
-        if (stats == null)
-        {
-            this.stats = new List<KeyValuePair<string, int>>
-            {
-                new KeyValuePair<string, int>("Inspection", 1),
-                new KeyValuePair<string, int>("Cleaning", 1)
-            };
-        }
-        else
-        {
-            this.stats = stats;
-        }
     }
 }
 
@@ -528,28 +278,6 @@ public class Security : Department
     {
         departmentName = name;
         capacity = cap;
-        this.stats = stats;
-        statTimes = new List<KeyValuePair<string, int>>
-        {
-            new KeyValuePair<string, int>("Inspection", 5), // Time taken for inspection tasks
-            new KeyValuePair<string, int>("Monitoring", 30), // Time taken for monitoring tasks
-            new KeyValuePair<string, int>("Response", 30), // Time taken for response tasks
-            new KeyValuePair<string, int>("Resolution", 30) // Time taken for resolution tasks
-        };
-        if (stats == null)
-        {
-            this.stats = new List<KeyValuePair<string, int>>
-            {
-                new KeyValuePair<string, int>("Inspection", 1),
-                new KeyValuePair<string, int>("Monitoring", 1),
-                new KeyValuePair<string, int>("Response", 1),
-                new KeyValuePair<string, int>("Resolution", 1)
-            };
-        }
-        else
-        {
-            this.stats = stats;
-        }
     }
 }
 
@@ -561,29 +289,16 @@ public class LearningAndDevelopment : Department
     {
         departmentName = name;
         capacity = cap;
-        this.stats = stats;
-        statTimes = new List<KeyValuePair<string, int>>
-        {
-            new KeyValuePair<string, int>("Onboarding", 360),
-            new KeyValuePair<string, int>("Training", 180), // Time taken for training tasks
-            new KeyValuePair<string, int>("Assessment", 60), // Time taken for assessment tasks
-            new KeyValuePair<string, int>("Feedback", 30), // Time taken for feedback tasks
-            new KeyValuePair<string, int>("Retraining", 90) // Time taken for retraining tasks
-        };
-        if (stats == null)
-        {
-            this.stats = new List<KeyValuePair<string, int>>
-            {
-                new KeyValuePair<string, int>("Onboarding", 1),
-                new KeyValuePair<string, int>("Training", 1),
-                new KeyValuePair<string, int>("Assessment", 1),
-                new KeyValuePair<string, int>("Feedback", 1),
-                new KeyValuePair<string, int>("Retraining", 1)
-            };
-        }
-        else
-        {
-            this.stats = stats;
-        }
+    }
+}
+
+[Serializable]
+public class Recruiting : Department
+{
+    public Recruiting() { }
+    public Recruiting(string name, int cap, List<KeyValuePair<string, int>> stats = null)
+    {
+        departmentName = name;
+        capacity = cap;
     }
 }

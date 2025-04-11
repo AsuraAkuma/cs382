@@ -19,6 +19,7 @@ public class DepartmentTypes
         Cleaning, // Cleaning Department
         Security,  // Security Department
         LearningAndDevelopment, // Learning and Development Department
+        Recruiting, // Recruiting Department
         None
     }
     public static string GetDepartmentName(Type departmentType)

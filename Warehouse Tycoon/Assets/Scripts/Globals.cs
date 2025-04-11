@@ -16,14 +16,14 @@ public class Globals
     public static int warehouselevel;
     public static int warehouseValue;
     public static int warehouseExp;
-    public static int warehouseEmployeeCount;
     public static List<Employee> warehouseEmployees; // Array of employees in the warehouse
-    public static List<Employee> newHires; // Array of new hires in the warehouse
-    public static int newHireCount; // Number of new hires in the warehouse
     public static int warehouseMaxEmployees; // Maximum number of employees allowed in the warehouse
+    // HR data
+    public static List<Employee> newHires; // Array of new hires in the warehouse
     // Department data
     public static List<Department> departments; // Array of departments in the warehouse
     public static int departmentCount; // Number of departments in the warehouse
+    public static List<Department> disabledDepartments; // Departments that are currently disabled
     // Player data
     public static int playerId;
     public static string playerName = "Guest"; // Default player name
@@ -33,6 +33,11 @@ public class Globals
     public static double playerMoney = 0; // Amount of money the player has
     public static double playerMaxMoney = 99999999999; // Maximum amount of money the player can have
     public static int playerMaxLevel = 100; // Maximum level the player can reach
+    public static float employeeStatMax = 6f; // Maximum value for employee stats
+    public static float employeeStatMin = 1f; // Minimum value for employee stats
+    public static float employeeStatUpgradeValue = 0.5f; // Multiplier for employee stats
+    public static float employeeStatUpgradeCost = 1000f; // Cost to upgrade employee stats
+    public static float employeeMaxLevel = 10f; // Maximum level for employees
     public IEnumerator Save()
     {
         // Create a JSON object with the data to send
@@ -43,14 +48,24 @@ public class Globals
             warehouselevel,
             warehouseValue,
             warehouseExp,
-            warehouseEmployeeCount,
             warehouseMaxEmployees,
             playerId,
             playerName,
             playerLevel,
             playerExp,
             departments,
-            warehouseEmployees
+            warehouseEmployees,
+            newHires,
+            playerMoney,
+            playerMaxMoney,
+            playerMaxLevel,
+            employeeStatMax,
+            employeeStatMin,
+            employeeStatUpgradeValue,
+            employeeStatUpgradeCost,
+            employeeMaxLevel,
+            gameState,
+            disabledDepartments = new List<Department>() // Initialize disabledDepartments as an empty list
         };
 
         // Convert the data to JSON

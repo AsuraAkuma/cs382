@@ -172,6 +172,14 @@
 - **Motivation** – Increases the likelihood that employees will complete training and improve their skills. 
     - **Affected Stats** - (Stamina, Experience)  
 
+#### **Recruiting**  
+- **Talent Scouting** – Increases the likelihood of finding high-quality candidates for open positions.  
+    - **Affected Stats** - (Focus, Efficiency)  
+- **Interviewing Skills** – Improves the ability to assess candidates accurately during interviews.  
+    - **Affected Stats** - (Focus, Experience)  
+- **Onboarding Efficiency** – Speeds up the process of integrating new hires into the company.  
+    - **Affected Stats** - (Efficiency, Speed)  
+
 ### **Manager Department-Specific Stats**
 
 #### **HR Manager**  
@@ -310,6 +318,14 @@
 - **Upskilling Strategy** – Identifies and implements skill growth opportunities.  
   - **Affected Stats** – (Efficiency, Experience)  
 
+#### **Recruiting Manager**  
+- **Candidate Pipeline Management** – Ensures a steady flow of qualified candidates for open positions.  
+  - **Affected Stats** – (Efficiency, Focus)  
+- **Interview Oversight** – Improves the accuracy and effectiveness of the interview process.  
+  - **Affected Stats** – (Focus, Experience)  
+- **Onboarding Strategy** – Optimizes the onboarding process to integrate new hires quickly and effectively.  
+  - **Affected Stats** – (Efficiency, Speed)  
+
 ### Traits / Modifiers  
 
 #### **HR (Human Resources)**  
@@ -447,6 +463,14 @@
     - **Primary Stat Bonus**: +10% Efficiency (Better knowledge sharing)
 - **Motivational Speaker** – Increases employee engagement in training, leading to faster progress.
     - **Primary Stat Bonus**: +10% Stamina (Higher training endurance)
+
+#### **Recruiting**  
+- **Talent Magnet** – Increases the likelihood of attracting high-quality candidates for open positions.  
+    - **Primary Stat Bonus**: +15% Focus (Better candidate identification)  
+- **Charismatic Interviewer** – Improves the success rate of interviews, ensuring better hires.  
+    - **Primary Stat Bonus**: +10% Experience (More accurate candidate evaluation)  
+- **Efficient Onboarder** – Speeds up the onboarding process, reducing downtime for new hires.  
+    - **Primary Stat Bonus**: +10% Efficiency (Faster integration of new employees)  
 
 ### Department Specific Actions
 
@@ -687,3 +711,23 @@
 
 **Secondary Task:**  
 - **Assist with Onboarding** – Help new hires complete orientation and paperwork.
+
+#### **Recruiting**  
+**Primary Task:**  
+- **New Hire Search** – Search for, create, new hires adding them to the newHire list.
+
+**Secondary Task:**  
+- **Career Fair** – Attend career fairs to find hot talent.
+
+# Notes
+## Action Requests
+**Structure:**
+- id (int) - A number used for database indexing
+- employee (Employee) - The employee tasked with the request
+- Task (Department.statTimes) - A single task from the departments statTimes list
+- status (StatusType) - The current status of the task
+## Employees
+- tasks (List< ActionRequest >) - List of ActionRequests that are used for primaryAction()
+- SecondaryAction() - Uses claimedActionRequests that have the status of ActionRequest.StatusType.Completed to review and gain xp
+## Manager
+- SecondaryAction() - Reviews claimedActionRequests to find failed requests, then moves them to newActionRequests to be reassigned
