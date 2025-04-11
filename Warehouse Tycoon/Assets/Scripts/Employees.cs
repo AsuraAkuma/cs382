@@ -30,7 +30,7 @@ public class Employee : MonoBehaviour
     public float stateTimer = 0f; // Timer for current state
     public float workInterval = 0.5f; // How often to update work state
     public float restInterval = 1f; // How often to update rest state
-
+    public int infractions = 0; // Number of infractions the employee has received
     // Department-specific stats
     // HR Department
     public float empathy;           // Increases morale and reduces turnover

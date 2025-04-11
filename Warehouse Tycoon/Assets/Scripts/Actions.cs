@@ -7,6 +7,7 @@ public class Actions : MonoBehaviour
 {
     public class HR
     {
+        // General actions
         public IEnumerator RaiseEmployeeLevel(Employee employee)
         {
             if (employee == null)
@@ -284,7 +285,8 @@ public class Actions : MonoBehaviour
             }
             yield break;
         }
-        public IEnumerator ReportInjury(Employee employee, Employee injuredEmployee)
+        // Disabler actions
+        public IEnumerator DocumentInjury(Employee employee, Employee injuredEmployee)
         {
             if (employee == null)
             {
@@ -295,13 +297,33 @@ public class Actions : MonoBehaviour
                 throw new System.ArgumentNullException(nameof(injuredEmployee), "Injured employee cannot be null.");
             }
             // Get disabler for injury in department
-            Disablers.Disabler injuryDisabler = injuredEmployee.department.disablers.FirstOrDefault(d => d.name == Disablers.injury.name);
+            Disablers.Disabler injuryDisabler = injuredEmployee.department.disablers.FirstOrDefault(d => d.name == Disablers.Employee.injury.name);
             if (injuryDisabler.Equals(default(Disablers.Disabler)))
             {
                 Debug.Log($"HR Manager {employee.employeeName} found no injury disabler in the department.");
                 yield break;
             }
             Debug.Log($"HR Manager {employee.employeeName} is reporting an injury for {injuredEmployee.employeeName}.");
+            yield break;
+        }
+        public IEnumerator DocumentMisconduct(Employee employee, Employee misconductEmployee)
+        {
+            if (employee == null)
+            {
+                throw new System.ArgumentNullException(nameof(employee), "Employee cannot be null.");
+            }
+            if (misconductEmployee == null)
+            {
+                throw new System.ArgumentNullException(nameof(misconductEmployee), "Misconduct employee cannot be null.");
+            }
+            // Get disabler for employee misconduct in department
+            Disablers.Disabler misconductDisabler = misconductEmployee.department.disablers.FirstOrDefault(d => d.name == Disablers.Employee.employeeMisconduct.name);
+            if (misconductDisabler.Equals(default(Disablers.Disabler)))
+            {
+                Debug.Log($"HR Manager {employee.employeeName} found no misconduct disabler in the department.");
+                yield break;
+            }
+            Debug.Log($"HR Manager {employee.employeeName} is reporting misconduct for {misconductEmployee.employeeName}.");
             yield break;
         }
         //    Idle action
@@ -316,7 +338,10 @@ public class Actions : MonoBehaviour
             yield break;
         }
     }
+    public class IT
+    {
 
+    }
 }
 
 struct DepartmentIndex

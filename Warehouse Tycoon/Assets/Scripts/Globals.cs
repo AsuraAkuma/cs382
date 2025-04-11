@@ -38,6 +38,7 @@ public class Globals
     public static float employeeStatUpgradeValue = 0.5f; // Multiplier for employee stats
     public static float employeeStatUpgradeCost = 1000f; // Cost to upgrade employee stats
     public static float employeeMaxLevel = 10f; // Maximum level for employees
+    public static int employeeInfractionMax = 3; // Maximum number of infractions for employees
     public IEnumerator Save()
     {
         // Create a JSON object with the data to send
