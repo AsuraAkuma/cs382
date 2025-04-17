@@ -139,7 +139,7 @@
     border-right-width: 2px;
 }
 
-/* .departmentManagerImg {
+.departmentManagerImg {
     flex-grow: 1;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
@@ -159,7 +159,7 @@
     margin-left: 5%;
     height: 100%; 
     min-height: 50px; 
-} */
+}
 
 .departmentManagerContainer {
     flex-grow: 1;
