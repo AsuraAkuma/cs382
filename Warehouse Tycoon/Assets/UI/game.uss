@@ -1,0 +1,225 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.body {
+    flex-grow: 1;
+    width: 100%;
+    max-height: 100%;
+    height: 100%;
+}
+
+.header {
+    flex-grow: 1;
+    max-height: 7%;
+    height: 7%;
+    width: 100%;
+    flex-direction: row;
+    background-color: rgb(46, 46, 46);
+}
+
+.headerLabel {
+    color: rgb(255, 255, 255);
+    font-size: 250%;
+    -unity-text-align: middle-left;
+    left: 1%;
+    width: 25%;
+}
+
+.upgradeHeader {
+}
+
+.upgradeContainer {
+    flex-grow: 1;
+    width: 90%;
+    max-height: none;
+    left: 5%;
+    top: auto;
+    background-color: rgb(31, 31, 31);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    flex-direction: row;
+    margin-top: 4%;
+    height: auto;
+    padding-top: 0;
+    padding-bottom: 0;
+    min-height: 60px;
+}
+
+.upgradeLevel {
+    width: 25%;
+    height: 100%;
+    max-height: 100%;
+    bottom: 0;
+    min-height: 100%;
+    color: rgb(255, 255, 255);
+    -unity-text-align: middle-center;
+    font-size: 150%;
+}
+
+.upgradeName {
+    width: 50%;
+    border-right-color: rgb(255, 255, 255);
+    border-right-width: 2px;
+    height: 100%;
+    max-height: 100%;
+    bottom: 0;
+    min-height: 100%;
+    color: rgb(255, 255, 255);
+    -unity-text-align: middle-center;
+    border-left-color: rgb(255, 255, 255);
+    border-left-width: 2px;
+    font-size: 200%;
+}
+
+.canUpgrade {
+    color: rgb(59, 255, 0); /* Ensure only one definition exists */
+}
+
+.cannotUpgrade {
+    color: rgb(255, 0, 0);
+}
+
+.upgradeList {
+    max-height: 100%;
+    height: 100%;
+    min-height: 10px; /* Added fallback to prevent height of 0 */
+}
+
+.department {
+    flex-grow: 1;
+    width: 95%;
+    left: 2.5%;
+    max-height: 30%;
+    min-height: 10px; /* Added fallback to prevent height of 0 */
+    margin-top: 2.5%;
+    background-color: rgb(46, 46, 46);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(255, 141, 0);
+    border-right-color: rgb(255, 141, 0);
+    border-top-color: rgb(255, 141, 0);
+    border-bottom-color: rgb(255, 141, 0);
+}
+
+.departmentHeader {
+    flex-grow: 1;
+    border-bottom-color: rgb(255, 255, 255);
+    border-bottom-width: 2px;
+    width: 100%;
+    max-height: 15%;
+    min-height: 10px; /* Added fallback to prevent height of 0 */
+}
+
+.departmentHeaderLabel {
+    width: 20%;
+    max-height: 100%;
+    height: 100%;
+    color: rgb(255, 255, 255);
+    font-size: 150%;
+    -unity-font-style: normal;
+    -unity-text-align: middle-center;
+}
+
+.departmentManager {
+    flex-grow: 1;
+    width: 20%;
+    height: 100%;
+    max-height: 100%;
+    border-right-color: rgb(255, 255, 255);
+    border-right-width: 2px;
+}
+
+/* .departmentManagerImg {
+    flex-grow: 1;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-left-color: rgb(255, 141, 0);
+    border-right-color: rgb(255, 141, 0);
+    border-top-color: rgb(255, 141, 0);
+    border-bottom-color: rgb(255, 141, 0);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    width: auto;
+    max-height: 100%;
+    max-width: 70%;
+    margin-left: 5%;
+    height: 100%; 
+    min-height: 50px; 
+} */
+
+.departmentManagerContainer {
+    flex-grow: 1;
+    flex-direction: row;
+    max-height: 80%;
+    top: auto;
+    margin-top: 5%;
+}
+
+.departmentManagerButtons {
+    flex-grow: 1;
+    width: auto;
+    max-width: 15%;
+    margin-left: 5%;
+}
+
+.departmentManagerButtonUp {
+    background-color: rgb(31, 31, 31);
+    /* Uncomment the line below if the background image is needed */
+    /* background-image: url("project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=1169890249420208065&guid=52ad37434abc04c4a89313c780229724&type=3#arrow-up"); */
+    min-height: 4%;
+    width: 100%;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    top: 32.5%;
+}
+
+.departmentManagerButtonDown {
+    background-color: rgb(31, 31, 31);
+    min-height: 4%;
+    width: 100%;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    top: 60%;
+}
+
+/* Add additional styling for UI elements needing explicit dimensions */
+.headerButton {
+    min-height: 20px;
+    height: auto;
+}
+
+.departmentEmployeeList {
+    min-height: 10px;
+    height: auto;
+    flex-grow: 1;
+}
+
+.departmentStats {
+    min-height: 20px;
+    height: auto;
+    flex-grow: 1;
+}
+
+/* Fix for potential texture-related issues */
+.unity-builder-viewport {
+    min-height: 1px;
+    min-width: 1px;
+}

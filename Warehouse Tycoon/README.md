@@ -720,14 +720,12 @@
 - **Career Fair** – Attend career fairs to find hot talent.
 
 # Notes
-## Action Requests
-**Structure:**
-- id (int) - A number used for database indexing
-- employee (Employee) - The employee tasked with the request
-- Task (Department.statTimes) - A single task from the departments statTimes list
-- status (StatusType) - The current status of the task
-## Employees
-- tasks (List< ActionRequest >) - List of ActionRequests that are used for primaryAction()
-- SecondaryAction() - Uses claimedActionRequests that have the status of ActionRequest.StatusType.Completed to review and gain xp
-## Manager
-- SecondaryAction() - Reviews claimedActionRequests to find failed requests, then moves them to newActionRequests to be reassigned
+## Notifications
+- Create notification function and queue
+- Add notification calls to functions when something happens
+
+# UI Colors
+- Gray - #2E2E2E
+- DarkGray - #1F1F1F
+- Green - #3BFF00
+- Orange - #FF8D00

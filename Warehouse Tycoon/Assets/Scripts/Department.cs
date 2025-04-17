@@ -96,6 +96,11 @@ public class Department : MonoBehaviour
             employees.Remove(employee);
         }
     }
+
+    void Start()
+    {
+        Debug.Log("Department Start() called for " + departmentName);
+    }
 }
 
 [Serializable]

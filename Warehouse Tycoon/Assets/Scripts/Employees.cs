@@ -31,6 +31,9 @@ public class Employee : MonoBehaviour
     public float workInterval = 0.5f; // How often to update work state
     public float restInterval = 1f; // How often to update rest state
     public int infractions = 0; // Number of infractions the employee has received
+    public List<Disablers.Disabler> disablers = new List<Disablers.Disabler>(); // List of disablers affecting the employee
+    public List<ActionRequest> actionRequests = new List<ActionRequest>(); // List of action requests associated with the employee
+
     // Department-specific stats
     // HR Department
     public float empathy;           // Increases morale and reduces turnover
@@ -210,6 +213,8 @@ public class Employee : MonoBehaviour
     public float interviewOversight; // Ensures interview quality
     public float onboardingStrategy; // Improves new hire integration
 
+
+
     // Constructor to initialize an Employee object
     public Employee()
     {
@@ -357,14 +362,12 @@ public class Employee : MonoBehaviour
         interviewOversight = employee.interviewOversight;
         onboardingStrategy = employee.onboardingStrategy;
     }
-    public Employee(int id, string name, int level, int exp, int salary, int departmentId)
+    public Employee(string name, int level, int exp, int salary)
     {
-        this.id = id;
         employeeName = name;
         this.level = level;
         this.exp = exp;
         this.salary = salary;
-        this.departmentId = departmentId;
 
         // Initialize core stats with default values
         speed = 1f;
@@ -581,38 +584,111 @@ public class Employee : MonoBehaviour
     }
     public void PrimaryAction()
     {
-        Debug.Log("No primary action defined for this employee type.");
+        ActionRequest actionRequest = department.newActionRequests[0];
+        StartCoroutine(HandleRequestSequence(actionRequest));
     } // Placeholder for primary action
     public void SecondaryAction()
     {
-        Debug.Log("No secondary action defined for this employee type.");
-    } // Placeholder for secondary action
+        if (actionState != ActionState.State.Idle)
+        {
+            Debug.Log($"Employee {employeeName} is busy with another action.");
+            return;
+        }
+        Debug.Log($"Employee {employeeName} is performing a secondary action.");
+        // Check for claimedActionRequests in the department
+        if (department.claimedActionRequests.Count == 0)
+        {
+            Debug.Log($"Employee {employeeName} has no claimed action requests to review.");
+            return;
+        }
+        // Get all claimedActionRequests from the department that have the status of "completed"
+        List<ActionRequest> completedRequests = department.claimedActionRequests.Where(request => request.status == ActionRequest.StatusType.Type.Completed).ToList();
+        // Give experience points based on completedRequests count
+        int experiencePoints = completedRequests.Count * 5;
+        // Update employee experience and check for level up
+        AddExperience(experiencePoints);
+        // Delete the completed requests from the department
+        foreach (ActionRequest request in completedRequests)
+        {
+            department.claimedActionRequests.Remove(request);
+        }
+        Debug.Log($"Employee {employeeName} has reviewed and cleared {completedRequests.Count} completed action requests.");
+    }
     public void CancelAction()
     {
-        Debug.Log("No action to cancel for this employee type.");
-    } // Placeholder for cancel action
+        if (actionState != ActionState.State.Idle)
+        {
+            Debug.Log($"Employee {employeeName} has canceled the current action.");
+            // Check for a action request
+            ActionRequest actionRequest = actionRequests.FirstOrDefault();
+            actionRequest.status = ActionRequest.StatusType.Type.Pending; // Set status to canceled
+            StopAllCoroutines(); // Stop all ongoing actions
+            actionState = ActionState.State.Idle; // Set state to idle
+        }
+        else
+        {
+            Debug.Log($"Employee {employeeName} is not currently working on any action.");
+        }
+    }
+    IEnumerator HandleRequestSequence(ActionRequest actionRequest)
+    {
+        actionState = ActionState.State.Working;
+        actionRequest.status = ActionRequest.StatusType.Type.InProgress;
+        yield return StartCoroutine(actionRequest.action);
+        // generate random number for success rate
+        bool successful = Random.Range(1, 101) <= GetStatAverage() * 100;
+        if (successful)
+        {
+            actionRequest.status = ActionRequest.StatusType.Type.Completed;
+            actionRequests.Remove(actionRequest); // Remove the action request from the employee's list
+            department.claimedActionRequests.Add(actionRequest); // Add the action request to the department's claimed list
+            Debug.Log($"Employee {employeeName} successfully completed the action request.");
+            // Update employee experience based on the action request
+            AddExperience(10); // Example experience points for completing an action request
+        }
+        else
+        {
+            actionRequest.status = ActionRequest.StatusType.Type.Failed;
+            Debug.Log($"Employee {employeeName} failed the action request.");
+            // Update employee experience based on the action request
+            AddExperience(5); // Example experience points for completing an action request
+        }
+        actionState = ActionState.State.Idle;
+    }
+    public void AddDisabler(Disablers.Disabler disabler)
+    {
+        if (!disablers.Contains(disabler))
+        {
+            disablers.Add(disabler);
+        }
+    }
+    public void RemoveDisabler(Disablers.Disabler disabler)
+    {
+        if (disablers.Contains(disabler))
+        {
+            disablers.Remove(disabler);
+        }
+    }
 }
-
-// Dept. Employees
-public class HREmployee : Employee
+public class Manager : Employee
 {
-    public HREmployee() { } // Default constructor
-    public HREmployee(Employee existingEmployee) : base(existingEmployee) { }
+    public Manager() { } // Default constructor
+    public Manager(Employee existingEmployee) : base(existingEmployee) { }
     public new float GetStamina()
     {
-        return Mathf.Min(2f, stamina + empathy + combinedTraits.stamina);
+        return Mathf.Min(2f, stamina + combinedTraits.stamina);
     }
     public new float GetEfficiency()
     {
-        return Mathf.Min(2f, efficiency + conflictResolution + empathy + recruiting + combinedTraits.efficiency);
+        return Mathf.Min(2f, efficiency + combinedTraits.efficiency);
     }
     public new float GetFocus()
     {
-        return Mathf.Min(2f, focus + conflictResolution + combinedTraits.focus);
+        return Mathf.Min(2f, focus + combinedTraits.focus);
     }
     public new float GetExperience()
     {
-        return Mathf.Min(2f, experience + recruiting + combinedTraits.experience);
+        return Mathf.Min(2f, experience + combinedTraits.experience);
     }
     public new float GetSpeed()
     {
@@ -622,2659 +698,520 @@ public class HREmployee : Employee
     {
         return Mathf.Min(2f, strength + combinedTraits.strength);
     }
-
     public new void PrimaryAction()
     {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"HR Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"HR Employee {employeeName} is performing a primary action.");
-        // Check if there are any action requests available in the department
-        if (department.newActionRequests.Count == 0)
-        {
-            Debug.Log($"HR Employee {employeeName} has no action requests to handle.");
-            return;
-        }
-        // Get the first action request from the department
-        ActionRequest actionRequest = department.newActionRequests[0];
-        StartCoroutine(HandleTicketSequence(actionRequest));
+        Debug.Log($"Manager {employeeName} is performing a secondary action.");
+        StartCoroutine(HandleAssigningSequence());
     }
 
     public new void SecondaryAction()
     {
         if (actionState != ActionState.State.Idle)
         {
-            Debug.Log($"HR Employee {employeeName} is busy with another action.");
+            Debug.Log($"Manager {employeeName} is busy with another action.");
             return;
         }
-        Debug.Log($"HR Employee {employeeName} is performing a secondary action.");
+        Debug.Log($"Manager {employeeName} is performing a secondary action.");
         // Check for claimedActionRequests in the department
         if (department.claimedActionRequests.Count == 0)
         {
-            Debug.Log($"HR Employee {employeeName} has no claimed action requests to review.");
+            Debug.Log($"Manager {employeeName} has no claimed action requests to review.");
             return;
         }
-        // Give experience points based on claimedActionRequests count
-        int experiencePoints = department.claimedActionRequests.Count * 5;
-        // Update employee experience and check for level up
-        AddExperience(experiencePoints);
-        // Clear claimedActionRequests after review
-        department.claimedActionRequests.Clear();
+        // Get all claimedActionRequests from the department that have the status of "failed"
+        List<ActionRequest> failedRequests = department.claimedActionRequests.Where(request => request.status == ActionRequest.StatusType.Type.Failed).ToList();
+        // Reset all failed requests to "pending" status
+        foreach (ActionRequest request in failedRequests)
+        {
+            request.status = ActionRequest.StatusType.Type.Pending;
+            Debug.Log($"Manager {employeeName} has reset the status of an action request to pending.");
+        }
+        // Clear the failed requests from the department
+        foreach (ActionRequest request in failedRequests)
+        {
+            department.claimedActionRequests.Remove(request);
+        }
+        // Add failed requests back to newActionRequests
+        foreach (ActionRequest request in failedRequests)
+        {
+            department.newActionRequests.Add(request);
+        }
+        Debug.Log($"Manager {employeeName} has reviewed and reset {failedRequests.Count} failed action requests.");
     }
-
     public new void CancelAction()
     {
         if (actionState != ActionState.State.Idle)
         {
-            Debug.Log($"HR Employee {employeeName} has canceled the current action.");
+            Debug.Log($"Manager {employeeName} has canceled the current action.");
             StopAllCoroutines(); // Stop all ongoing actions
             actionState = ActionState.State.Idle; // Set state to idle
         }
         else
         {
-            Debug.Log($"HR Employee {employeeName} is not currently working on any action.");
+            Debug.Log($"Manager {employeeName} is not currently working on any action.");
         }
     }
-    IEnumerator HandleTicketSequence(ActionRequest actionRequest)
+
+    IEnumerator HandleAssigningSequence()
     {
         actionState = ActionState.State.Working;
-        yield return StartCoroutine(HandleTicket(actionRequest));
+        // Get the first action request from the department
+        ActionRequest actionRequest = department.newActionRequests[0];
+        // Get the employee with the least action requests
+        Employee employee = department.employees.OrderBy(e => e.actionRequests.Count).FirstOrDefault();
+        if (employee == null)
+        {
+            yield break;
+        }
+        yield return StartCoroutine(AssignRequestToEmployee(actionRequest, employee));
+        // Check if the action request was successful
+        AddExperience(10); // Example experience points for completing an action request
         actionState = ActionState.State.Idle;
     }
-
-    IEnumerator HandleTicket(ActionRequest actionRequest)
+    public IEnumerator AssignRequestToEmployee(ActionRequest actionRequest, Employee employee)
     {
-        // Simulate ticket handling process
-        Debug.Log($"HR Employee {employeeName} is handling a ticket.");
-        for (int i = 0; i < department.statTimes.Count; i++)
+        // Check if the employee is available for the action request
+        if (employee.actionState != ActionState.State.Idle)
         {
-            // Perform action based on department statTimes
-            Debug.Log($"HR Employee {employeeName} is performing action {department.statTimes[i].Key}({i + 1}) for {department.statTimes[i].Value} seconds.");
-            yield return new WaitForSeconds(department.statTimes[i].Value);
+            Debug.Log($"Employee {employee.employeeName} is busy with another action.");
+            yield break;
         }
-        // Simulate chance of success based on focus
-        float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetStatAverage())
-        {
-            Debug.Log($"HR Employee {employeeName} successfully handled the ticket.");
-            // Update action request status to completed
-            actionRequest.status = ActionRequest.StatusType.Type.Completed;
-        }
-        else
-        {
-            Debug.Log($"HR Employee {employeeName} failed to handle the ticket.");
-            // Update action request status to failed
-            actionRequest.status = ActionRequest.StatusType.Type.Failed;
-        }
-        department.claimedActionRequests.Add(actionRequest);
-        department.newActionRequests.Remove(actionRequest);
-        AddExperience(10); // Add experience for handling the ticket
+        // Assign the action request to the employee
+        actionRequest.employee = employee; // Set the employee for the action request
+        employee.actionRequests.Add(actionRequest);
+        department.newActionRequests.Remove(actionRequest); // Remove the action request from the department's newActionRequests
+        Debug.Log($"Manager {employeeName} has assigned action request to employee {employee.employeeName}.");
     }
-
+}
+// Dept. Employees
+public class HREmployee : Employee
+{
+    public HREmployee() { } // Default constructor
+    public HREmployee(Employee existingEmployee) : base(existingEmployee) { }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + empathy + combinedTraits.stamina); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + conflictResolution + empathy + recruiting + combinedTraits.efficiency); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + conflictResolution + combinedTraits.focus); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + recruiting + combinedTraits.experience); }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + combinedTraits.speed); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
 }
 
 public class HRManager : HREmployee
 {
     public HRManager() { } // Default constructor
     public HRManager(Employee existingEmployee) : base(existingEmployee) { }
-
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + policyEnforcement + retentionStrategy + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + policyEnforcement + moraleBoost + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + moraleBoost + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + retentionStrategy + combinedTraits.experience);
-    }
-
-    public new void PrimaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"HR Manager {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"HR Manager {employeeName} is performing a primary action.");
-        // Check if there are any action requests available in the department
-        if (Globals.newHires.Count == 0)
-        {
-            Debug.Log($"HR Manager {employeeName} has no new hires to process.");
-            return;
-        }
-        // Check if warehouse employees count is less than max employees
-        if (Globals.warehouseEmployees.Count >= Globals.warehouseMaxEmployees)
-        {
-            Debug.Log($"HR Manager {employeeName} cannot hire more employees. Warehouse is at maximum capacity.");
-            return;
-        }
-        // Check if departments are in need of new hires
-        if (Globals.departments.Count == 0)
-        {
-            Debug.Log($"HR Manager {employeeName} has no departments to assign new hires to.");
-            return;
-        }
-
-        StartCoroutine(HandleActionProcess());
-    }
-    public new void SecondaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"HR Manager {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"HR Manager {employeeName} is performing a secondary action.");
-        // Check for claimedActionRequests in the department
-        if (department.claimedActionRequests.Count == 0)
-        {
-            Debug.Log($"HR Manager {employeeName} has no claimed action requests to review.");
-            return;
-        }
-        // Give experience points based on claimedActionRequests count
-        int experiencePoints = department.claimedActionRequests.Count * 5;
-        // Update employee experience and check for level up
-        AddExperience(experiencePoints);
-        // Clear claimedActionRequests after review
-        department.claimedActionRequests.Clear();
-    }
-    public new void CancelAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"HR Manager {employeeName} has canceled the current action.");
-            StopAllCoroutines(); // Stop all ongoing actions
-            actionState = ActionState.State.Idle; // Set state to idle
-        }
-        else
-        {
-            Debug.Log($"HR Manager {employeeName} is not currently working on any action.");
-        }
-    }
-    IEnumerator HandleActionProcess()
-    {
-        actionState = ActionState.State.Working;
-        yield return StartCoroutine(ManagerAction());
-        actionState = ActionState.State.Idle;
-    }
-
-    IEnumerator ManagerAction()
-    {
-        // Check if there are any new hires available
-        List<Department> departmentsInNeed = new List<Department>();
-        foreach (var department in Globals.departments)
-        {
-            if (department.capacity > department.employees.Count)
-            {
-                departmentsInNeed.Add(department);
-            }
-        }
-        // Process the first new hire in the list
-        if (Globals.newHires.Count == 0)
-        {
-            Debug.Log($"HR Manager {employeeName} found no new hires to process.");
-            yield break;
-        }
-        Employee newHire = Globals.newHires[0];
-        if (newHire.cost > Globals.playerMoney)
-        {
-            Debug.Log($"HR Manager {employeeName} cannot afford to hire {newHire.employeeName}. Cost: {newHire.cost}, Available Money: {Globals.playerMoney}.");
-            yield break;
-        }
-        Debug.Log($"HR Manager {employeeName} is processing a new hire: {newHire.employeeName}.");
-        // Check if the new hire can be assigned to a department
-        if (departmentsInNeed.Count == 0)
-        {
-            Debug.Log($"HR Manager {employeeName} found no departments in need of new hires.");
-            yield break;
-        }
-        // Get the most suitable department for the new hire
-        List<DepartmentIndex> departmentIndices = new List<DepartmentIndex>();
-        foreach (var department in departmentsInNeed)
-        {
-            var existingIndex = departmentIndices.FirstOrDefault(d => d.departmentType == department.departmentType);
-            if (existingIndex.departmentType == department.departmentType)
-            {
-                existingIndex.count++;
-            }
-            else
-            {
-                departmentIndices.Add(new DepartmentIndex { departmentType = department.departmentType, count = 1 });
-            }
-        }
-        // Sort departments by index to find the most suitable one
-        departmentIndices = departmentIndices.OrderByDescending(d => d.count).ToList();
-        // Assign the new hire to the most suitable department
-        Department selectedDepartment = departmentsInNeed.FirstOrDefault(d => d.departmentType == departmentIndices[0].departmentType);
-        if (selectedDepartment == null)
-        {
-            Debug.Log($"HR Manager {employeeName} could not find a suitable department for {newHire.employeeName}.");
-            yield break;
-        }
-        selectedDepartment.employees.Add(newHire);
-        Globals.warehouseEmployees.Add(newHire);
-        Globals.newHires.Remove(newHire);
-        Globals.playerMoney -= newHire.cost; // Deduct the cost of hiring from player's money
-        Debug.Log($"HR Manager {employeeName} has successfully assigned {newHire.employeeName} to the {selectedDepartment.departmentType} department.");
-        yield break;
-    }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + policyEnforcement + retentionStrategy + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + policyEnforcement + moraleBoost + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + moraleBoost + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + retentionStrategy + combinedTraits.experience); }
 }
 
 public class ITEmployee : Employee
 {
     public ITEmployee() { } // Default constructor
     public ITEmployee(Employee existingEmployee) : base(existingEmployee) { }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + techTroubleshooter + systemOptimization + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + techTroubleshooter + security + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + systemOptimization + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + security + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + combinedTraits.experience);
-    }
-
-    public new void PrimaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"IT Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"IT Employee {employeeName} is performing a primary action.");
-        // Check if there are any action requests available in the department
-        if (department.newActionRequests.Count == 0)
-        {
-            Debug.Log($"IT Employee {employeeName} has no action requests to handle.");
-            return;
-        }
-        // Get the first action request from the department
-        ActionRequest actionRequest = department.newActionRequests[0];
-        StartCoroutine(HandleActionProcess(actionRequest));
-    }
-    public new void SecondaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"IT Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"IT Employee {employeeName} is performing a secondary action.");
-        // Check for claimedActionRequests in the department
-        if (department.claimedActionRequests.Count == 0)
-        {
-            Debug.Log($"IT Employee {employeeName} has no claimed action requests to review.");
-            return;
-        }
-        // Give experience points based on claimedActionRequests count
-        int experiencePoints = department.claimedActionRequests.Count * 5;
-        // Update employee experience and check for level up
-        AddExperience(experiencePoints);
-        // Clear claimedActionRequests after review
-        department.claimedActionRequests.Clear();
-    }
-    public new void CancelAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"IT Employee {employeeName} has canceled the current action.");
-            StopAllCoroutines(); // Stop all ongoing actions
-            actionState = ActionState.State.Idle; // Set state to idle
-        }
-        else
-        {
-            Debug.Log($"IT Employee {employeeName} is not currently working on any action.");
-        }
-    }
-    IEnumerator HandleActionProcess(ActionRequest actionRequest)
-    {
-        actionState = ActionState.State.Working;
-        yield return StartCoroutine(HandleActionRequest(actionRequest));
-        actionState = ActionState.State.Idle;
-    }
-    IEnumerator HandleActionRequest(ActionRequest actionRequest)
-    {
-        // Simulate action request handling process
-        Debug.Log($"IT Employee {employeeName} is handling an action request.");
-        for (int i = 0; i < department.statTimes.Count; i++)
-        {
-            // Perform action based on department statTimes
-            Debug.Log($"IT Employee {employeeName} is performing action {department.statTimes[i].Key}({i + 1}) for {department.statTimes[i].Value} seconds.");
-            yield return new WaitForSeconds(department.statTimes[i].Value);
-        }
-        // Simulate chance of success based on focus
-        float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetStatAverage())
-        {
-            Debug.Log($"IT Employee {employeeName} successfully handled the action request.");
-            // Update action request status to completed
-            actionRequest.status = ActionRequest.StatusType.Type.Completed;
-        }
-        else
-        {
-            Debug.Log($"IT Employee {employeeName} failed to handle the action request.");
-            // Update action request status to failed
-            actionRequest.status = ActionRequest.StatusType.Type.Failed;
-        }
-        department.claimedActionRequests.Add(actionRequest);
-        department.newActionRequests.Remove(actionRequest);
-        AddExperience(10); // Add experience for handling the action request
-    }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + techTroubleshooter + systemOptimization + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + techTroubleshooter + security + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + systemOptimization + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + security + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
 public class ITManager : ITEmployee
 {
     public ITManager() { } // Default constructor
     public ITManager(Employee existingEmployee) : base(existingEmployee) { }
-
-
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + incidentResponse + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + incidentResponse + infrastructureOversight + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + infrastructureOversight + techBudgeting + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + techBudgeting + combinedTraits.experience);
-    }
-    public new void PrimaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"IT Manager {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"IT Manager {employeeName} is performing a primary action.");
-        // Check if there are any action requests available in the department
-        if (department.newActionRequests.Count == 0)
-        {
-            Debug.Log($"IT Manager {employeeName} has no action requests to handle.");
-            return;
-        }
-        StartCoroutine(HandleActionProcess());
-    }
-    public new void SecondaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"IT Manager {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"IT Manager {employeeName} is performing a secondary action.");
-        // Check for claimedActionRequests in the department
-        if (department.claimedActionRequests.Count == 0)
-        {
-            Debug.Log($"IT Manager {employeeName} has no claimed action requests to review.");
-            return;
-        }
-        // Give experience points based on claimedActionRequests count
-        int experiencePoints = department.claimedActionRequests.Count * 5;
-        // Update employee experience and check for level up
-        AddExperience(experiencePoints);
-        // Clear claimedActionRequests after review
-        department.claimedActionRequests.Clear();
-    }
-    public new void CancelAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"IT Manager {employeeName} has canceled the current action.");
-            StopAllCoroutines(); // Stop all ongoing actions
-            actionState = ActionState.State.Idle; // Set state to idle
-        }
-        else
-        {
-            Debug.Log($"IT Manager {employeeName} is not currently working on any action.");
-        }
-    }
-    IEnumerator HandleActionProcess()
-    {
-        actionState = ActionState.State.Working;
-        yield return StartCoroutine(ManagerAction());
-        actionState = ActionState.State.Idle;
-    }
-    IEnumerator ManagerAction()
-    {
-        // Simulate action request handling process
-        Debug.Log($"IT Manager {employeeName} is handling a manager action.");
-        for (int i = 0; i < department.statTimes.Count; i++)
-        {
-            // Perform action based on department statTimes
-            Debug.Log($"IT Manager {employeeName} is performing action {department.statTimes[i].Key}({i + 1}) for {department.statTimes[i].Value} seconds.");
-            yield return new WaitForSeconds(department.statTimes[i].Value);
-        }
-        // Simulate chance of success based on focus
-        float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetStatAverage())
-        {
-            Debug.Log($"IT Manager {employeeName} successfully handled the manager action.");
-
-        }
-        else
-        {
-            Debug.Log($"IT Manager {employeeName} failed to handle the manager action.");
-        }
-        AddExperience(10); // Add experience for handling the manager action
-    }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + incidentResponse + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + incidentResponse + infrastructureOversight + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + infrastructureOversight + techBudgeting + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + techBudgeting + combinedTraits.experience); }
 }
+
 public class OperationsEmployee : Employee
 {
     public OperationsEmployee() { } // Default constructor
     public OperationsEmployee(Employee existingEmployee) : base(existingEmployee) { }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + logisticsPlanning + taskManagement + coordination + combinedTraits.efficiency);
-    }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + logisticsPlanning + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + taskManagement + combinedTraits.focus);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + coordination + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + combinedTraits.experience);
-    }
-
-    public new void PrimaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Operations Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Operations Employee {employeeName} is performing a primary action.");
-        if (department.newActionRequests.Count == 0)
-        {
-            Debug.Log($"Operations Employee {employeeName} has no action requests to handle.");
-            return;
-        }
-        ActionRequest actionRequest = department.newActionRequests[0];
-        StartCoroutine(HandleActionProcess(actionRequest));
-    }
-
-    public new void SecondaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Operations Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Operations Employee {employeeName} is performing a secondary action.");
-        if (department.claimedActionRequests.Count == 0)
-        {
-            Debug.Log($"Operations Employee {employeeName} has no claimed action requests to review.");
-            return;
-        }
-        int experiencePoints = department.claimedActionRequests.Count * 5;
-        AddExperience(experiencePoints);
-        department.claimedActionRequests.Clear();
-    }
-
-    public new void CancelAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Operations Employee {employeeName} has canceled the current action.");
-            StopAllCoroutines();
-            actionState = ActionState.State.Idle;
-        }
-        else
-        {
-            Debug.Log($"Operations Employee {employeeName} is not currently working on any action.");
-        }
-    }
-
-    IEnumerator HandleActionProcess(ActionRequest actionRequest)
-    {
-        actionState = ActionState.State.Working;
-        yield return StartCoroutine(HandleActionRequest(actionRequest));
-        actionState = ActionState.State.Idle;
-    }
-
-    IEnumerator HandleActionRequest(ActionRequest actionRequest)
-    {
-        Debug.Log($"Operations Employee {employeeName} is handling an action request.");
-        for (int i = 0; i < department.statTimes.Count; i++)
-        {
-            Debug.Log($"Operations Employee {employeeName} is performing action {department.statTimes[i].Key}({i + 1}) for {department.statTimes[i].Value} seconds.");
-            yield return new WaitForSeconds(department.statTimes[i].Value);
-        }
-        float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetStatAverage())
-        {
-            Debug.Log($"Operations Employee {employeeName} successfully handled the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Completed;
-        }
-        else
-        {
-            Debug.Log($"Operations Employee {employeeName} failed to handle the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Failed;
-        }
-        department.claimedActionRequests.Add(actionRequest);
-        department.newActionRequests.Remove(actionRequest);
-        AddExperience(10);
-    }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + logisticsPlanning + taskManagement + coordination + combinedTraits.efficiency); }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + logisticsPlanning + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + taskManagement + combinedTraits.focus); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + coordination + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
 public class OperationsManager : OperationsEmployee
 {
     public OperationsManager() { } // Default constructor
     public OperationsManager(Employee existingEmployee) : base(existingEmployee) { }
-
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + processOptimization + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + crossDepartmentSync + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + kpiMonitoring + crossDepartmentSync + processOptimization + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + kpiMonitoring + combinedTraits.experience);
-    }
-
+    public new float GetSpeed() { return Mathf.Min(2f, speed + processOptimization + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + crossDepartmentSync + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + kpiMonitoring + crossDepartmentSync + processOptimization + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + kpiMonitoring + combinedTraits.experience); }
 }
 
 public class InboundEmployee : Employee
 {
     public InboundEmployee() { } // Default constructor
     public InboundEmployee(Employee existingEmployee) : base(existingEmployee) { }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + loadMaster + speedyUnloader + combinedTraits.speed);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + loadMaster + combinedTraits.strength);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + inventoryCheck + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + inventoryCheck + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + speedyUnloader + combinedTraits.stamina);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + combinedTraits.experience);
-    }
-
-    public new void PrimaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Inbound Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Inbound Employee {employeeName} is performing a primary action.");
-        if (department.newActionRequests.Count == 0)
-        {
-            Debug.Log($"Inbound Employee {employeeName} has no action requests to handle.");
-            return;
-        }
-        ActionRequest actionRequest = department.newActionRequests[0];
-        StartCoroutine(HandleActionProcess(actionRequest));
-    }
-
-    public new void SecondaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Inbound Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Inbound Employee {employeeName} is performing a secondary action.");
-        if (department.claimedActionRequests.Count == 0)
-        {
-            Debug.Log($"Inbound Employee {employeeName} has no claimed action requests to review.");
-            return;
-        }
-        int experiencePoints = department.claimedActionRequests.Count * 5;
-        AddExperience(experiencePoints);
-        department.claimedActionRequests.Clear();
-    }
-
-    public new void CancelAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Inbound Employee {employeeName} has canceled the current action.");
-            StopAllCoroutines();
-            actionState = ActionState.State.Idle;
-        }
-        else
-        {
-            Debug.Log($"Inbound Employee {employeeName} is not currently working on any action.");
-        }
-    }
-
-    IEnumerator HandleActionProcess(ActionRequest actionRequest)
-    {
-        actionState = ActionState.State.Working;
-        yield return StartCoroutine(HandleActionRequest(actionRequest));
-        actionState = ActionState.State.Idle;
-    }
-
-    IEnumerator HandleActionRequest(ActionRequest actionRequest)
-    {
-        Debug.Log($"Inbound Employee {employeeName} is handling an action request.");
-        for (int i = 0; i < department.statTimes.Count; i++)
-        {
-            Debug.Log($"Inbound Employee {employeeName} is performing action {department.statTimes[i].Key}({i + 1}) for {department.statTimes[i].Value} seconds.");
-            yield return new WaitForSeconds(department.statTimes[i].Value);
-        }
-        float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetStatAverage())
-        {
-            Debug.Log($"Inbound Employee {employeeName} successfully handled the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Completed;
-        }
-        else
-        {
-            Debug.Log($"Inbound Employee {employeeName} failed to handle the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Failed;
-        }
-        department.claimedActionRequests.Add(actionRequest);
-        department.newActionRequests.Remove(actionRequest);
-        AddExperience(10);
-    }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + loadMaster + speedyUnloader + combinedTraits.speed); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + loadMaster + combinedTraits.strength); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + inventoryCheck + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + inventoryCheck + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + speedyUnloader + combinedTraits.stamina); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
 public class InboundManager : InboundEmployee
 {
     public InboundManager() { } // Default constructor
     public InboundManager(Employee existingEmployee) : base(existingEmployee) { }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + dockFlowManagement + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + receivingAccuracy + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + supplierCoordination + receivingAccuracy + dockFlowManagement + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + supplierCoordination + combinedTraits.experience);
-    }
-
+    public new float GetSpeed() { return Mathf.Min(2f, speed + dockFlowManagement + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + receivingAccuracy + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + supplierCoordination + receivingAccuracy + dockFlowManagement + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + supplierCoordination + combinedTraits.experience); }
 }
+
 public class OutboundEmployee : Employee
 {
     public OutboundEmployee() { } // Default constructor
     public OutboundEmployee(Employee existingEmployee) : base(existingEmployee) { }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + shippingAccuracy + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + shippingAccuracy + loadEfficiency + timeManagement + combinedTraits.efficiency);
-    }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + loadEfficiency + timeManagement + combinedTraits.speed);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + combinedTraits.experience);
-    }
-
-    public new void PrimaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Outbound Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Outbound Employee {employeeName} is performing a primary action.");
-        if (department.newActionRequests.Count == 0)
-        {
-            Debug.Log($"Outbound Employee {employeeName} has no action requests to handle.");
-            return;
-        }
-        ActionRequest actionRequest = department.newActionRequests[0];
-        StartCoroutine(HandleActionProcess(actionRequest));
-    }
-
-    public new void SecondaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Outbound Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Outbound Employee {employeeName} is performing a secondary action.");
-        if (department.claimedActionRequests.Count == 0)
-        {
-            Debug.Log($"Outbound Employee {employeeName} has no claimed action requests to review.");
-            return;
-        }
-        int experiencePoints = department.claimedActionRequests.Count * 5;
-        AddExperience(experiencePoints);
-        department.claimedActionRequests.Clear();
-    }
-
-    public new void CancelAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Outbound Employee {employeeName} has canceled the current action.");
-            StopAllCoroutines();
-            actionState = ActionState.State.Idle;
-        }
-        else
-        {
-            Debug.Log($"Outbound Employee {employeeName} is not currently working on any action.");
-        }
-    }
-
-    IEnumerator HandleActionProcess(ActionRequest actionRequest)
-    {
-        actionState = ActionState.State.Working;
-        yield return StartCoroutine(HandleActionRequest(actionRequest));
-        actionState = ActionState.State.Idle;
-    }
-
-    IEnumerator HandleActionRequest(ActionRequest actionRequest)
-    {
-        Debug.Log($"Outbound Employee {employeeName} is handling an action request.");
-        for (int i = 0; i < department.statTimes.Count; i++)
-        {
-            Debug.Log($"Outbound Employee {employeeName} is performing action {department.statTimes[i].Key}({i + 1}) for {department.statTimes[i].Value} seconds.");
-            yield return new WaitForSeconds(department.statTimes[i].Value);
-        }
-        float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetStatAverage())
-        {
-            Debug.Log($"Outbound Employee {employeeName} successfully handled the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Completed;
-        }
-        else
-        {
-            Debug.Log($"Outbound Employee {employeeName} failed to handle the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Failed;
-        }
-        department.claimedActionRequests.Add(actionRequest);
-        department.newActionRequests.Remove(actionRequest);
-        AddExperience(10);
-    }
+    public new float GetFocus() { return Mathf.Min(2f, focus + shippingAccuracy + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + shippingAccuracy + loadEfficiency + timeManagement + combinedTraits.efficiency); }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + loadEfficiency + timeManagement + combinedTraits.speed); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
 public class OutboundManager : OutboundEmployee
 {
     public OutboundManager() { } // Default constructor
     public OutboundManager(Employee existingEmployee) : base(existingEmployee) { }
-
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + loadScheduling + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + accuracyOversight + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + carrierCoordination + loadScheduling + accuracyOversight + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + carrierCoordination + combinedTraits.experience);
-    }
-
+    public new float GetSpeed() { return Mathf.Min(2f, speed + loadScheduling + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + accuracyOversight + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + carrierCoordination + loadScheduling + accuracyOversight + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + carrierCoordination + combinedTraits.experience); }
 }
+
 public class SortingEmployee : Employee
 {
     public SortingEmployee() { } // Default constructor
     public SortingEmployee(Employee existingEmployee) : base(existingEmployee) { }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + sortingSpeed + patternRecognition + combinedTraits.speed);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + sortingSpeed + sortingAccuracy + patternRecognition + combinedTraits.efficiency);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + sortingAccuracy + combinedTraits.focus);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + combinedTraits.experience);
-    }
-
-    public new void PrimaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Sorting Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Sorting Employee {employeeName} is performing a primary action.");
-        if (department.newActionRequests.Count == 0)
-        {
-            Debug.Log($"Sorting Employee {employeeName} has no action requests to handle.");
-            return;
-        }
-        ActionRequest actionRequest = department.newActionRequests[0];
-        StartCoroutine(HandleActionProcess(actionRequest));
-    }
-
-    public new void SecondaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Sorting Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Sorting Employee {employeeName} is performing a secondary action.");
-        if (department.claimedActionRequests.Count == 0)
-        {
-            Debug.Log($"Sorting Employee {employeeName} has no claimed action requests to review.");
-            return;
-        }
-        int experiencePoints = department.claimedActionRequests.Count * 5;
-        AddExperience(experiencePoints);
-        department.claimedActionRequests.Clear();
-    }
-
-    public new void CancelAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Sorting Employee {employeeName} has canceled the current action.");
-            StopAllCoroutines();
-            actionState = ActionState.State.Idle;
-        }
-        else
-        {
-            Debug.Log($"Sorting Employee {employeeName} is not currently working on any action.");
-        }
-    }
-
-    IEnumerator HandleActionProcess(ActionRequest actionRequest)
-    {
-        actionState = ActionState.State.Working;
-        yield return StartCoroutine(HandleActionRequest(actionRequest));
-        actionState = ActionState.State.Idle;
-    }
-
-    IEnumerator HandleActionRequest(ActionRequest actionRequest)
-    {
-        Debug.Log($"Sorting Employee {employeeName} is handling an action request.");
-        for (int i = 0; i < department.statTimes.Count; i++)
-        {
-            Debug.Log($"Sorting Employee {employeeName} is performing action {department.statTimes[i].Key}({i + 1}) for {department.statTimes[i].Value} seconds.");
-            yield return new WaitForSeconds(department.statTimes[i].Value);
-        }
-        float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetStatAverage())
-        {
-            Debug.Log($"Sorting Employee {employeeName} successfully handled the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Completed;
-        }
-        else
-        {
-            Debug.Log($"Sorting Employee {employeeName} failed to handle the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Failed;
-        }
-        department.claimedActionRequests.Add(actionRequest);
-        department.newActionRequests.Remove(actionRequest);
-        AddExperience(10);
-    }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + sortingSpeed + patternRecognition + combinedTraits.speed); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + sortingSpeed + sortingAccuracy + patternRecognition + combinedTraits.efficiency); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + sortingAccuracy + combinedTraits.focus); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
 public class SortingManager : SortingEmployee
 {
     public SortingManager() { } // Default constructor
     public SortingManager(Employee existingEmployee) : base(existingEmployee) { }
-
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + sortLineOversight + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + errorReductionPlanning + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + sortLineOversight + errorReductionPlanning + peakPrep + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + peakPrep + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + +combinedTraits.experience);
-    }
-
+    public new float GetSpeed() { return Mathf.Min(2f, speed + sortLineOversight + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + errorReductionPlanning + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + sortLineOversight + errorReductionPlanning + peakPrep + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + peakPrep + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + +combinedTraits.experience); }
 }
+
 public class RepackingEmployee : Employee
 {
     public RepackingEmployee() { } // Default constructor
     public RepackingEmployee(Employee existingEmployee) : base(existingEmployee) { }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + packingEfficiency + damageControl + combinedTraits.efficiency);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + packingEfficiency + damageControl + combinedTraits.focus);
-    }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + combinedTraits.speed);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + combinedTraits.experience);
-    }
-
-    public new void PrimaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Repacking Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Repacking Employee {employeeName} is performing a primary action.");
-        if (department.newActionRequests.Count == 0)
-        {
-            Debug.Log($"Repacking Employee {employeeName} has no action requests to handle.");
-            return;
-        }
-        ActionRequest actionRequest = department.newActionRequests[0];
-        StartCoroutine(HandleActionProcess(actionRequest));
-    }
-
-    public new void SecondaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Repacking Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Repacking Employee {employeeName} is performing a secondary action.");
-        if (department.claimedActionRequests.Count == 0)
-        {
-            Debug.Log($"Repacking Employee {employeeName} has no claimed action requests to review.");
-            return;
-        }
-        int experiencePoints = department.claimedActionRequests.Count * 5;
-        AddExperience(experiencePoints);
-        department.claimedActionRequests.Clear();
-    }
-
-    public new void CancelAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Repacking Employee {employeeName} has canceled the current action.");
-            StopAllCoroutines();
-            actionState = ActionState.State.Idle;
-        }
-        else
-        {
-            Debug.Log($"Repacking Employee {employeeName} is not currently working on any action.");
-        }
-    }
-
-    IEnumerator HandleActionProcess(ActionRequest actionRequest)
-    {
-        actionState = ActionState.State.Working;
-        yield return StartCoroutine(HandleActionRequest(actionRequest));
-        actionState = ActionState.State.Idle;
-    }
-
-    IEnumerator HandleActionRequest(ActionRequest actionRequest)
-    {
-        Debug.Log($"Repacking Employee {employeeName} is handling an action request.");
-        for (int i = 0; i < department.statTimes.Count; i++)
-        {
-            Debug.Log($"Repacking Employee {employeeName} is performing action {department.statTimes[i].Key}({i + 1}) for {department.statTimes[i].Value} seconds.");
-            yield return new WaitForSeconds(department.statTimes[i].Value);
-        }
-        float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetStatAverage())
-        {
-            Debug.Log($"Repacking Employee {employeeName} successfully handled the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Completed;
-        }
-        else
-        {
-            Debug.Log($"Repacking Employee {employeeName} failed to handle the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Failed;
-        }
-        department.claimedActionRequests.Add(actionRequest);
-        department.newActionRequests.Remove(actionRequest);
-        AddExperience(10);
-    }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + packingEfficiency + damageControl + combinedTraits.efficiency); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + packingEfficiency + damageControl + combinedTraits.focus); }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + combinedTraits.speed); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
 public class RepackingManager : RepackingEmployee
 {
     public RepackingManager() { } // Default constructor
     public RepackingManager(Employee existingEmployee) : base(existingEmployee) { }
-
-
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + repackFlow + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + qualityCheck + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + qualityCheck + materialAllocation + repackFlow + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + materialAllocation + combinedTraits.experience);
-    }
-
+    public new float GetSpeed() { return Mathf.Min(2f, speed + repackFlow + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + qualityCheck + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + qualityCheck + materialAllocation + repackFlow + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + materialAllocation + combinedTraits.experience); }
 }
+
 public class PalletizingEmployee : Employee
 {
     public PalletizingEmployee() { } // Default constructor
     public PalletizingEmployee(Employee existingEmployee) : base(existingEmployee) { }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + palletEfficiency + stackingPrecision + combinedTraits.efficiency);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + palletEfficiency + heavyLifting + combinedTraits.strength);
-    }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + heavyLifting + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + stackingPrecision + combinedTraits.focus);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + combinedTraits.stamina);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + combinedTraits.experience);
-    }
-
-    public new void PrimaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Palletizing Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Palletizing Employee {employeeName} is performing a primary action.");
-        if (department.newActionRequests.Count == 0)
-        {
-            Debug.Log($"Palletizing Employee {employeeName} has no action requests to handle.");
-            return;
-        }
-        ActionRequest actionRequest = department.newActionRequests[0];
-        StartCoroutine(HandleActionProcess(actionRequest));
-    }
-
-    public new void SecondaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Palletizing Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Palletizing Employee {employeeName} is performing a secondary action.");
-        if (department.claimedActionRequests.Count == 0)
-        {
-            Debug.Log($"Palletizing Employee {employeeName} has no claimed action requests to review.");
-            return;
-        }
-        int experiencePoints = department.claimedActionRequests.Count * 5;
-        AddExperience(experiencePoints);
-        department.claimedActionRequests.Clear();
-    }
-
-    public new void CancelAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Palletizing Employee {employeeName} has canceled the current action.");
-            StopAllCoroutines();
-            actionState = ActionState.State.Idle;
-        }
-        else
-        {
-            Debug.Log($"Palletizing Employee {employeeName} is not currently working on any action.");
-        }
-    }
-
-    IEnumerator HandleActionProcess(ActionRequest actionRequest)
-    {
-        actionState = ActionState.State.Working;
-        yield return StartCoroutine(HandleActionRequest(actionRequest));
-        actionState = ActionState.State.Idle;
-    }
-
-    IEnumerator HandleActionRequest(ActionRequest actionRequest)
-    {
-        Debug.Log($"Palletizing Employee {employeeName} is handling an action request.");
-        for (int i = 0; i < department.statTimes.Count; i++)
-        {
-            Debug.Log($"Palletizing Employee {employeeName} is performing action {department.statTimes[i].Key}({i + 1}) for {department.statTimes[i].Value} seconds.");
-            yield return new WaitForSeconds(department.statTimes[i].Value);
-        }
-        float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetStatAverage())
-        {
-            Debug.Log($"Palletizing Employee {employeeName} successfully handled the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Completed;
-        }
-        else
-        {
-            Debug.Log($"Palletizing Employee {employeeName} failed to handle the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Failed;
-        }
-        department.claimedActionRequests.Add(actionRequest);
-        department.newActionRequests.Remove(actionRequest);
-        AddExperience(10);
-    }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + palletEfficiency + stackingPrecision + combinedTraits.efficiency); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + palletEfficiency + heavyLifting + combinedTraits.strength); }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + heavyLifting + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + stackingPrecision + combinedTraits.focus); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + combinedTraits.stamina); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
 public class PalletizingManager : PalletizingEmployee
 {
     public PalletizingManager() { } // Default constructor
     public PalletizingManager(Employee existingEmployee) : base(existingEmployee) { }
-
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + stackingSupervision + safetyChecks + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + stackingSupervision + loadForecasting + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + safetyChecks + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + loadForecasting + combinedTraits.experience);
-    }
-
+    public new float GetSpeed() { return Mathf.Min(2f, speed + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + stackingSupervision + safetyChecks + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + stackingSupervision + loadForecasting + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + safetyChecks + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + loadForecasting + combinedTraits.experience); }
 }
+
 public class WaterSpiderEmployee : Employee
 {
     public WaterSpiderEmployee() { } // Default constructor
     public WaterSpiderEmployee(Employee existingEmployee) : base(existingEmployee) { }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + routeEfficiency + supportSpeed + combinedTraits.speed);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + routeEfficiency + carryCapacity + combinedTraits.efficiency);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + carryCapacity + combinedTraits.strength);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + supportSpeed + combinedTraits.stamina);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + combinedTraits.focus);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + combinedTraits.experience);
-    }
-
-    public new void PrimaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Water Spider Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Water Spider Employee {employeeName} is performing a primary action.");
-        if (department.newActionRequests.Count == 0)
-        {
-            Debug.Log($"Water Spider Employee {employeeName} has no action requests to handle.");
-            return;
-        }
-        ActionRequest actionRequest = department.newActionRequests[0];
-        StartCoroutine(HandleActionProcess(actionRequest));
-    }
-
-    public new void SecondaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Water Spider Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Water Spider Employee {employeeName} is performing a secondary action.");
-        if (department.claimedActionRequests.Count == 0)
-        {
-            Debug.Log($"Water Spider Employee {employeeName} has no claimed action requests to review.");
-            return;
-        }
-        int experiencePoints = department.claimedActionRequests.Count * 5;
-        AddExperience(experiencePoints);
-        department.claimedActionRequests.Clear();
-    }
-
-    public new void CancelAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Water Spider Employee {employeeName} has canceled the current action.");
-            StopAllCoroutines();
-            actionState = ActionState.State.Idle;
-        }
-        else
-        {
-            Debug.Log($"Water Spider Employee {employeeName} is not currently working on any action.");
-        }
-    }
-
-    IEnumerator HandleActionProcess(ActionRequest actionRequest)
-    {
-        actionState = ActionState.State.Working;
-        yield return StartCoroutine(HandleActionRequest(actionRequest));
-        actionState = ActionState.State.Idle;
-    }
-
-    IEnumerator HandleActionRequest(ActionRequest actionRequest)
-    {
-        Debug.Log($"Water Spider Employee {employeeName} is handling an action request.");
-        for (int i = 0; i < department.statTimes.Count; i++)
-        {
-            Debug.Log($"Water Spider Employee {employeeName} is performing action {department.statTimes[i].Key}({i + 1}) for {department.statTimes[i].Value} seconds.");
-            yield return new WaitForSeconds(department.statTimes[i].Value);
-        }
-        float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetStatAverage())
-        {
-            Debug.Log($"Water Spider Employee {employeeName} successfully handled the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Completed;
-        }
-        else
-        {
-            Debug.Log($"Water Spider Employee {employeeName} failed to handle the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Failed;
-        }
-        department.claimedActionRequests.Add(actionRequest);
-        department.newActionRequests.Remove(actionRequest);
-        AddExperience(10);
-    }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + routeEfficiency + supportSpeed + combinedTraits.speed); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + routeEfficiency + carryCapacity + combinedTraits.efficiency); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + carryCapacity + combinedTraits.strength); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + supportSpeed + combinedTraits.stamina); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + combinedTraits.focus); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
 public class WaterSpiderManager : WaterSpiderEmployee
 {
     public WaterSpiderManager() { } // Default constructor
     public WaterSpiderManager(Employee existingEmployee) : base(existingEmployee) { }
-
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + routePlanning + combinedTraits.speed);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + routePlanning + supportCoordination + loadDistribution + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + loadDistribution + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + supportCoordination + combinedTraits.focus);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + +combinedTraits.experience);
-    }
-
+    public new float GetSpeed() { return Mathf.Min(2f, speed + routePlanning + combinedTraits.speed); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + routePlanning + supportCoordination + loadDistribution + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + loadDistribution + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + supportCoordination + combinedTraits.focus); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + +combinedTraits.experience); }
 }
+
 public class FluidLoadEmployee : Employee
 {
     public FluidLoadEmployee() { } // Default constructor
     public FluidLoadEmployee(Employee existingEmployee) : base(existingEmployee) { }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + loadingSpeed + combinedTraits.speed);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + loadingSpeed + combinedTraits.strength);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + hardHatProtection + combinedTraits.stamina);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + hardHatProtection + weightDistribution + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + weightDistribution + combinedTraits.efficiency);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + combinedTraits.experience);
-    }
-
-    public new void PrimaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Fluid Load Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Fluid Load Employee {employeeName} is performing a primary action.");
-        if (department.newActionRequests.Count == 0)
-        {
-            Debug.Log($"Fluid Load Employee {employeeName} has no action requests to handle.");
-            return;
-        }
-        ActionRequest actionRequest = department.newActionRequests[0];
-        StartCoroutine(HandleActionProcess(actionRequest));
-    }
-
-    public new void SecondaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Fluid Load Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Fluid Load Employee {employeeName} is performing a secondary action.");
-        if (department.claimedActionRequests.Count == 0)
-        {
-            Debug.Log($"Fluid Load Employee {employeeName} has no claimed action requests to review.");
-            return;
-        }
-        int experiencePoints = department.claimedActionRequests.Count * 5;
-        AddExperience(experiencePoints);
-        department.claimedActionRequests.Clear();
-    }
-
-    public new void CancelAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Fluid Load Employee {employeeName} has canceled the current action.");
-            StopAllCoroutines();
-            actionState = ActionState.State.Idle;
-        }
-        else
-        {
-            Debug.Log($"Fluid Load Employee {employeeName} is not currently working on any action.");
-        }
-    }
-
-    IEnumerator HandleActionProcess(ActionRequest actionRequest)
-    {
-        actionState = ActionState.State.Working;
-        yield return StartCoroutine(HandleActionRequest(actionRequest));
-        actionState = ActionState.State.Idle;
-    }
-
-    IEnumerator HandleActionRequest(ActionRequest actionRequest)
-    {
-        Debug.Log($"Fluid Load Employee {employeeName} is handling an action request.");
-        for (int i = 0; i < department.statTimes.Count; i++)
-        {
-            Debug.Log($"Fluid Load Employee {employeeName} is performing action {department.statTimes[i].Key}({i + 1}) for {department.statTimes[i].Value} seconds.");
-            yield return new WaitForSeconds(department.statTimes[i].Value);
-        }
-        float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetStatAverage())
-        {
-            Debug.Log($"Fluid Load Employee {employeeName} successfully handled the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Completed;
-        }
-        else
-        {
-            Debug.Log($"Fluid Load Employee {employeeName} failed to handle the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Failed;
-        }
-        department.claimedActionRequests.Add(actionRequest);
-        department.newActionRequests.Remove(actionRequest);
-        AddExperience(10);
-    }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + loadingSpeed + combinedTraits.speed); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + loadingSpeed + combinedTraits.strength); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + hardHatProtection + combinedTraits.stamina); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + hardHatProtection + weightDistribution + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + weightDistribution + combinedTraits.efficiency); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
 public class FluidLoadManager : FluidLoadEmployee
 {
     public FluidLoadManager() { } // Default constructor
     public FluidLoadManager(Employee existingEmployee) : base(existingEmployee) { }
-
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + truckStaging + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + teamSynchronization + loadingOversight + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + truckStaging + teamSynchronization + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + loadingOversight + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + +combinedTraits.experience);
-    }
-
+    public new float GetSpeed() { return Mathf.Min(2f, speed + truckStaging + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + teamSynchronization + loadingOversight + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + truckStaging + teamSynchronization + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + loadingOversight + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + +combinedTraits.experience); }
 }
+
 public class QualityControlEmployee : Employee
 {
     public QualityControlEmployee() { } // Default constructor
     public QualityControlEmployee(Employee existingEmployee) : base(existingEmployee) { }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + attentionToDetail + inspectionSpeed + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + attentionToDetail + productKnowledge + combinedTraits.efficiency);
-    }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + inspectionSpeed + combinedTraits.speed);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + productKnowledge + combinedTraits.experience);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-
-    public new void PrimaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Quality Control Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Quality Control Employee {employeeName} is performing a primary action.");
-        if (department.newActionRequests.Count == 0)
-        {
-            Debug.Log($"Quality Control Employee {employeeName} has no action requests to handle.");
-            return;
-        }
-        ActionRequest actionRequest = department.newActionRequests[0];
-        StartCoroutine(HandleActionProcess(actionRequest));
-    }
-
-    public new void SecondaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Quality Control Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Quality Control Employee {employeeName} is performing a secondary action.");
-        if (department.claimedActionRequests.Count == 0)
-        {
-            Debug.Log($"Quality Control Employee {employeeName} has no claimed action requests to review.");
-            return;
-        }
-        int experiencePoints = department.claimedActionRequests.Count * 5;
-        AddExperience(experiencePoints);
-        department.claimedActionRequests.Clear();
-    }
-
-    public new void CancelAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Quality Control Employee {employeeName} has canceled the current action.");
-            StopAllCoroutines();
-            actionState = ActionState.State.Idle;
-        }
-        else
-        {
-            Debug.Log($"Quality Control Employee {employeeName} is not currently working on any action.");
-        }
-    }
-
-    IEnumerator HandleActionProcess(ActionRequest actionRequest)
-    {
-        actionState = ActionState.State.Working;
-        yield return StartCoroutine(HandleActionRequest(actionRequest));
-        actionState = ActionState.State.Idle;
-    }
-
-    IEnumerator HandleActionRequest(ActionRequest actionRequest)
-    {
-        Debug.Log($"Quality Control Employee {employeeName} is handling an action request.");
-        for (int i = 0; i < department.statTimes.Count; i++)
-        {
-            Debug.Log($"Quality Control Employee {employeeName} is performing action {department.statTimes[i].Key}({i + 1}) for {department.statTimes[i].Value} seconds.");
-            yield return new WaitForSeconds(department.statTimes[i].Value);
-        }
-        float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetStatAverage())
-        {
-            Debug.Log($"Quality Control Employee {employeeName} successfully handled the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Completed;
-        }
-        else
-        {
-            Debug.Log($"Quality Control Employee {employeeName} failed to handle the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Failed;
-        }
-        department.claimedActionRequests.Add(actionRequest);
-        department.newActionRequests.Remove(actionRequest);
-        AddExperience(10);
-    }
+    public new float GetFocus() { return Mathf.Min(2f, focus + attentionToDetail + inspectionSpeed + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + attentionToDetail + productKnowledge + combinedTraits.efficiency); }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + inspectionSpeed + combinedTraits.speed); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + productKnowledge + combinedTraits.experience); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
 }
 
 public class QualityControlManager : QualityControlEmployee
 {
     public QualityControlManager() { } // Default constructor
     public QualityControlManager(Employee existingEmployee) : base(existingEmployee) { }
-
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + +combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + inspectionProtocols + defectReporting + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + defectReporting + continuousImprovement + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + +combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + inspectionProtocols + continuousImprovement + combinedTraits.experience);
-    }
-
+    public new float GetSpeed() { return Mathf.Min(2f, speed + +combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + inspectionProtocols + defectReporting + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + defectReporting + continuousImprovement + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + +combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + inspectionProtocols + continuousImprovement + combinedTraits.experience); }
 }
+
 public class MaintenanceEmployee : Employee
 {
     public MaintenanceEmployee() { } // Default constructor
     public MaintenanceEmployee(Employee existingEmployee) : base(existingEmployee) { }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + repairSpeed + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + repairSpeed + combinedTraits.focus);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + preventativeMaintenance + combinedTraits.stamina);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + preventativeMaintenance + toolMastery + combinedTraits.efficiency);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + toolMastery + combinedTraits.experience);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-
-    public new void PrimaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Maintenance Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Maintenance Employee {employeeName} is performing a primary action.");
-        if (department.newActionRequests.Count == 0)
-        {
-            Debug.Log($"Maintenance Employee {employeeName} has no action requests to handle.");
-            return;
-        }
-        ActionRequest actionRequest = department.newActionRequests[0];
-        StartCoroutine(HandleActionProcess(actionRequest));
-    }
-
-    public new void SecondaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Maintenance Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Maintenance Employee {employeeName} is performing a secondary action.");
-        if (department.claimedActionRequests.Count == 0)
-        {
-            Debug.Log($"Maintenance Employee {employeeName} has no claimed action requests to review.");
-            return;
-        }
-        int experiencePoints = department.claimedActionRequests.Count * 5;
-        AddExperience(experiencePoints);
-        department.claimedActionRequests.Clear();
-    }
-
-    public new void CancelAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Maintenance Employee {employeeName} has canceled the current action.");
-            StopAllCoroutines();
-            actionState = ActionState.State.Idle;
-        }
-        else
-        {
-            Debug.Log($"Maintenance Employee {employeeName} is not currently working on any action.");
-        }
-    }
-
-    IEnumerator HandleActionProcess(ActionRequest actionRequest)
-    {
-        actionState = ActionState.State.Working;
-        yield return StartCoroutine(HandleActionRequest(actionRequest));
-        actionState = ActionState.State.Idle;
-    }
-
-    IEnumerator HandleActionRequest(ActionRequest actionRequest)
-    {
-        Debug.Log($"Maintenance Employee {employeeName} is handling an action request.");
-        for (int i = 0; i < department.statTimes.Count; i++)
-        {
-            Debug.Log($"Maintenance Employee {employeeName} is performing action {department.statTimes[i].Key}({i + 1}) for {department.statTimes[i].Value} seconds.");
-            yield return new WaitForSeconds(department.statTimes[i].Value);
-        }
-        float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetStatAverage())
-        {
-            Debug.Log($"Maintenance Employee {employeeName} successfully handled the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Completed;
-        }
-        else
-        {
-            Debug.Log($"Maintenance Employee {employeeName} failed to handle the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Failed;
-        }
-        department.claimedActionRequests.Add(actionRequest);
-        department.newActionRequests.Remove(actionRequest);
-        AddExperience(10);
-    }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + repairSpeed + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + repairSpeed + combinedTraits.focus); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + preventativeMaintenance + combinedTraits.stamina); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + preventativeMaintenance + toolMastery + combinedTraits.efficiency); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + toolMastery + combinedTraits.experience); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
 }
 
 public class MaintenanceManager : MaintenanceEmployee
 {
     public MaintenanceManager() { } // Default constructor
     public MaintenanceManager(Employee existingEmployee) : base(existingEmployee) { }
-
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + repairWorkflow + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + partInventory + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + repairWorkflow + maintenanceScheduling + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + maintenanceScheduling + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + +combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + partInventory + combinedTraits.experience);
-    }
-
+    public new float GetSpeed() { return Mathf.Min(2f, speed + repairWorkflow + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + partInventory + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + repairWorkflow + maintenanceScheduling + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + maintenanceScheduling + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + +combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + partInventory + combinedTraits.experience); }
 }
+
 public class RoboticsEmployee : Employee
 {
     public RoboticsEmployee() { } // Default constructor
     public RoboticsEmployee(Employee existingEmployee) : base(existingEmployee) { }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + robotCalibration + roboticsAccuracy + combinedTraits.efficiency);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + robotCalibration + roboticsAccuracy + combinedTraits.focus);
-    }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + speedEnhancement + combinedTraits.speed);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + combinedTraits.experience);
-    }
-
-    public new void PrimaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Robotics Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Robotics Employee {employeeName} is performing a primary action.");
-        if (department.newActionRequests.Count == 0)
-        {
-            Debug.Log($"Robotics Employee {employeeName} has no action requests to handle.");
-            return;
-        }
-        ActionRequest actionRequest = department.newActionRequests[0];
-        StartCoroutine(HandleActionProcess(actionRequest));
-    }
-
-    public new void SecondaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Robotics Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Robotics Employee {employeeName} is performing a secondary action.");
-        if (department.claimedActionRequests.Count == 0)
-        {
-            Debug.Log($"Robotics Employee {employeeName} has no claimed action requests to review.");
-            return;
-        }
-        int experiencePoints = department.claimedActionRequests.Count * 5;
-        AddExperience(experiencePoints);
-        department.claimedActionRequests.Clear();
-    }
-
-    public new void CancelAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Robotics Employee {employeeName} has canceled the current action.");
-            StopAllCoroutines();
-            actionState = ActionState.State.Idle;
-        }
-        else
-        {
-            Debug.Log($"Robotics Employee {employeeName} is not currently working on any action.");
-        }
-    }
-
-    IEnumerator HandleActionProcess(ActionRequest actionRequest)
-    {
-        actionState = ActionState.State.Working;
-        yield return StartCoroutine(HandleActionRequest(actionRequest));
-        actionState = ActionState.State.Idle;
-    }
-
-    IEnumerator HandleActionRequest(ActionRequest actionRequest)
-    {
-        Debug.Log($"Robotics Employee {employeeName} is handling an action request.");
-        for (int i = 0; i < department.statTimes.Count; i++)
-        {
-            Debug.Log($"Robotics Employee {employeeName} is performing action {department.statTimes[i].Key}({i + 1}) for {department.statTimes[i].Value} seconds.");
-            yield return new WaitForSeconds(department.statTimes[i].Value);
-        }
-        float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetStatAverage())
-        {
-            Debug.Log($"Robotics Employee {employeeName} successfully handled the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Completed;
-        }
-        else
-        {
-            Debug.Log($"Robotics Employee {employeeName} failed to handle the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Failed;
-        }
-        department.claimedActionRequests.Add(actionRequest);
-        department.newActionRequests.Remove(actionRequest);
-        AddExperience(10);
-    }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + robotCalibration + roboticsAccuracy + combinedTraits.efficiency); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + robotCalibration + roboticsAccuracy + combinedTraits.focus); }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + speedEnhancement + combinedTraits.speed); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
 public class RoboticsManager : RoboticsEmployee
 {
     public RoboticsManager() { } // Default constructor
     public RoboticsManager(Employee existingEmployee) : base(existingEmployee) { }
-
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + robotUptime + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + firmwareManagement + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + automationPlanning + firmwareManagement + robotUptime + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + automationPlanning + combinedTraits.experience);
-    }
-
+    public new float GetSpeed() { return Mathf.Min(2f, speed + robotUptime + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + firmwareManagement + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + automationPlanning + firmwareManagement + robotUptime + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + automationPlanning + combinedTraits.experience); }
 }
+
 public class SecurityEmployee : Employee
 {
     public SecurityEmployee() { } // Default constructor
     public SecurityEmployee(Employee existingEmployee) : base(existingEmployee) { }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + surveillance + alertness + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + surveillance + patrolSpeed + combinedTraits.efficiency);
-    }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + alertness + patrolSpeed + combinedTraits.speed);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + combinedTraits.experience);
-    }
-
-    public new void PrimaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Security Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Security Employee {employeeName} is performing a primary action.");
-        if (department.newActionRequests.Count == 0)
-        {
-            Debug.Log($"Security Employee {employeeName} has no action requests to handle.");
-            return;
-        }
-        ActionRequest actionRequest = department.newActionRequests[0];
-        StartCoroutine(HandleActionProcess(actionRequest));
-    }
-
-    public new void SecondaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Security Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Security Employee {employeeName} is performing a secondary action.");
-        if (department.claimedActionRequests.Count == 0)
-        {
-            Debug.Log($"Security Employee {employeeName} has no claimed action requests to review.");
-            return;
-        }
-        int experiencePoints = department.claimedActionRequests.Count * 5;
-        AddExperience(experiencePoints);
-        department.claimedActionRequests.Clear();
-    }
-
-    public new void CancelAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Security Employee {employeeName} has canceled the current action.");
-            StopAllCoroutines();
-            actionState = ActionState.State.Idle;
-        }
-        else
-        {
-            Debug.Log($"Security Employee {employeeName} is not currently working on any action.");
-        }
-    }
-
-    IEnumerator HandleActionProcess(ActionRequest actionRequest)
-    {
-        actionState = ActionState.State.Working;
-        yield return StartCoroutine(HandleActionRequest(actionRequest));
-        actionState = ActionState.State.Idle;
-    }
-
-    IEnumerator HandleActionRequest(ActionRequest actionRequest)
-    {
-        Debug.Log($"Security Employee {employeeName} is handling an action request.");
-        for (int i = 0; i < department.statTimes.Count; i++)
-        {
-            Debug.Log($"Security Employee {employeeName} is performing action {department.statTimes[i].Key}({i + 1}) for {department.statTimes[i].Value} seconds.");
-            yield return new WaitForSeconds(department.statTimes[i].Value);
-        }
-        float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetStatAverage())
-        {
-            Debug.Log($"Security Employee {employeeName} successfully handled the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Completed;
-        }
-        else
-        {
-            Debug.Log($"Security Employee {employeeName} failed to handle the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Failed;
-        }
-        department.claimedActionRequests.Add(actionRequest);
-        department.newActionRequests.Remove(actionRequest);
-        AddExperience(10);
-    }
+    public new float GetFocus() { return Mathf.Min(2f, focus + surveillance + alertness + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + surveillance + patrolSpeed + combinedTraits.efficiency); }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + alertness + patrolSpeed + combinedTraits.speed); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
 public class SecurityManager : SecurityEmployee
 {
     public SecurityManager() { } // Default constructor
     public SecurityManager(Employee existingEmployee) : base(existingEmployee) { }
-
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + patrolRouting + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + surveillanceOversight + threatAssessment + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + patrolRouting + threatAssessment + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + surveillanceOversight + combinedTraits.experience);
-    }
-
+    public new float GetSpeed() { return Mathf.Min(2f, speed + patrolRouting + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + surveillanceOversight + threatAssessment + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + patrolRouting + threatAssessment + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + surveillanceOversight + combinedTraits.experience); }
 }
+
 public class CleaningEmployee : Employee
 {
     public CleaningEmployee() { } // Default constructor
     public CleaningEmployee(Employee existingEmployee) : base(existingEmployee) { }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + combinedTraits.speed);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + routineMaintenance + combinedTraits.stamina);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + thoroughness + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + thoroughness + routineMaintenance + combinedTraits.efficiency);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + combinedTraits.experience);
-    }
-
-    public new void PrimaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Cleaning Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Cleaning Employee {employeeName} is performing a primary action.");
-        if (department.newActionRequests.Count == 0)
-        {
-            Debug.Log($"Cleaning Employee {employeeName} has no action requests to handle.");
-            return;
-        }
-        ActionRequest actionRequest = department.newActionRequests[0];
-        StartCoroutine(HandleActionProcess(actionRequest));
-    }
-
-    public new void SecondaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Cleaning Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Cleaning Employee {employeeName} is performing a secondary action.");
-        if (department.claimedActionRequests.Count == 0)
-        {
-            Debug.Log($"Cleaning Employee {employeeName} has no claimed action requests to review.");
-            return;
-        }
-        int experiencePoints = department.claimedActionRequests.Count * 5;
-        AddExperience(experiencePoints);
-        department.claimedActionRequests.Clear();
-    }
-
-    public new void CancelAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Cleaning Employee {employeeName} has canceled the current action.");
-            StopAllCoroutines();
-            actionState = ActionState.State.Idle;
-        }
-        else
-        {
-            Debug.Log($"Cleaning Employee {employeeName} is not currently working on any action.");
-        }
-    }
-
-    IEnumerator HandleActionProcess(ActionRequest actionRequest)
-    {
-        actionState = ActionState.State.Working;
-        yield return StartCoroutine(HandleActionRequest(actionRequest));
-        actionState = ActionState.State.Idle;
-    }
-
-    IEnumerator HandleActionRequest(ActionRequest actionRequest)
-    {
-        Debug.Log($"Cleaning Employee {employeeName} is handling an action request.");
-        for (int i = 0; i < department.statTimes.Count; i++)
-        {
-            Debug.Log($"Cleaning Employee {employeeName} is performing action {department.statTimes[i].Key}({i + 1}) for {department.statTimes[i].Value} seconds.");
-            yield return new WaitForSeconds(department.statTimes[i].Value);
-        }
-        float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetStatAverage())
-        {
-            Debug.Log($"Cleaning Employee {employeeName} successfully handled the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Completed;
-        }
-        else
-        {
-            Debug.Log($"Cleaning Employee {employeeName} failed to handle the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Failed;
-        }
-        department.claimedActionRequests.Add(actionRequest);
-        department.newActionRequests.Remove(actionRequest);
-        AddExperience(10);
-    }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + combinedTraits.speed); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + routineMaintenance + combinedTraits.stamina); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + thoroughness + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + thoroughness + routineMaintenance + combinedTraits.efficiency); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
+
 public class CleaningManager : CleaningEmployee
 {
     public CleaningManager() { } // Default constructor
     public CleaningManager(Employee existingEmployee) : base(existingEmployee) { }
-
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + +combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + zonePrioritization + cleanlinessStandards + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + zonePrioritization + supplyManagement + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + cleanlinessStandards + combinedTraits.stamina);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + supplyManagement + combinedTraits.experience);
-    }
-
+    public new float GetSpeed() { return Mathf.Min(2f, speed + +combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + zonePrioritization + cleanlinessStandards + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + zonePrioritization + supplyManagement + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + cleanlinessStandards + combinedTraits.stamina); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + supplyManagement + combinedTraits.experience); }
 }
+
 public class LearningEmployee : Employee
 {
     public LearningEmployee() { } // Default constructor
     public LearningEmployee(Employee existingEmployee) : base(existingEmployee) { }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + trainingEffectiveness + skillTransfer + combinedTraits.experience);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + trainingEffectiveness + skillTransfer + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + motivation + combinedTraits.stamina);
-    }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + combinedTraits.focus);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-
-    public new void PrimaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Learning Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Learning Employee {employeeName} is performing a primary action.");
-        if (department.newActionRequests.Count == 0)
-        {
-            Debug.Log($"Learning Employee {employeeName} has no action requests to handle.");
-            return;
-        }
-        ActionRequest actionRequest = department.newActionRequests[0];
-        StartCoroutine(HandleActionProcess(actionRequest));
-    }
-
-    public new void SecondaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Learning Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Learning Employee {employeeName} is performing a secondary action.");
-        if (department.claimedActionRequests.Count == 0)
-        {
-            Debug.Log($"Learning Employee {employeeName} has no claimed action requests to review.");
-            return;
-        }
-        int experiencePoints = department.claimedActionRequests.Count * 5;
-        AddExperience(experiencePoints);
-        department.claimedActionRequests.Clear();
-    }
-
-    public new void CancelAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Learning Employee {employeeName} has canceled the current action.");
-            StopAllCoroutines();
-            actionState = ActionState.State.Idle;
-        }
-        else
-        {
-            Debug.Log($"Learning Employee {employeeName} is not currently working on any action.");
-        }
-    }
-
-    IEnumerator HandleActionProcess(ActionRequest actionRequest)
-    {
-        actionState = ActionState.State.Working;
-        yield return StartCoroutine(HandleActionRequest(actionRequest));
-        actionState = ActionState.State.Idle;
-    }
-
-    IEnumerator HandleActionRequest(ActionRequest actionRequest)
-    {
-        Debug.Log($"Learning Employee {employeeName} is handling an action request.");
-        for (int i = 0; i < department.statTimes.Count; i++)
-        {
-            Debug.Log($"Learning Employee {employeeName} is performing action {department.statTimes[i].Key}({i + 1}) for {department.statTimes[i].Value} seconds.");
-            yield return new WaitForSeconds(department.statTimes[i].Value);
-        }
-        float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetStatAverage())
-        {
-            Debug.Log($"Learning Employee {employeeName} successfully handled the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Completed;
-        }
-        else
-        {
-            Debug.Log($"Learning Employee {employeeName} failed to handle the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Failed;
-        }
-        department.claimedActionRequests.Add(actionRequest);
-        department.newActionRequests.Remove(actionRequest);
-        AddExperience(10);
-    }
+    public new float GetExperience() { return Mathf.Min(2f, experience + trainingEffectiveness + skillTransfer + combinedTraits.experience); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + trainingEffectiveness + skillTransfer + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + motivation + combinedTraits.stamina); }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + combinedTraits.focus); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
 }
+
 public class LearningManager : LearningEmployee
 {
     public LearningManager() { } // Default constructor
     public LearningManager(Employee existingEmployee) : base(existingEmployee) { }
-
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + curriculumDesign + progressTracking + upskillingStrategy + combinedTraits.experience);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + curriculumDesign + upskillingStrategy + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + +combinedTraits.stamina);
-    }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + progressTracking + combinedTraits.focus);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-
+    public new float GetExperience() { return Mathf.Min(2f, experience + curriculumDesign + progressTracking + upskillingStrategy + combinedTraits.experience); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + curriculumDesign + upskillingStrategy + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + +combinedTraits.stamina); }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + progressTracking + combinedTraits.focus); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
 }
+
 public class SafetyEmployee : Employee
 {
     public SafetyEmployee() { } // Default constructor
     public SafetyEmployee(Employee existingEmployee) : base(existingEmployee) { }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + hazardIdentification + emergencyResponse + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + hazardIdentification + accidentPrevention + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + accidentPrevention + combinedTraits.stamina);
-    }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + emergencyResponse + combinedTraits.speed);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + combinedTraits.experience);
-    }
-
-    public new void PrimaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Safety Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Safety Employee {employeeName} is performing a primary action.");
-        if (department.newActionRequests.Count == 0)
-        {
-            Debug.Log($"Safety Employee {employeeName} has no action requests to handle.");
-            return;
-        }
-        ActionRequest actionRequest = department.newActionRequests[0];
-        StartCoroutine(HandleActionProcess(actionRequest));
-    }
-
-    public new void SecondaryAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Safety Employee {employeeName} is busy with another action.");
-            return;
-        }
-        Debug.Log($"Safety Employee {employeeName} is performing a secondary action.");
-        if (department.claimedActionRequests.Count == 0)
-        {
-            Debug.Log($"Safety Employee {employeeName} has no claimed action requests to review.");
-            return;
-        }
-        int experiencePoints = department.claimedActionRequests.Count * 5;
-        AddExperience(experiencePoints);
-        department.claimedActionRequests.Clear();
-    }
-
-    public new void CancelAction()
-    {
-        if (actionState != ActionState.State.Idle)
-        {
-            Debug.Log($"Safety Employee {employeeName} has canceled the current action.");
-            StopAllCoroutines();
-            actionState = ActionState.State.Idle;
-        }
-        else
-        {
-            Debug.Log($"Safety Employee {employeeName} is not currently working on any action.");
-        }
-    }
-
-    IEnumerator HandleActionProcess(ActionRequest actionRequest)
-    {
-        actionState = ActionState.State.Working;
-        yield return StartCoroutine(HandleActionRequest(actionRequest));
-        actionState = ActionState.State.Idle;
-    }
-
-    IEnumerator HandleActionRequest(ActionRequest actionRequest)
-    {
-        Debug.Log($"Safety Employee {employeeName} is handling an action request.");
-        for (int i = 0; i < department.statTimes.Count; i++)
-        {
-            Debug.Log($"Safety Employee {employeeName} is performing action {department.statTimes[i].Key}({i + 1}) for {department.statTimes[i].Value} seconds.");
-            yield return new WaitForSeconds(department.statTimes[i].Value);
-        }
-        float successChance = Random.Range(0f, 2f);
-        if (successChance <= GetStatAverage())
-        {
-            Debug.Log($"Safety Employee {employeeName} successfully handled the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Completed;
-        }
-        else
-        {
-            Debug.Log($"Safety Employee {employeeName} failed to handle the action request.");
-            actionRequest.status = ActionRequest.StatusType.Type.Failed;
-        }
-        department.claimedActionRequests.Add(actionRequest);
-        department.newActionRequests.Remove(actionRequest);
-        AddExperience(10);
-    }
+    public new float GetFocus() { return Mathf.Min(2f, focus + hazardIdentification + emergencyResponse + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + hazardIdentification + accidentPrevention + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + accidentPrevention + combinedTraits.stamina); }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + emergencyResponse + combinedTraits.speed); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
+
 public class SafetyManager : SafetyEmployee
 {
     public SafetyManager() { } // Default constructor
     public SafetyManager(Employee existingEmployee) : base(existingEmployee) { }
-
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + auditExecution + incidentReview + combinedTraits.focus);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + trainingEnforcement + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + combinedTraits.stamina);
-    }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + incidentReview + combinedTraits.speed);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + trainingEnforcement + auditExecution + combinedTraits.experience);
-    }
-
+    public new float GetFocus() { return Mathf.Min(2f, focus + auditExecution + incidentReview + combinedTraits.focus); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + trainingEnforcement + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + combinedTraits.stamina); }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + incidentReview + combinedTraits.speed); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
+    public new float GetExperience() { return Mathf.Min(2f, experience + trainingEnforcement + auditExecution + combinedTraits.experience); }
 }
+
 public class RecruitingEmployee : Employee
 {
     public RecruitingEmployee() { } // Default constructor
     public RecruitingEmployee(Employee existingEmployee) : base(existingEmployee) { }
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + interviewingSkills + combinedTraits.experience);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + talentScouting + onboardingEfficieny + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + combinedTraits.stamina);
-    }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + onboardingEfficieny + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + interviewingSkills + talentScouting + combinedTraits.focus);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-
+    public new float GetExperience() { return Mathf.Min(2f, experience + interviewingSkills + combinedTraits.experience); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + talentScouting + onboardingEfficieny + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + combinedTraits.stamina); }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + onboardingEfficieny + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + interviewingSkills + talentScouting + combinedTraits.focus); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
 }
+
 public class RecruitingManager : RecruitingEmployee
 {
     public RecruitingManager() { } // Default constructor
     public RecruitingManager(Employee existingEmployee) : base(existingEmployee) { }
-
-    public new float GetExperience()
-    {
-        return Mathf.Min(2f, experience + interviewOversight + combinedTraits.experience);
-    }
-    public new float GetEfficiency()
-    {
-        return Mathf.Min(2f, efficiency + candidatePipelineManagement + onboardingStrategy + combinedTraits.efficiency);
-    }
-    public new float GetStamina()
-    {
-        return Mathf.Min(2f, stamina + combinedTraits.stamina);
-    }
-    public new float GetSpeed()
-    {
-        return Mathf.Min(2f, speed + onboardingStrategy + combinedTraits.speed);
-    }
-    public new float GetFocus()
-    {
-        return Mathf.Min(2f, focus + candidatePipelineManagement + interviewOversight + combinedTraits.focus);
-    }
-    public new float GetStrength()
-    {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
-    }
-
+    public new float GetExperience() { return Mathf.Min(2f, experience + interviewOversight + combinedTraits.experience); }
+    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + candidatePipelineManagement + onboardingStrategy + combinedTraits.efficiency); }
+    public new float GetStamina() { return Mathf.Min(2f, stamina + combinedTraits.stamina); }
+    public new float GetSpeed() { return Mathf.Min(2f, speed + onboardingStrategy + combinedTraits.speed); }
+    public new float GetFocus() { return Mathf.Min(2f, focus + candidatePipelineManagement + interviewOversight + combinedTraits.focus); }
+    public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
 }

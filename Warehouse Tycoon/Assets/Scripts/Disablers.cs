@@ -4,6 +4,13 @@ public class Disablers
 {
     public class Warehouse
     {
+        public static List<Disabler> allDisablers = new List<Disabler>
+        {
+            fire,
+            powerOutage,
+            securityBreach,
+            networkFailure
+        };
         public static Disabler fire = new Disabler("Fire", new List<DepartmentTypes.Type> { DepartmentTypes.Type.Safety, DepartmentTypes.Type.Maintenance });
         public static Disabler powerOutage = new Disabler("Power Outage", new List<DepartmentTypes.Type> { DepartmentTypes.Type.Maintenance });
         public static Disabler securityBreach = new Disabler("Security Breach", new List<DepartmentTypes.Type> { DepartmentTypes.Type.Security });
@@ -11,6 +18,18 @@ public class Disablers
     }
     public class Department
     {
+        public static List<Disabler> allDisablers = new List<Disabler>
+        {
+            deviceFailure,
+            serverFailure,
+            mechanicalFailure,
+            electricalFailure,
+            chemicalSpill,
+            flood,
+            equipmentFailure,
+            accident,
+            hazardousMaterial
+        };
         public static Disabler deviceFailure = new Disabler("Device Failure", new List<DepartmentTypes.Type> { DepartmentTypes.Type.IT });
         public static Disabler serverFailure = new Disabler("Server Failure", new List<DepartmentTypes.Type> { DepartmentTypes.Type.IT });
         public static Disabler mechanicalFailure = new Disabler("Mechanical Failure", new List<DepartmentTypes.Type> { DepartmentTypes.Type.Maintenance });
@@ -23,8 +42,23 @@ public class Disablers
     }
     public class Employee
     {
-        public static Disabler injury = new Disabler("Injury", new List<DepartmentTypes.Type> { DepartmentTypes.Type.Safety, DepartmentTypes.Type.HR });
+        public static List<Disabler> allDisablers = new List<Disabler>
+        {
+            injury,
+            employeeMisconduct,
+            computerFailure,
+            equipmentMalfunction,
+            theft,
+            dirtyStation,
+            stationUnsafe
+        };
+        public static Disabler injury = new Disabler("Injury", new List<DepartmentTypes.Type> { DepartmentTypes.Type.Safety, DepartmentTypes.Type.HR, DepartmentTypes.Type.Safety });
         public static Disabler employeeMisconduct = new Disabler("Employee Misconduct", new List<DepartmentTypes.Type> { DepartmentTypes.Type.HR });
+        public static Disabler computerFailure = new Disabler("Computer Failure", new List<DepartmentTypes.Type> { DepartmentTypes.Type.IT });
+        public static Disabler equipmentMalfunction = new Disabler("Equipment Malfunction", new List<DepartmentTypes.Type> { DepartmentTypes.Type.Maintenance });
+        public static Disabler theft = new Disabler("Theft", new List<DepartmentTypes.Type> { DepartmentTypes.Type.Security, DepartmentTypes.Type.HR });
+        public static Disabler dirtyStation = new Disabler("Dirty Station", new List<DepartmentTypes.Type> { DepartmentTypes.Type.Cleaning });
+        public static Disabler stationUnsafe = new Disabler("Unsafe Station", new List<DepartmentTypes.Type> { DepartmentTypes.Type.Safety });
     }
     public struct Disabler
     {

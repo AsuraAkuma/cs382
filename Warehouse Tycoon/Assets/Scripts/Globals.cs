@@ -3,7 +3,38 @@ using UnityEngine.Networking;
 using System.Collections;
 using System.Text;
 using System.Collections.Generic;
-
+public struct GlobalVariables
+{
+    public string warehouseName;
+    public int warehouseId;
+    public int warehouselevel;
+    public int warehouseValue;
+    public int warehouseExp;
+    public List<Employee> warehouseEmployees;
+    public int warehouseMaxEmployees;
+    public List<Employee> newHires;
+    public List<Department> departments;
+    public int departmentCount;
+    public List<Department> disabledDepartments;
+    public int playerId;
+    public string playerName;
+    public int playerLevel;
+    public double playerExp;
+    public int playerExpMultiplier;
+    public double playerMoney;
+    public double playerMaxMoney;
+    public int playerMaxLevel;
+    public float employeeStatMax;
+    public float employeeStatMin;
+    public float employeeStatUpgradeValue;
+    public float employeeStatUpgradeCost;
+    public float employeeMaxLevel;
+    public int employeeInfractionMax;
+    public StatusType.Type tutorialStatus;
+    public int tutorialStep;
+    public int gameState;
+    public List<Notification> notifications;
+}
 public class Globals
 {
     public static string apiURL = "http://127.0.0.1:5505/api/v1"; // Test API URL for local development
@@ -39,6 +70,12 @@ public class Globals
     public static float employeeStatUpgradeCost = 1000f; // Cost to upgrade employee stats
     public static float employeeMaxLevel = 10f; // Maximum level for employees
     public static int employeeInfractionMax = 3; // Maximum number of infractions for employees
+    // Tutorial data
+    public static StatusType.Type tutorialStatus = StatusType.Type.InComplete; // Status of the tutorial
+    public static int tutorialStep = 0; // Index for the current step in the tutorial
+    // Notification data
+    public static NotificationController notificationController = new NotificationController(); // Reference to the NotificationController
+    public static List<Notification> notifications = new List<Notification>(); // Array of notifications for the player
     public IEnumerator Save()
     {
         // Create a JSON object with the data to send
@@ -66,14 +103,19 @@ public class Globals
             employeeStatUpgradeCost,
             employeeMaxLevel,
             gameState,
-            disabledDepartments = new List<Department>() // Initialize disabledDepartments as an empty list
+            employeeInfractionMax,
+            tutorialStatus = StatusType.GetStatusName(tutorialStatus), // Convert tutorial status to string
+            playerExpMultiplier,
+            tutorialStep,
+            disabledDepartments = new List<Department>(), // Initialize disabledDepartments as an empty list
+            notifications = new List<Notification>() // Initialize notifications as an empty list
         };
 
         // Convert the data to JSON
         string jsonData = JsonUtility.ToJson(data);
 
         // Create a UnityWebRequest for a POST request
-        using (UnityWebRequest request = new UnityWebRequest("https://example.com/api/save", "POST"))
+        using (UnityWebRequest request = new UnityWebRequest($"{apiURL}/save", "POST"))
         {
             byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
@@ -93,5 +135,73 @@ public class Globals
                 Debug.LogError("Error saving data: " + request.error);
             }
         }
+    }
+    public IEnumerator Load()
+    {
+        // Create a UnityWebRequest for a GET request
+        using (UnityWebRequest request = UnityWebRequest.Get($"{apiURL}/load"))
+        {
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("Access-Control-Allow-Origin", "*");
+            request.SetRequestHeader("Accept", "application/json");
+            {
+                // Send the request and wait for a response
+                yield return request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.Success)
+                {
+                    // Parse the JSON response and update the game state
+                    string jsonResponse = request.downloadHandler.text;
+                    var data = JsonUtility.FromJson<GlobalVariables>(jsonResponse);
+                    warehouseName = data.warehouseName;
+                    warehouseId = data.warehouseId;
+                    warehouselevel = data.warehouselevel;
+                    warehouseValue = data.warehouseValue;
+                    warehouseExp = data.warehouseExp;
+                    warehouseMaxEmployees = data.warehouseMaxEmployees;
+                    playerId = data.playerId;
+                    playerName = data.playerName;
+                    playerLevel = data.playerLevel;
+                    playerExp = data.playerExp;
+                    departments = data.departments;
+                    warehouseEmployees = data.warehouseEmployees;
+                    newHires = data.newHires;
+                    playerMoney = data.playerMoney;
+                    playerMaxMoney = data.playerMaxMoney;
+                    playerMaxLevel = data.playerMaxLevel;
+                    employeeStatMax = data.employeeStatMax;
+                    employeeStatMin = data.employeeStatMin;
+                    employeeStatUpgradeValue = data.employeeStatUpgradeValue;
+                    employeeStatUpgradeCost = data.employeeStatUpgradeCost;
+                    employeeMaxLevel = data.employeeMaxLevel;
+                    gameState = data.gameState;
+                    employeeInfractionMax = data.employeeInfractionMax;
+                    tutorialStatus = data.tutorialStatus;
+                    disabledDepartments = data.disabledDepartments;
+                    playerExpMultiplier = data.playerExpMultiplier;
+                    tutorialStep = data.tutorialStep;
+                    notifications = data.notifications;
+                }
+                else
+                {
+                    Debug.LogError("Error loading data: " + request.error);
+                }
+            }
+        }
+    }
+}
+public static class StatusType
+{
+    public enum Type
+    {
+        InComplete,
+        InProgress,
+        Completed
+    }
+
+    public static string GetStatusName(Type statusType)
+    {
+        return statusType.ToString();
     }
 }

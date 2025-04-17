@@ -1,14 +1,18 @@
+using System.Collections;
+
 public class ActionRequest
 {
-    public int id; // Unique identifier for the action request
-    public Employee employee; // Type of action (e.g., "save", "load")
+    public Employee employee; // Employee associated with the action request (if any)
     public StatusType.Type status; // Status of the action request (e.g., "pending", "completed", "failed")
-
+    public IEnumerator action; // Action associated with the request 
+    public Employee affectedEmployee; // Employee affected by the action request (if any)
+    public Department affectedDepartment; // Department associated with the action request (if any)
     // Constructor to initialize an ActionRequest object
-    public ActionRequest(int id, Employee employee = null)
+    public ActionRequest(IEnumerator action, Employee affectedEmployee = null, Department affectedDepartment = null)
     {
-        this.id = id;
-        this.employee = employee;
+        this.affectedEmployee = affectedEmployee;
+        this.affectedDepartment = affectedDepartment;
+        this.action = action;
         status = StatusType.Type.Pending; // Default status is pending
     }
     public class StatusType
@@ -16,6 +20,7 @@ public class ActionRequest
         public enum Type
         {
             Pending, // Action request is pending
+            InProgress, // Action request is in progress
             Completed, // Action request has been completed
             Failed // Action request has failed
         }
