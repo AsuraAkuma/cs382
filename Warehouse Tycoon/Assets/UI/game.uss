@@ -57,7 +57,7 @@
     min-height: 100%;
     color: rgb(255, 255, 255);
     -unity-text-align: middle-center;
-    font-size: 150%;
+    font-size: 20px;
 }
 
 .upgradeName {
@@ -72,11 +72,11 @@
     -unity-text-align: middle-center;
     border-left-color: rgb(255, 255, 255);
     border-left-width: 2px;
-    font-size: 200%;
+    font-size: 20px;
 }
 
 .canUpgrade {
-    color: rgb(59, 255, 0); /* Ensure only one definition exists */
+    color: rgb(59, 255, 0);
 }
 
 .cannotUpgrade {
@@ -86,7 +86,7 @@
 .upgradeList {
     max-height: 100%;
     height: 100%;
-    min-height: 10px; /* Added fallback to prevent height of 0 */
+    min-height: 10px;
 }
 
 .department {
@@ -94,7 +94,7 @@
     width: 95%;
     left: 2.5%;
     max-height: 30%;
-    min-height: 10px; /* Added fallback to prevent height of 0 */
+    min-height: 10px;
     margin-top: 2.5%;
     background-color: rgb(46, 46, 46);
     border-top-left-radius: 10px;
@@ -117,7 +117,7 @@
     border-bottom-width: 2px;
     width: 100%;
     max-height: 15%;
-    min-height: 10px; /* Added fallback to prevent height of 0 */
+    min-height: 10px;
 }
 
 .departmentHeaderLabel {
@@ -157,8 +157,8 @@
     max-height: 100%;
     max-width: 70%;
     margin-left: 5%;
-    height: 100%; 
-    min-height: 50px; 
+    height: 100%;
+    min-height: 50px;
 }
 
 .departmentManagerContainer {
@@ -178,8 +178,6 @@
 
 .departmentManagerButtonUp {
     background-color: rgb(31, 31, 31);
-    /* Uncomment the line below if the background image is needed */
-    /* background-image: url("project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=1169890249420208065&guid=52ad37434abc04c4a89313c780229724&type=3#arrow-up"); */
     min-height: 4%;
     width: 100%;
     border-top-left-radius: 5px;
@@ -200,7 +198,6 @@
     top: 60%;
 }
 
-/* Add additional styling for UI elements needing explicit dimensions */
 .headerButton {
     min-height: 20px;
     height: auto;
@@ -218,8 +215,73 @@
     flex-grow: 1;
 }
 
-/* Fix for potential texture-related issues */
 .unity-builder-viewport {
     min-height: 1px;
     min-width: 1px;
+}
+
+.unity-base-slider__tracker,
+.unity-base-slider__drag-container,
+.unity-base-field__input,
+.unity-base-field,
+.unity-scroller__slider,
+.unity-base-slider--vertical,
+.unity-scroller__slider,
+.unity-base-slider--vertical,
+.unity-scroller--vertical {
+    width: 10px;
+    margin: 0;
+    padding: 0;
+    background-color: rgb(31, 31, 31);
+    position: relative;
+}
+.unity-scroller__low-button,
+.unity-scroller__high-button {
+    display: none;
+}
+.unity-scroll-view {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.unity-scroll-view__content-container {
+    margin-right: 10px;
+}
+
+.unity-scroller--vertical {
+    border-left-width: 1px;
+    border-left-color: rgb(70, 70, 70);
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 10px;
+}
+
+.unity-scroller--horizontal {
+    border-top-width: 1px;
+    border-top-color: rgb(70, 70, 70);
+}
+
+.unity-base-slider__dragger {
+    background-color: rgb(100, 100, 100);
+    border-radius: 2px;
+    margin: 0;
+    width: 5px;
+}
+
+.unity-base-slider__dragger:hover,
+.unity-base-slider__dragger:active,
+.unity-base-slider__dragger:focus {
+    background-color: rgb(255, 141, 0);
+}
+
+.unity-base-slider__dragger:active {
+    background-color: rgb(255, 141, 0);
+}
+
+.unity-scroll-view__content-viewport {
+    margin: 0;
+    padding: 0;
 }
