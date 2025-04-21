@@ -1,9 +1,34 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/game.uss?fileID=7433441132597879392&amp;guid=6aa6b823db36ee5448501dddb0850514&amp;type=3#game" />
     <engine:VisualElement name="body" class="body" style="background-color: rgb(31, 31, 31);">
-        <engine:VisualElement name="upgradePanel" style="flex-grow: 1; width: 20%; height: 100%; max-height: none; background-color: rgb(46, 46, 46); position: absolute; border-right-color: rgb(255, 141, 0); border-right-width: 2px;">
-            <engine:Label text="Upgrades" name="upgradeHeader" class="upgradeHeader" style="font-size: 40%; color: rgb(59, 255, 0); -unity-text-align: middle-center; top: auto; width: 90%; left: 5%; border-bottom-color: rgb(255, 255, 255); border-bottom-width: 2px; margin-top: 21%; padding-bottom: 2%;" />
-            <engine:ScrollView name="upgradeList" vertical-scroller-visibility="Auto" class="upgradeList" style="min-height: 10px;">
+        <engine:VisualElement name="employeesPanel" class="upgradePanel" style="display: flex;">
+            <engine:Label text="Employees" name="upgradeHeader" class="upgradeHeader" />
+            <engine:ScrollView name="employeeList" vertical-scroller-visibility="Auto" class="upgradeList" style="min-height: 10px; width: 100%;">
+                <engine:VisualElement name="employeeListItem" class="employeeListItem">
+                    <engine:VisualElement name="employeeListItemPicture" class="employeeListItemPicture" />
+                    <engine:Label text="Name: EmployeeName&#10;Department: HR&#10;Speed: 1&#10;Efficiency: 1&#10;Stamina: 1&#10;Strength: 1&#10;Focus: 1&#10;Experience: 0&#10;" name="employeeListItemDetails" class="employeeListItemDetails" />
+                </engine:VisualElement>
+                <engine:VisualElement name="employeeListItem" class="employeeListItem">
+                    <engine:VisualElement name="employeeListItemPicture" class="employeeListItemPicture" />
+                    <engine:Label text="Name: EmployeeName&#10;Department: HR&#10;Speed: 1&#10;Efficiency: 1&#10;Stamina: 1&#10;Strength: 1&#10;Focus: 1&#10;Experience: 0&#10;" name="employeeListItemDetails" class="employeeListItemDetails" />
+                </engine:VisualElement>
+                <engine:VisualElement name="employeeListItem" class="employeeListItem">
+                    <engine:VisualElement name="employeeListItemPicture" class="employeeListItemPicture" />
+                    <engine:Label text="Name: EmployeeName&#10;Department: HR&#10;Speed: 1&#10;Efficiency: 1&#10;Stamina: 1&#10;Strength: 1&#10;Focus: 1&#10;Experience: 0&#10;" name="employeeListItemDetails" class="employeeListItemDetails" />
+                </engine:VisualElement>
+                <engine:VisualElement name="employeeListItem" class="employeeListItem">
+                    <engine:VisualElement name="employeeListItemPicture" class="employeeListItemPicture" />
+                    <engine:Label text="Name: EmployeeName&#10;Department: HR&#10;Speed: 1&#10;Efficiency: 1&#10;Stamina: 1&#10;Strength: 1&#10;Focus: 1&#10;Experience: 0&#10;" name="employeeListItemDetails" class="employeeListItemDetails" />
+                </engine:VisualElement>
+                <engine:VisualElement name="employeeListItem" class="employeeListItem">
+                    <engine:VisualElement name="employeeListItemPicture" class="employeeListItemPicture" />
+                    <engine:Label text="Name: EmployeeName&#10;Department: HR&#10;Speed: 1&#10;Efficiency: 1&#10;Stamina: 1&#10;Strength: 1&#10;Focus: 1&#10;Experience: 0&#10;" name="employeeListItemDetails" class="employeeListItemDetails" />
+                </engine:VisualElement>
+            </engine:ScrollView>
+        </engine:VisualElement>
+        <engine:VisualElement name="upgradesPanel" class="upgradePanel" style="display: none;">
+            <engine:Label text="Upgrades" name="upgradeHeader" class="upgradeHeader" />
+            <engine:ScrollView name="upgradeList" vertical-scroller-visibility="Auto" class="upgradeList">
                 <engine:VisualElement name="upgrade" class="upgradeContainer">
                     <engine:Label text="LVL&#10;1" name="upgradeLevel" class="upgradeLevel" />
                     <engine:Label text="Speed" name="upgradeName" class="upgradeName" />
@@ -100,18 +125,107 @@
                     <engine:Label text="COST&#10;$250" name="upgradeCost" class="upgradeLevel canUpgrade" />
                 </engine:VisualElement>
             </engine:ScrollView>
-            <engine:VisualElement name="panelNav" class="panelNav" style="border-top-width: 2px; border-top-color: rgb(255, 141, 0);">
-                <engine:Button text="Upgrades" name="panelNavButton" class="panelNavButton" style="background-image: url(&quot;project://database/Assets/up-long-solid.png?fileID=-5029156807988137376&amp;guid=f0be832dafe950c49b59fba4a181bde0&amp;type=3#up-long-solid_0&quot;);" />
-                <engine:Button text="Employees" name="panelNavButton" class="panelNavButton" style="background-image: url(&quot;project://database/Assets/id-badge-regular.png?fileID=-5384287950424165479&amp;guid=0d75eff1d6d2c4a43928bb01f35ad4cc&amp;type=3#id-badge-regular_0&quot;);" />
-                <engine:Button text="Store" name="panelNavButton" class="panelNavButton" style="background-image: url(&quot;project://database/Assets/dollar-sign-solid%20gold.png?fileID=-8314285812331833896&amp;guid=9685f2c8b0471094a9970750283278d9&amp;type=3#dollar-sign-solid gold_0&quot;);" />
-            </engine:VisualElement>
+        </engine:VisualElement>
+        <engine:VisualElement name="newHiresPanel" class="upgradePanel" style="display: none;">
+            <engine:Label text="New Hires" name="upgradeHeader" class="upgradeHeader" />
+            <engine:ScrollView name="newHireList" vertical-scroller-visibility="Auto" class="upgradeList" style="min-height: 10px; width: 100%;">
+                <engine:VisualElement name="newHireListItem" class="employeeListItem newHireListItem">
+                    <engine:VisualElement name="newHireListItemPicture" class="employeeListItemPicture newHireListItemPicture" />
+                    <engine:Label text="Name: EmployeeName&#10;Department: HR&#10;Speed: 1&#10;Efficiency: 1&#10;Stamina: 1&#10;Strength: 1&#10;Focus: 1&#10;Experience: 0&#10;" name="newHireListItemDetails" class="employeeListItemDetails" />
+                    <engine:Button text="Hire" name="newHireListItemHireButton" class="newHireListItemHireButton" />
+                    <engine:Button text="Reject" name="newHireListItemRejectButton" class="newHireListItemRejectButton" />
+                </engine:VisualElement>
+            </engine:ScrollView>
+        </engine:VisualElement>
+        <engine:VisualElement name="storePanel" class="upgradePanel" style="display: none;">
+            <engine:Label text="Store" name="upgradeHeader" class="upgradeHeader" />
+            <engine:ScrollView name="departmentList" vertical-scroller-visibility="Auto" class="upgradeList">
+                <engine:VisualElement name="storeItemDepartmentHR" class="upgradeContainer">
+                    <engine:Label text="HR" name="storeItemName" class="storeItemName" />
+                    <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
+                </engine:VisualElement>
+                <engine:VisualElement name="storeItemDepartmentIT" class="upgradeContainer">
+                    <engine:Label text="IT" name="storeItemName" class="storeItemName" />
+                    <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
+                </engine:VisualElement>
+                <engine:VisualElement name="storeItemDepartmentOperations" class="upgradeContainer">
+                    <engine:Label text="Operations" name="storeItemName" class="storeItemName" />
+                    <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
+                </engine:VisualElement>
+                <engine:VisualElement name="storeItemDepartmentInbound" class="upgradeContainer">
+                    <engine:Label text="Inbound" name="storeItemName" class="storeItemName" />
+                    <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
+                </engine:VisualElement>
+                <engine:VisualElement name="storeItemDepartmentSorting" class="upgradeContainer">
+                    <engine:Label text="Sorting" name="storeItemName" class="storeItemName" />
+                    <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
+                </engine:VisualElement>
+                <engine:VisualElement name="storeItemDepartmentRepacking" class="upgradeContainer">
+                    <engine:Label text="Repacking" name="storeItemName" class="storeItemName" />
+                    <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
+                </engine:VisualElement>
+                <engine:VisualElement name="storeItemDepartmentPalletizing" class="upgradeContainer">
+                    <engine:Label text="Palletizing" name="storeItemName" class="storeItemName" />
+                    <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
+                </engine:VisualElement>
+                <engine:VisualElement name="storeItemDepartmentWaterSpidering" class="upgradeContainer">
+                    <engine:Label text="Water Spidering" name="storeItemName" class="storeItemName" />
+                    <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
+                </engine:VisualElement>
+                <engine:VisualElement name="storeItemDepartmentFluidLoad" class="upgradeContainer">
+                    <engine:Label text="Fluid Load" name="storeItemName" class="storeItemName" />
+                    <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
+                </engine:VisualElement>
+                <engine:VisualElement name="storeItemDepartmentQualityControl" class="upgradeContainer">
+                    <engine:Label text="Quality Control" name="storeItemName" class="storeItemName" />
+                    <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
+                </engine:VisualElement>
+                <engine:VisualElement name="storeItemDepartmentOutbound" class="upgradeContainer">
+                    <engine:Label text="Outbound" name="storeItemName" class="storeItemName" />
+                    <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
+                </engine:VisualElement>
+                <engine:VisualElement name="storeItemDepartmentMaintenance" class="upgradeContainer">
+                    <engine:Label text="Maintenance" name="storeItemName" class="storeItemName" />
+                    <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
+                </engine:VisualElement>
+                <engine:VisualElement name="storeItemDepartmentRobotics" class="upgradeContainer">
+                    <engine:Label text="Robotics" name="storeItemName" class="storeItemName" />
+                    <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
+                </engine:VisualElement>
+                <engine:VisualElement name="storeItemDepartmentSafety" class="upgradeContainer">
+                    <engine:Label text="Safety" name="storeItemName" class="storeItemName" />
+                    <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
+                </engine:VisualElement>
+                <engine:VisualElement name="storeItemDepartmentCleaning" class="upgradeContainer">
+                    <engine:Label text="Cleaning" name="storeItemName" class="storeItemName" />
+                    <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
+                </engine:VisualElement>
+                <engine:VisualElement name="storeItemDepartmentSecurity" class="upgradeContainer">
+                    <engine:Label text="Security" name="storeItemName" class="storeItemName" />
+                    <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
+                </engine:VisualElement>
+                <engine:VisualElement name="storeItemDepartmentLearningAndDevelopment" class="upgradeContainer">
+                    <engine:Label text="Learning" name="storeItemName" class="storeItemName" />
+                    <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
+                </engine:VisualElement>
+                <engine:VisualElement name="storeItemDepartmentRecruiting" class="upgradeContainer">
+                    <engine:Label text="Recruiting" name="storeItemName" class="storeItemName" />
+                    <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
+                </engine:VisualElement>
+            </engine:ScrollView>
+        </engine:VisualElement>
+        <engine:VisualElement name="panelNav" class="panelNav">
+            <engine:Button text="Upgrades" name="panelNavUpgradesButton" class="panelNavButton" style="background-image: url(&quot;project://database/Assets/up-long-solid.png?fileID=-5029156807988137376&amp;guid=800d8816e1cba76408c49a8dc8256c45&amp;type=3#up-long-solid_0&quot;);" />
+            <engine:Button text="Employees" name="panelNavEmployeesButton" class="panelNavButton" style="background-image: url(&quot;project://database/Assets/id-badge-regular.png?fileID=-5384287950424165479&amp;guid=d62c8274a80925f44ace89450b25a947&amp;type=3#id-badge-regular_0&quot;);" />
+            <engine:Button text="Store" name="panelNavStoreButton" class="panelNavButton" style="background-image: url(&quot;project://database/Assets/dollar-sign-solid%20gold.png?fileID=-8314285812331833896&amp;guid=631f2b83760a83449957d43d4c1ca7aa&amp;type=3#dollar-sign-solid gold_0&quot;);" />
+            <engine:Button text="New Hires" name="panelNavNewHiresButton" class="panelNavButton" style="background-image: url(&quot;project://database/Assets/id-badge-regular.png?fileID=-5384287950424165479&amp;guid=d62c8274a80925f44ace89450b25a947&amp;type=3#id-badge-regular_0&quot;);" />
         </engine:VisualElement>
         <engine:VisualElement name="header" class="header" style="border-bottom-width: 2px; border-bottom-color: rgb(255, 141, 0);">
             <engine:Label text="Warehouse Name" name="warehouseName" class="headerLabel" style="width: 25%;" />
             <engine:Label text="Balance: $0" name="balance" class="headerLabel" style="left: 37.5%; position: absolute; height: 100%; max-height: 100%; top: 0; -unity-text-align: middle-center;" />
             <engine:Label text="Player Name" name="playerName" class="headerLabel" style="left: 49%; position: relative; height: 100%; max-height: 100%; top: 0; -unity-text-align: middle-right;" />
         </engine:VisualElement>
-        <engine:ScrollView name="departmentList" style="width: 80%; height: 100%; max-height: 100%; left: 20%;">
+        <engine:ScrollView name="departmentsMainList" style="width: 80%; height: 100%; max-height: 100%; left: 20%;">
             <engine:VisualElement name="department" class="department">
                 <engine:VisualElement name="departmentHeader" class="departmentHeader" style="flex-direction: row;">
                     <engine:Label text="Department Name" name="departmentHeaderLabel" class="departmentHeaderLabel" />
@@ -125,19 +239,209 @@
                         <engine:VisualElement name="departmentManagerContainer" class="departmentManagerContainer" style="min-height: 10px;">
                             <engine:VisualElement name="departmentManagerImg" class="departmentManagerImg" style="min-height: 10px;" />
                             <engine:VisualElement name="departmentManagerButtons" class="departmentManagerButtons">
-                                <engine:Button name="departmentManagerButtonUp" class="departmentManagerButtonUp" />
-                                <engine:Button name="departmentManagerButtonDown" class="departmentManagerButtonDown" />
+                                <engine:Button name="departmentManagerButtonUp" class="departmentManagerButtonUp" style="background-image: url(&quot;project://database/Assets/square-caret-up-regular.png?fileID=6709490733029022491&amp;guid=d1e490dc26130b34f9d09936af8d4216&amp;type=3#square-caret-up-regular_0&quot;);" />
+                                <engine:Button name="departmentManagerButtonDown" class="departmentManagerButtonDown" style="background-image: url(&quot;project://database/Assets/square-caret-down-regular.png?fileID=5498669254548924694&amp;guid=8d80e9abf6f0bd54c8008c6b25f6003b&amp;type=3#square-caret-down-regular_0&quot;);" />
                             </engine:VisualElement>
                         </engine:VisualElement>
                         <engine:Label text="Manager Name&#10;lvl: 1" name="managerLabel" class="managerLabel" />
                     </engine:VisualElement>
                     <engine:VisualElement name="departmentEmployees" class="departmentEmployees">
-                        <engine:ScrollView name="departmentEmployeeList" class="departmentEmployeeList">
-                            <engine:VisualElement name="departmentEmployee" class="departmentEmployee" />
+                        <engine:ScrollView name="departmentEmployeeList" mode="Horizontal" vertical-scroller-visibility="Hidden" class="departmentEmployeeList">
+                            <engine:VisualElement name="departmentEmployee" class="departmentEmployee">
+                                <engine:VisualElement name="departmentEmployeePicture" class="departmentEmployeePicture" style="background-image: url(&quot;project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&amp;guid=202aca5f490fa7a4b9a2bedf4d174cff&amp;type=3#person pic_0&quot;);" />
+                                <engine:Label text="Employee Name&#10;lvl: 1" name="departmentEmployeeLabel" class="departmentEmployeeLabel" />
+                            </engine:VisualElement>
+                            <engine:VisualElement name="departmentEmployee" class="departmentEmployee">
+                                <engine:VisualElement name="departmentEmployeePicture" class="departmentEmployeePicture" style="background-image: url(&quot;project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&amp;guid=202aca5f490fa7a4b9a2bedf4d174cff&amp;type=3#person pic_0&quot;);" />
+                                <engine:Label text="Employee Name&#10;lvl: 1" name="departmentEmployeeLabel" class="departmentEmployeeLabel" />
+                            </engine:VisualElement>
+                            <engine:VisualElement name="departmentEmployee" class="departmentEmployee">
+                                <engine:VisualElement name="departmentEmployeePicture" class="departmentEmployeePicture" style="background-image: url(&quot;project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&amp;guid=202aca5f490fa7a4b9a2bedf4d174cff&amp;type=3#person pic_0&quot;);" />
+                                <engine:Label text="Employee Name&#10;lvl: 1" name="departmentEmployeeLabel" class="departmentEmployeeLabel" />
+                            </engine:VisualElement>
+                            <engine:VisualElement name="departmentEmployee" class="departmentEmployee">
+                                <engine:VisualElement name="departmentEmployeePicture" class="departmentEmployeePicture" style="background-image: url(&quot;project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&amp;guid=202aca5f490fa7a4b9a2bedf4d174cff&amp;type=3#person pic_0&quot;);" />
+                                <engine:Label text="Employee Name&#10;lvl: 1" name="departmentEmployeeLabel" class="departmentEmployeeLabel" />
+                            </engine:VisualElement>
+                            <engine:VisualElement name="departmentEmployee" class="departmentEmployee">
+                                <engine:VisualElement name="departmentEmployeePicture" class="departmentEmployeePicture" style="background-image: url(&quot;project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&amp;guid=202aca5f490fa7a4b9a2bedf4d174cff&amp;type=3#person pic_0&quot;);" />
+                                <engine:Label text="Employee Name&#10;lvl: 1" name="departmentEmployeeLabel" class="departmentEmployeeLabel" />
+                            </engine:VisualElement>
+                            <engine:VisualElement name="departmentEmployee" class="departmentEmployee">
+                                <engine:VisualElement name="departmentEmployeePicture" class="departmentEmployeePicture" style="background-image: url(&quot;project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&amp;guid=202aca5f490fa7a4b9a2bedf4d174cff&amp;type=3#person pic_0&quot;);" />
+                                <engine:Label text="Employee Name&#10;lvl: 1" name="departmentEmployeeLabel" class="departmentEmployeeLabel" />
+                            </engine:VisualElement>
+                        </engine:ScrollView>
+                    </engine:VisualElement>
+                </engine:VisualElement>
+            </engine:VisualElement>
+            <engine:VisualElement name="department" class="department">
+                <engine:VisualElement name="departmentHeader" class="departmentHeader" style="flex-direction: row;">
+                    <engine:Label text="Department Name" name="departmentHeaderLabel" class="departmentHeaderLabel" />
+                    <engine:Label text="lvl: 1" name="departmentHeaderLabel" class="departmentHeaderLabel" />
+                    <engine:Label text="Exp: 0" name="departmentHeaderLabel" class="departmentHeaderLabel" />
+                    <engine:Label text="New Tasks: 0" name="departmentHeaderLabel" class="departmentHeaderLabel" />
+                    <engine:Label text="Done Tasks: 0" name="departmentHeaderLabel" class="departmentHeaderLabel" />
+                </engine:VisualElement>
+                <engine:VisualElement name="departmentSection" class="departmentSection">
+                    <engine:VisualElement name="departmentManager" class="departmentManager">
+                        <engine:VisualElement name="departmentManagerContainer" class="departmentManagerContainer" style="min-height: 10px;">
+                            <engine:VisualElement name="departmentManagerImg" class="departmentManagerImg" style="min-height: 10px;" />
+                            <engine:VisualElement name="departmentManagerButtons" class="departmentManagerButtons">
+                                <engine:Button name="departmentManagerButtonUp" class="departmentManagerButtonUp" style="background-image: url(&quot;project://database/Assets/square-caret-up-regular.png?fileID=6709490733029022491&amp;guid=d1e490dc26130b34f9d09936af8d4216&amp;type=3#square-caret-up-regular_0&quot;);" />
+                                <engine:Button name="departmentManagerButtonDown" class="departmentManagerButtonDown" style="background-image: url(&quot;project://database/Assets/square-caret-down-regular.png?fileID=5498669254548924694&amp;guid=8d80e9abf6f0bd54c8008c6b25f6003b&amp;type=3#square-caret-down-regular_0&quot;);" />
+                            </engine:VisualElement>
+                        </engine:VisualElement>
+                        <engine:Label text="Manager Name&#10;lvl: 1" name="managerLabel" class="managerLabel" />
+                    </engine:VisualElement>
+                    <engine:VisualElement name="departmentEmployees" class="departmentEmployees">
+                        <engine:ScrollView name="departmentEmployeeList" mode="Horizontal" vertical-scroller-visibility="Hidden" class="departmentEmployeeList" style="flex-direction: column;">
+                            <engine:VisualElement name="departmentEmployee" class="departmentEmployee">
+                                <engine:VisualElement name="departmentEmployeePicture" class="departmentEmployeePicture" style="background-image: url(&quot;project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&amp;guid=202aca5f490fa7a4b9a2bedf4d174cff&amp;type=3#person pic_0&quot;);" />
+                                <engine:Label text="Employee Name&#10;lvl: 1" name="departmentEmployeeLabel" class="departmentEmployeeLabel" />
+                            </engine:VisualElement>
+                            <engine:VisualElement name="departmentEmployee" class="departmentEmployee">
+                                <engine:VisualElement name="departmentEmployeePicture" class="departmentEmployeePicture" style="background-image: url(&quot;project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&amp;guid=202aca5f490fa7a4b9a2bedf4d174cff&amp;type=3#person pic_0&quot;);" />
+                                <engine:Label text="Employee Name&#10;lvl: 1" name="departmentEmployeeLabel" class="departmentEmployeeLabel" />
+                            </engine:VisualElement>
+                            <engine:VisualElement name="departmentEmployee" class="departmentEmployee">
+                                <engine:VisualElement name="departmentEmployeePicture" class="departmentEmployeePicture" style="background-image: url(&quot;project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&amp;guid=202aca5f490fa7a4b9a2bedf4d174cff&amp;type=3#person pic_0&quot;);" />
+                                <engine:Label text="Employee Name&#10;lvl: 1" name="departmentEmployeeLabel" class="departmentEmployeeLabel" />
+                            </engine:VisualElement>
+                            <engine:VisualElement name="departmentEmployee" class="departmentEmployee">
+                                <engine:VisualElement name="departmentEmployeePicture" class="departmentEmployeePicture" style="background-image: url(&quot;project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&amp;guid=202aca5f490fa7a4b9a2bedf4d174cff&amp;type=3#person pic_0&quot;);" />
+                                <engine:Label text="Employee Name&#10;lvl: 1" name="departmentEmployeeLabel" class="departmentEmployeeLabel" />
+                            </engine:VisualElement>
+                            <engine:VisualElement name="departmentEmployee" class="departmentEmployee">
+                                <engine:VisualElement name="departmentEmployeePicture" class="departmentEmployeePicture" style="background-image: url(&quot;project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&amp;guid=202aca5f490fa7a4b9a2bedf4d174cff&amp;type=3#person pic_0&quot;);" />
+                                <engine:Label text="Employee Name&#10;lvl: 1" name="departmentEmployeeLabel" class="departmentEmployeeLabel" />
+                            </engine:VisualElement>
+                            <engine:VisualElement name="departmentEmployee" class="departmentEmployee">
+                                <engine:VisualElement name="departmentEmployeePicture" class="departmentEmployeePicture" style="background-image: url(&quot;project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&amp;guid=202aca5f490fa7a4b9a2bedf4d174cff&amp;type=3#person pic_0&quot;);" />
+                                <engine:Label text="Employee Name&#10;lvl: 1" name="departmentEmployeeLabel" class="departmentEmployeeLabel" />
+                            </engine:VisualElement>
+                        </engine:ScrollView>
+                    </engine:VisualElement>
+                </engine:VisualElement>
+            </engine:VisualElement>
+            <engine:VisualElement name="department" class="department">
+                <engine:VisualElement name="departmentHeader" class="departmentHeader" style="flex-direction: row;">
+                    <engine:Label text="Department Name" name="departmentHeaderLabel" class="departmentHeaderLabel" />
+                    <engine:Label text="lvl: 1" name="departmentHeaderLabel" class="departmentHeaderLabel" />
+                    <engine:Label text="Exp: 0" name="departmentHeaderLabel" class="departmentHeaderLabel" />
+                    <engine:Label text="New Tasks: 0" name="departmentHeaderLabel" class="departmentHeaderLabel" />
+                    <engine:Label text="Done Tasks: 0" name="departmentHeaderLabel" class="departmentHeaderLabel" />
+                </engine:VisualElement>
+                <engine:VisualElement name="departmentSection" class="departmentSection">
+                    <engine:VisualElement name="departmentManager" class="departmentManager">
+                        <engine:VisualElement name="departmentManagerContainer" class="departmentManagerContainer" style="min-height: 10px;">
+                            <engine:VisualElement name="departmentManagerImg" class="departmentManagerImg" style="min-height: 10px;" />
+                            <engine:VisualElement name="departmentManagerButtons" class="departmentManagerButtons">
+                                <engine:Button name="departmentManagerButtonUp" class="departmentManagerButtonUp" style="background-image: url(&quot;project://database/Assets/square-caret-up-regular.png?fileID=6709490733029022491&amp;guid=d1e490dc26130b34f9d09936af8d4216&amp;type=3#square-caret-up-regular_0&quot;);" />
+                                <engine:Button name="departmentManagerButtonDown" class="departmentManagerButtonDown" style="background-image: url(&quot;project://database/Assets/square-caret-down-regular.png?fileID=5498669254548924694&amp;guid=8d80e9abf6f0bd54c8008c6b25f6003b&amp;type=3#square-caret-down-regular_0&quot;);" />
+                            </engine:VisualElement>
+                        </engine:VisualElement>
+                        <engine:Label text="Manager Name&#10;lvl: 1" name="managerLabel" class="managerLabel" />
+                    </engine:VisualElement>
+                    <engine:VisualElement name="departmentEmployees" class="departmentEmployees">
+                        <engine:ScrollView name="departmentEmployeeList" mode="Horizontal" vertical-scroller-visibility="Hidden" class="departmentEmployeeList" style="flex-direction: column;">
+                            <engine:VisualElement name="departmentEmployee" class="departmentEmployee">
+                                <engine:VisualElement name="departmentEmployeePicture" class="departmentEmployeePicture" style="background-image: url(&quot;project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&amp;guid=202aca5f490fa7a4b9a2bedf4d174cff&amp;type=3#person pic_0&quot;);" />
+                                <engine:Label text="Employee Name&#10;lvl: 1" name="departmentEmployeeLabel" class="departmentEmployeeLabel" />
+                            </engine:VisualElement>
+                            <engine:VisualElement name="departmentEmployee" class="departmentEmployee">
+                                <engine:VisualElement name="departmentEmployeePicture" class="departmentEmployeePicture" style="background-image: url(&quot;project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&amp;guid=202aca5f490fa7a4b9a2bedf4d174cff&amp;type=3#person pic_0&quot;);" />
+                                <engine:Label text="Employee Name&#10;lvl: 1" name="departmentEmployeeLabel" class="departmentEmployeeLabel" />
+                            </engine:VisualElement>
+                            <engine:VisualElement name="departmentEmployee" class="departmentEmployee">
+                                <engine:VisualElement name="departmentEmployeePicture" class="departmentEmployeePicture" style="background-image: url(&quot;project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&amp;guid=202aca5f490fa7a4b9a2bedf4d174cff&amp;type=3#person pic_0&quot;);" />
+                                <engine:Label text="Employee Name&#10;lvl: 1" name="departmentEmployeeLabel" class="departmentEmployeeLabel" />
+                            </engine:VisualElement>
+                            <engine:VisualElement name="departmentEmployee" class="departmentEmployee">
+                                <engine:VisualElement name="departmentEmployeePicture" class="departmentEmployeePicture" style="background-image: url(&quot;project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&amp;guid=202aca5f490fa7a4b9a2bedf4d174cff&amp;type=3#person pic_0&quot;);" />
+                                <engine:Label text="Employee Name&#10;lvl: 1" name="departmentEmployeeLabel" class="departmentEmployeeLabel" />
+                            </engine:VisualElement>
+                            <engine:VisualElement name="departmentEmployee" class="departmentEmployee">
+                                <engine:VisualElement name="departmentEmployeePicture" class="departmentEmployeePicture" style="background-image: url(&quot;project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&amp;guid=202aca5f490fa7a4b9a2bedf4d174cff&amp;type=3#person pic_0&quot;);" />
+                                <engine:Label text="Employee Name&#10;lvl: 1" name="departmentEmployeeLabel" class="departmentEmployeeLabel" />
+                            </engine:VisualElement>
+                            <engine:VisualElement name="departmentEmployee" class="departmentEmployee">
+                                <engine:VisualElement name="departmentEmployeePicture" class="departmentEmployeePicture" style="background-image: url(&quot;project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&amp;guid=202aca5f490fa7a4b9a2bedf4d174cff&amp;type=3#person pic_0&quot;);" />
+                                <engine:Label text="Employee Name&#10;lvl: 1" name="departmentEmployeeLabel" class="departmentEmployeeLabel" />
+                            </engine:VisualElement>
                         </engine:ScrollView>
                     </engine:VisualElement>
                 </engine:VisualElement>
             </engine:VisualElement>
         </engine:ScrollView>
+        <engine:VisualElement name="employeeManager" class="employeeManager" style="display: none;">
+            <engine:VisualElement name="employeeManagerHeader" class="employeeManagerHeader">
+                <engine:Label text="Employee Manager" name="employeeManagerHeaderName" class="employeeManagerHeaderName" />
+                <engine:Button name="employeeManagerHeaderClose" class="employeeManagerHeaderClose" />
+            </engine:VisualElement>
+            <engine:VisualElement name="employeeManagerSection" class="employeeManagerSection">
+                <engine:VisualElement name="employeeManagerImage" class="employeeManagerImage" />
+                <engine:Label text="Name: EmployeeName&#10;Department: HR&#10;Experience: 0&#10;Infractions: 0&#10;Status: Idle&#10;Salary: $250" name="employeeManagerDetails" class="employeeManagerDetails" />
+            </engine:VisualElement>
+            <engine:VisualElement name="employeeManagerSection" class="employeeManagerSection" style="margin-top: 2%; flex-direction: column;">
+                <engine:Label text="Stats" name="employeeManagerSectionHeader" class="employeeManagerSectionHeader" />
+                <engine:VisualElement name="EMStatContainer" style="max-height: 85%; height: 80%; top: 5%; flex-direction: row;">
+                    <engine:VisualElement name="EMStatContainerLeft" style="flex-grow: 1; width: 50%; max-width: 50%; height: 100%; max-height: 100%;">
+                        <engine:VisualElement name="EMSpeedStat" class="EMStat">
+                            <engine:VisualElement name="EMStatProgress" class="EMStatProgress" />
+                            <engine:Label text="Speed 1/6" name="EMStatText" class="EMStatText" />
+                        </engine:VisualElement>
+                        <engine:VisualElement name="EMEfficiencyStat" class="EMStat">
+                            <engine:VisualElement name="EMStatProgress" class="EMStatProgress" />
+                            <engine:Label text="Efficiency 1/6" name="EMStatText" class="EMStatText" />
+                        </engine:VisualElement>
+                        <engine:VisualElement name="EMStaminaStat" class="EMStat">
+                            <engine:VisualElement name="EMStatProgress" class="EMStatProgress" />
+                            <engine:Label text="Stamina 1/6" name="EMStatText" class="EMStatText" />
+                        </engine:VisualElement>
+                    </engine:VisualElement>
+                    <engine:VisualElement name="EMStatContainerRight" style="flex-grow: 1; width: 50%; max-width: 50%; height: 100%; max-height: 100%;">
+                        <engine:VisualElement name="EMStrengthStat" class="EMStat">
+                            <engine:VisualElement name="EMStatProgress" class="EMStatProgress" />
+                            <engine:Label text="Strength 1/6" name="EMStatText" class="EMStatText" />
+                        </engine:VisualElement>
+                        <engine:VisualElement name="EMFocusStat" class="EMStat">
+                            <engine:VisualElement name="EMStatProgress" class="EMStatProgress" />
+                            <engine:Label text="Focus 1/6" name="EMStatText" class="EMStatText" />
+                        </engine:VisualElement>
+                        <engine:VisualElement name="EMExperienceStat" class="EMStat">
+                            <engine:VisualElement name="EMStatProgress" class="EMStatProgress" />
+                            <engine:Label text="Experience 1/6" name="EMStatText" class="EMStatText" />
+                        </engine:VisualElement>
+                    </engine:VisualElement>
+                </engine:VisualElement>
+            </engine:VisualElement>
+            <engine:VisualElement name="employeeManagerSection" class="employeeManagerSection" style="margin-top: 2%; flex-direction: column;">
+                <engine:Label text="Traits" name="employeeManagerSectionHeader" class="employeeManagerSectionHeader" />
+                <engine:ScrollView name="employeeManagerModifiers">
+                    <engine:Label text="Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description" name="EMModifiers" style="width: 95%; height: auto; left: 2.5%; color: rgb(255, 255, 255); font-size: 18%;" />
+                </engine:ScrollView>
+            </engine:VisualElement>
+            <engine:VisualElement name="EMButtonContainer" style="flex-grow: 1; flex-direction: row; position: absolute; width: 67%; left: 32%; max-height: 6%; height: 6%; top: 33%;">
+                <engine:Button text="Edit Name" name="EMEditNameButton" class="EMButton" />
+                <engine:Button text="Edit Department" name="EMEditDepartmentButton" class="EMButton" />
+                <engine:Button text="Promote" name="EMPromoteButton" class="EMButton" style="border-left-color: rgb(59, 255, 0); border-right-color: rgb(59, 255, 0); border-top-color: rgb(59, 255, 0); border-bottom-color: rgb(59, 255, 0);" />
+                <engine:Button text="Fire" name="EMFireButton" class="EMButton" style="border-left-color: rgb(255, 0, 0); border-right-color: rgb(255, 0, 0); border-top-color: rgb(255, 0, 0); border-bottom-color: rgb(255, 0, 0);" />
+            </engine:VisualElement>
+            <engine:VisualElement name="EditNamePanel" class="EditPanel" style="display: none;">
+                <engine:Label text="Edit Name" name="EditPanelHeader" class="EditPanelHeader" />
+                <engine:Label text="Current: Employee Name" name="EditNamePanelOldValue" class="EditPanelOldValue" />
+                <engine:TextField placeholder-text="New Name" name="EditNamePanelInput" class="EditPanelInput" />
+                <engine:Button text="Confirm" name="EditNamePanelButton" class="EditPanelButton" />
+                <engine:VisualElement name="EditNamePanelCancel" class="EditPanelCancel" />
+            </engine:VisualElement>
+            <engine:VisualElement name="EditDepartmentPanel" class="EditPanel" style="display: none;">
+                <engine:Label text="Edit Department" name="EditPanelHeader" class="EditPanelHeader" />
+                <engine:Label text="Current: HR" name="EditDepartmentPanelOldValue" class="EditPanelOldValue" />
+                <engine:DropdownField name="EditDepartmentPanelInput" choices="HR,IT,Operations,Inbound,Repacking,Palletizing,Water Spidering,Fluid Load,Quality Control,Outbound,Maintenance,Robotics,Safety,Cleaning,Security,Learning And Development,Recruiting" class="EditPanelInput" />
+                <engine:Button text="Confirm" name="EditDepartmentPanelButton" class="EditPanelButton" />
+                <engine:VisualElement name="EditDepartmentPanelCancel" class="EditPanelCancel" />
+            </engine:VisualElement>
+        </engine:VisualElement>
     </engine:VisualElement>
 </engine:UXML>

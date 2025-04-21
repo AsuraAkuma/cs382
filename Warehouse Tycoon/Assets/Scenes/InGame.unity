@@ -129,9 +129,6 @@ GameObject:
   m_Component:
   - component: {fileID: 67482215}
   - component: {fileID: 67482214}
-  - component: {fileID: 67482218}
-  - component: {fileID: 67482217}
-  - component: {fileID: 67482216}
   m_Layer: 5
   m_Name: GameUI
   m_TagString: Untagged
@@ -151,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_PanelSettings: {fileID: 11400000, guid: 97ba18b2aaa48c4448314d4ecd6bbf40, type: 2}
+  m_PanelSettings: {fileID: 11400000, guid: ca1ca88f665e180468be24e29fe63f92, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: 3d57daa7a94eacd45b97592463c434da, type: 3}
   m_SortingOrder: 0
@@ -173,69 +170,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &67482216
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 67482213}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b257df57433daa441ad8d823b13e6d4b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  capacity: 6
-  departmentName: Learning 1
-  departmentId: 2
-  departmentLevel: 1
-  departmentExp: 0
-  departmentType: 16
-  managerCapacity: 1
-  employeeCapacity: 5
-  employees: []
---- !u!114 &67482217
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 67482213}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b257df57433daa441ad8d823b13e6d4b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  capacity: 6
-  departmentName: Recruiting 1
-  departmentId: 1
-  departmentLevel: 1
-  departmentExp: 0
-  departmentType: 17
-  managerCapacity: 1
-  employeeCapacity: 5
-  employees: []
---- !u!114 &67482218
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 67482213}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b257df57433daa441ad8d823b13e6d4b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  capacity: 6
-  departmentName: HR 1
-  departmentId: 0
-  departmentLevel: 1
-  departmentExp: 0
-  departmentType: 0
-  managerCapacity: 1
-  employeeCapacity: 5
-  employees: []
 --- !u!1 &272129535
 GameObject:
   m_ObjectHideFlags: 0
@@ -434,7 +368,7 @@ MonoBehaviour:
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_PanelSettings: {fileID: 11400000, guid: 97ba18b2aaa48c4448314d4ecd6bbf40, type: 2}
+  m_PanelSettings: {fileID: 11400000, guid: ca1ca88f665e180468be24e29fe63f92, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: 65daa05f605069d4f8719d51a1f221f4, type: 3}
   m_SortingOrder: 0
@@ -569,7 +503,7 @@ MonoBehaviour:
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_PanelSettings: {fileID: 11400000, guid: 97ba18b2aaa48c4448314d4ecd6bbf40, type: 2}
+  m_PanelSettings: {fileID: 11400000, guid: ca1ca88f665e180468be24e29fe63f92, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: b6c0c65b544fb1f46a3a73e0a6398bf5, type: 3}
   m_SortingOrder: 0
@@ -591,6 +525,83 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1665696749
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1665696751}
+  - component: {fileID: 1665696750}
+  - component: {fileID: 1665696752}
+  - component: {fileID: 1665696753}
+  m_Layer: 0
+  m_Name: Controller
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1665696750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1665696749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46cd6351dd3c5e14cb56d256d442ba61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameUI: {fileID: 67482214}
+  gameActions: {fileID: 0}
+  hrActions: {fileID: 0}
+  defaultEmployeeSprite: {fileID: 2095417142389021186, guid: 202aca5f490fa7a4b9a2bedf4d174cff, type: 3}
+--- !u!4 &1665696751
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1665696749}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1665696752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1665696749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2e5fcb262700d343933e0a817bdc5ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  notificationUI: {fileID: 1410478471}
+--- !u!114 &1665696753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1665696749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2446d50aab1836640844c8e0e61ccd66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  notificationController: {fileID: 1665696752}
+  gameController: {fileID: 1665696750}
 --- !u!1 &1883882465
 GameObject:
   m_ObjectHideFlags: 0
@@ -632,3 +643,4 @@ SceneRoots:
   - {fileID: 1410478472}
   - {fileID: 67482215}
   - {fileID: 272129536}
+  - {fileID: 1665696751}

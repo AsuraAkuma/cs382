@@ -725,6 +725,7 @@
 - Add notification calls to functions when something happens
 
 # UI Colors
+- LightGray - #6D6D6D
 - Gray - #2E2E2E
 - DarkGray - #1F1F1F
 - Green - #3BFF00

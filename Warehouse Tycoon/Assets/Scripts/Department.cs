@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 [Serializable]
 public class Department : MonoBehaviour
@@ -9,14 +10,15 @@ public class Department : MonoBehaviour
     public string departmentName = null; // Name of the department
     public List<ActionRequest> newActionRequests = new List<ActionRequest>(); // Array of new action requests associated with this department
     public List<ActionRequest> claimedActionRequests = new List<ActionRequest>(); // Array of claimed action requests associated with this department
+    public GameController gameController; // Reference to the GameController script
     public int departmentId = 0; // Unique identifier for the department
     public int departmentLevel = 1; // Level of the department
     public int departmentExp = 0; // Experience points of the department
     public DepartmentTypes.Type departmentType = DepartmentTypes.Type.None; // Type of the department (e.g., HR, IT, etc.)
     public int managerCapacity = 0; // Maximum number of managers that can work in this department
-    public int employeeCapacity = 0; // Maximum number of employees that can work in this department
     public List<Employee> employees = null; // Array of employees in this department
     public List<Disablers.Disabler> disablers = new List<Disablers.Disabler>(); // Array of disablers associated with this department
+    private int managerIndex = 0; // Index of the current manager in the department
     public string ToJson()
     {
         return JsonUtility.ToJson(this);
@@ -97,20 +99,324 @@ public class Department : MonoBehaviour
         }
     }
 
-    void Start()
+    public void AddToUI()
     {
-        Debug.Log("Department Start() called for " + departmentName);
+        Debug.Log($"Starting AddToUI for department: {departmentName}");
+
+        // Find the parent element in the UI where the department will be added
+        UIDocument uiDocument = FindFirstObjectByType<UIDocument>();
+        if (uiDocument == null)
+        {
+            Debug.LogError("UIDocument not found in the scene!");
+            return;
+        }
+
+        ScrollView parentElement = uiDocument.rootVisualElement.Q<ScrollView>("departmentsMainList");
+        if (parentElement == null)
+        {
+            Debug.LogError("Department list ScrollView not found! Make sure 'departmentsMainList' exists in UI.");
+            return;
+        }
+
+        // Check if department already exists in UI
+        if (parentElement.Q(departmentName) != null)
+        {
+            Debug.Log($"Department {departmentName} already exists in UI");
+            return;
+        }
+
+        Debug.Log($"Creating UI elements for department: {departmentName}");
+
+        // Create a new VisualElement for the department
+        VisualElement departmentElement = new VisualElement();
+        departmentElement.name = departmentName;
+        departmentElement.AddToClassList("department");
+        departmentElement.style.display = DisplayStyle.Flex; // Ensure the element is visible
+
+        // Create the department header
+        VisualElement departmentHeader = new VisualElement();
+        departmentHeader.name = "departmentHeader";
+        departmentHeader.AddToClassList("departmentHeader");
+        departmentHeader.style.flexDirection = FlexDirection.Row;
+
+        // Add labels to the department header
+        Label nameLabel = new Label(departmentName);
+        nameLabel.name = "departmentHeaderLabel";
+        nameLabel.AddToClassList("departmentHeaderLabel");
+        departmentHeader.Add(nameLabel);
+
+        Label levelLabel = new Label($"lvl: {departmentLevel}");
+        levelLabel.name = "departmentHeaderLabel";
+        levelLabel.AddToClassList("departmentHeaderLabel");
+        departmentHeader.Add(levelLabel);
+
+        Label expLabel = new Label($"Exp: {departmentExp}");
+        expLabel.name = "departmentHeaderLabel";
+        expLabel.AddToClassList("departmentHeaderLabel");
+        departmentHeader.Add(expLabel);
+
+        Label newTasksLabel = new Label($"New Tasks: {newActionRequests.Count}");
+        newTasksLabel.name = "departmentHeaderLabel";
+        newTasksLabel.AddToClassList("departmentHeaderLabel");
+        departmentHeader.Add(newTasksLabel);
+
+        Label doneTasksLabel = new Label($"Done Tasks: {claimedActionRequests.Count}");
+        doneTasksLabel.name = "departmentHeaderLabel";
+        doneTasksLabel.AddToClassList("departmentHeaderLabel");
+        departmentHeader.Add(doneTasksLabel);
+
+        departmentElement.Add(departmentHeader);
+
+        // Create the department manager section
+        VisualElement departmentManager = new VisualElement();
+        departmentManager.name = "departmentManager";
+        departmentManager.AddToClassList("departmentManager");
+
+        VisualElement managerContainer = new VisualElement();
+        managerContainer.name = "departmentManagerContainer";
+        managerContainer.AddToClassList("departmentManagerContainer");
+
+        VisualElement managerImg = new VisualElement();
+        managerImg.name = "departmentManagerImg";
+        managerImg.AddToClassList("departmentManagerImg");
+        managerContainer.Add(managerImg);
+
+        VisualElement managerButtons = new VisualElement();
+        managerButtons.name = "departmentManagerButtons";
+        managerButtons.AddToClassList("departmentManagerButtons");
+
+        Button buttonUp = new Button();
+        buttonUp.name = "departmentManagerButtonUp";
+        buttonUp.AddToClassList("departmentManagerButtonUp");
+        managerButtons.Add(buttonUp);
+
+        Button buttonDown = new Button();
+        buttonDown.name = "departmentManagerButtonDown";
+        buttonDown.AddToClassList("departmentManagerButtonDown");
+        managerButtons.Add(buttonDown);
+
+        managerContainer.Add(managerButtons);
+        departmentManager.Add(managerContainer);
+
+        Label managerLabel = new Label("No Manager");
+        managerLabel.name = "managerLabel";
+        managerLabel.AddToClassList("managerLabel");
+        departmentManager.Add(managerLabel);
+
+        departmentElement.Add(departmentManager);
+
+        // Create the department employees section
+        VisualElement departmentEmployees = new VisualElement();
+        departmentEmployees.name = "departmentEmployees";
+        departmentEmployees.AddToClassList("departmentEmployees");
+
+        ScrollView employeeList = new ScrollView();
+        employeeList.name = "departmentEmployeeList";
+        employeeList.AddToClassList("departmentEmployeeList");
+        employeeList.mode = ScrollViewMode.Horizontal;
+
+        if (employees != null)
+        {
+            foreach (Employee employee in employees)
+            {
+                VisualElement employeeElement = new VisualElement();
+                employeeElement.name = "departmentEmployee";
+                employeeElement.AddToClassList("departmentEmployee");
+
+                VisualElement employeePicture = new VisualElement();
+                employeePicture.name = "departmentEmployeePicture";
+                employeePicture.AddToClassList("departmentEmployeePicture");
+                employeePicture.style.backgroundImage = new StyleBackground(employee.employeeSprite);
+                employeeElement.Add(employeePicture);
+
+                Label employeeLabel = new Label($"{employee.employeeName}\nlvl: {employee.level}");
+                employeeLabel.name = "departmentEmployeeLabel";
+                employeeLabel.AddToClassList("departmentEmployeeLabel");
+                employeeElement.Add(employeeLabel);
+
+                employeeList.Add(employeeElement);
+                employeeElement.RegisterCallback<ClickEvent>(evt => ScrollToEmployee(employee));
+            }
+        }
+
+        departmentEmployees.Add(employeeList);
+        departmentElement.Add(departmentEmployees);
+
+        // Add the department element to the parent ScrollView
+        parentElement.Add(departmentElement);
+        Debug.Log($"Added department {departmentName} to UI successfully");
+
+        // Initialize manager display
+        if (employees != null && employees.Count > 0)
+        {
+            Employee potentialManager = employees[managerIndex];
+            if (potentialManager is Manager manager)
+            {
+                managerLabel.text = $"{manager.employeeName}\nlvl: {manager.level}";
+                managerImg.style.backgroundImage = new StyleBackground(manager.employeeSprite);
+            }
+        }
+
+        // Click event functions
+        void OnButtonUpClick(ClickEvent evt)
+        {
+            // Check if there is more than one manager
+            if (managerCapacity == 1) return;
+            if (managerIndex >= managerCapacity - 1)
+            {
+                managerIndex = 0;
+            }
+            else
+            {
+                managerIndex++;
+            }
+            UpdateManager();
+        }
+        void OnButtonDownClick(ClickEvent evt)
+        {
+            // Check if there is more than one manager
+            if (managerCapacity == 1) return;
+            if (managerIndex == 0)
+            {
+                managerIndex = managerCapacity - 1;
+            }
+            else
+            {
+                managerIndex--;
+            }
+            UpdateManager();
+        }
+        void UpdateManager()
+        {
+            if (employees == null || employees.Count == 0)
+            {
+                managerLabel.text = "No Manager";
+                return;
+            }
+
+            Employee potentialManager = employees[managerIndex];
+            if (potentialManager is Manager manager)
+            {
+                managerLabel.text = $"{manager.employeeName}\nlvl: {manager.level}";
+                if (managerImg != null)
+                {
+                    managerImg.style.backgroundImage = new StyleBackground(manager.employeeSprite);
+                }
+            }
+            else
+            {
+                managerLabel.text = "Invalid Manager";
+                Debug.LogWarning($"Employee at index {managerIndex} is not a Manager");
+            }
+        }
+        buttonUp.RegisterCallback<ClickEvent>(OnButtonUpClick);
+        buttonDown.RegisterCallback<ClickEvent>(OnButtonDownClick);
     }
+    public void UpdateEmployeeUIList()
+    {
+        Debug.Log("Adding employee to UI: " + departmentName);
+        // Find the parent element in the UI where the department will be added
+        UIDocument uiDocument = gameController.gameUI;
+        VisualElement parentElement = uiDocument.rootVisualElement.Q<VisualElement>(departmentName).Q<ScrollView>("departmentEmployeeList");
+        if (parentElement == null)
+        {
+            Debug.LogError("Parent element not found for department: " + departmentName);
+            return;
+        }
+
+        parentElement.Clear(); // Clear the existing employee list
+        foreach (Employee emp in employees)
+        {
+            // Create a new VisualElement for the employee
+            VisualElement employeeElement = new VisualElement();
+            employeeElement.name = emp.employeeName;
+            employeeElement.AddToClassList("departmentEmployee");
+
+            // Create the employee picture
+            VisualElement employeePicture = new VisualElement();
+            employeePicture.name = "departmentEmployeePicture";
+            employeePicture.AddToClassList("departmentEmployeePicture");
+            employeePicture.style.backgroundImage = new StyleBackground(emp.employeeSprite);
+            employeeElement.Add(employeePicture);
+
+            // Create the employee label
+            Label employeeLabel = new Label($"{emp.employeeName}\nlvl: {emp.level}");
+            employeeLabel.name = "departmentEmployeeLabel";
+            employeeLabel.AddToClassList("departmentEmployeeLabel");
+            employeeElement.Add(employeeLabel);
+
+            // Add the employee element to the parent ScrollView
+            parentElement.Add(employeeElement);
+        }
+    }
+    public void ScrollToEmployee(Employee employeeElement)
+    {
+
+    }
+    public void Start()
+    {
+        gameController = FindFirstObjectByType<GameController>();
+        if (gameController == null)
+        {
+            Debug.LogError("GameController not found in the scene.");
+            return;
+        }
+
+        // Ensure we add to Globals.departments before updating UI
+        if (!Globals.departments.Contains(this))
+        {
+            Globals.departments.Add(this);
+            Debug.Log($"Added {departmentName} to Globals.departments");
+
+            // Add small delay to ensure UI is ready
+            Invoke("AddToUI", 0.1f);
+        }
+
+        Debug.Log($"Department Start() completed for {departmentName}");
+    }
+
 }
 
 [Serializable]
 public class HR : Department
 {
-    public HR() { }
+    public HR()
+    {
+        departmentType = DepartmentTypes.Type.HR;
+        departmentName = "HR";
+        capacity = 10;
+        managerCapacity = 1;
+        employees = new List<Employee>();
+    }
+
     public HR(string name, int cap, List<KeyValuePair<string, int>> stats = null)
     {
         departmentName = name;
         capacity = cap;
+    }
+
+    new void Start()
+    {
+        base.Start();
+        if (employees.Count == 0)
+        {
+            Employee employee = gameObject.AddComponent<HREmployee>();
+            employee.name = "HREmployee";
+            employee.id = 1;
+            employee.employeeName = "John Doe";
+            employee.level = 1;
+            employee.department = this;
+            employee.employeeSprite = gameController.defaultEmployeeSprite;
+            employee.employeeType = EmployeeType.Type.HREmployee;
+            employee.speed = 1;
+            employee.efficiency = 1;
+            employee.stamina = 1;
+            employee.strength = 1;
+            employee.focus = 1;
+            employee.salary = 250;
+            employee.actionState = ActionState.State.Idle;
+            employees.Add(employee);
+        }
     }
 
     // Create ticket function
@@ -287,10 +593,10 @@ public class Security : Department
 }
 
 [Serializable]
-public class LearningAndDevelopment : Department
+public class Learning : Department
 {
-    public LearningAndDevelopment() { }
-    public LearningAndDevelopment(string name, int cap, List<KeyValuePair<string, int>> stats = null)
+    public Learning() { }
+    public Learning(string name, int cap, List<KeyValuePair<string, int>> stats = null)
     {
         departmentName = name;
         capacity = cap;

@@ -18,7 +18,7 @@ public class DepartmentTypes
         Safety,    // Safety Department
         Cleaning, // Cleaning Department
         Security,  // Security Department
-        LearningAndDevelopment, // Learning and Development Department
+        Learning, // Learning and Development Department
         Recruiting, // Recruiting Department
         None
     }

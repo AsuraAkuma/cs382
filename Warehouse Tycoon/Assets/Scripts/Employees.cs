@@ -10,6 +10,7 @@ public class Employee : MonoBehaviour
     public int level; // Level of the employee
     public bool levelPending; // Flag to indicate if the employee's level is pending
     public int exp; // Experience points of the employee
+    public Sprite employeeSprite; // Sprite representing the employee
     public int salary; // Salary of the employee
     public int cost; // Cost of the employee
     public int departmentId; // Identifier for the department the employee belongs to
@@ -36,184 +37,182 @@ public class Employee : MonoBehaviour
 
     // Department-specific stats
     // HR Department
-    public float empathy;           // Increases morale and reduces turnover
-    public float conflictResolution;// Ability to handle disputes
-    public float recruiting;        // Increases likelihood of hiring skilled employees
+    public float empathy = 1f;           // Increases morale and reduces turnover
+    public float conflictResolution = 1f;// Ability to handle disputes
+    public float recruiting = 1f;        // Increases likelihood of hiring skilled employees
 
     // HR Department (Manager)
-    public float moraleBoost;        // Increases team performance
-    public float retentionStrategy; // Improves long-term HR strategies
-    public float policyEnforcement; // Enhances contract negotiations
+    public float moraleBoost = 1f;        // Increases team performance
+    public float retentionStrategy = 1f; // Improves long-term HR strategies
+    public float policyEnforcement = 1f; // Enhances contract negotiations
 
     // IT Department
-    public float techTroubleshooter; // Ability to fix technical issues quickly
-    public float systemOptimization; // Enhances warehouse system efficiency
-    public float security;           // Protects against cyber threats
+    public float techTroubleshooter = 1f; // Ability to fix technical issues quickly
+    public float systemOptimization = 1f; // Enhances warehouse system efficiency
+    public float security = 1f;           // Protects against cyber threats
 
     // IT Department (Manager)  
-    public float infrastructureOversight; // Increases project completion speed
-    public float incidentResponse;    // Boosts team performance
-    public float techBudgeting;  // Improves long-term IT strategies
+    public float infrastructureOversight = 1f; // Increases project completion speed
+    public float incidentResponse = 1f;    // Boosts team performance
+    public float techBudgeting = 1f;  // Improves long-term IT strategies
 
     // Operations Department
-    public float logisticsPlanning;
-    public float taskManagement;
-    public float coordination;
+    public float logisticsPlanning = 1f;
+    public float taskManagement = 1f;
+    public float coordination = 1f;
 
     // Operations Department (Manager)
-    public float processOptimization;
-    public float crossDepartmentSync;
-    public float kpiMonitoring;
+    public float processOptimization = 1f;
+    public float crossDepartmentSync = 1f;
+    public float kpiMonitoring = 1f;
 
     // Inbound Department
-    public float loadMaster;        // Speeds up unloading process
-    public float inventoryCheck;    // Ensures accurate receiving records
-    public float speedyUnloader;    // Increases unloading speed
+    public float loadMaster = 1f;        // Speeds up unloading process
+    public float inventoryCheck = 1f;    // Ensures accurate receiving records
+    public float speedyUnloader = 1f;    // Increases unloading speed
 
     // Inbound Department (Manager)
-    public float dockFlowManagement;
-    public float receivingAccuracy;
-    public float supplierCoordination;
+    public float dockFlowManagement = 1f;
+    public float receivingAccuracy = 1f;
+    public float supplierCoordination = 1f;
 
     // Outbound Department
-    public float shippingAccuracy;  // Ensures correct destination shipping
-    public float loadEfficiency;    // Increases outbound loading efficiency
-    public float timeManagement;    // Reduces shipping delays
+    public float shippingAccuracy = 1f;  // Ensures correct destination shipping
+    public float loadEfficiency = 1f;    // Increases outbound loading efficiency
+    public float timeManagement = 1f;    // Reduces shipping delays
 
     // Outbound Department (Manager)
-    public float loadScheduling;
-    public float accuracyOversight;
-    public float carrierCoordination;
+    public float loadScheduling = 1f;
+    public float accuracyOversight = 1f;
+    public float carrierCoordination = 1f;
 
     // Sorting Department
-    public float sortingSpeed;      // Increases sorting speed
-    public float sortingAccuracy;          // Reduces sorting errors
-    public float patternRecognition;// Identifies efficient sorting patterns
+    public float sortingSpeed = 1f;      // Increases sorting speed
+    public float sortingAccuracy = 1f;          // Reduces sorting errors
+    public float patternRecognition = 1f;// Identifies efficient sorting patterns
 
     // Sorting Department (Manager)
-    public float sortLineOversight;
-    public float errorReductionPlanning;
-    public float peakPrep;
+    public float sortLineOversight = 1f;
+    public float errorReductionPlanning = 1f;
+    public float peakPrep = 1f;
 
     // Repacking Department
-    public float packingEfficiency; // Maximizes box space usage
-    public float damageControl;     // Reduces item damage risk
+    public float packingEfficiency = 1f; // Maximizes box space usage
+    public float damageControl = 1f;     // Reduces item damage risk
 
     // Repacking Department (Manager)
-    public float qualityCheck;
-    public float materialAllocation;
-    public float repackFlow;
+    public float qualityCheck = 1f;
+    public float materialAllocation = 1f;
+    public float repackFlow = 1f;
 
     // Palletizing Department
-    public float palletEfficiency;  // Organizes items efficiently
-    public float heavyLifting;      // Increases stacking speed/strength
-    public float stackingPrecision; // Ensures secure stacking
+    public float palletEfficiency = 1f;  // Organizes items efficiently
+    public float heavyLifting = 1f;      // Increases stacking speed/strength
+    public float stackingPrecision = 1f; // Ensures secure stacking
 
     // Palletizing Department (Manager)
-    public float stackingSupervision;
-    public float loadForecasting;
-    public float safetyChecks;
+    public float stackingSupervision = 1f;
+    public float loadForecasting = 1f;
+    public float safetyChecks = 1f;
 
     // Water Spider Department
-    public float routeEfficiency;   // Finds fastest delivery routes
-    public float carryCapacity;     // Increases item carry limit
-    public float supportSpeed;      // Quick restocking and assistance
+    public float routeEfficiency = 1f;   // Finds fastest delivery routes
+    public float carryCapacity = 1f;     // Increases item carry limit
+    public float supportSpeed = 1f;      // Quick restocking and assistance
 
     // Water Spider Department (Manager)
-    public float routePlanning;
-    public float supportCoordination;
-    public float loadDistribution;
+    public float routePlanning = 1f;
+    public float supportCoordination = 1f;
+    public float loadDistribution = 1f;
 
     // Fluid Load Department
-    public float loadingSpeed;      // Increases truck loading speed
-    public float hardHatProtection; // Reduces accident risk
-    public float weightDistribution;// Helps distribute load weight evenly
+    public float loadingSpeed = 1f;      // Increases truck loading speed
+    public float hardHatProtection = 1f; // Reduces accident risk
+    public float weightDistribution = 1f;// Helps distribute load weight evenly
 
     // Fluid Load Department (Manager)
-    public float truckStaging;
-    public float teamSynchronization;
-    public float loadingOversight;
+    public float truckStaging = 1f;
+    public float teamSynchronization = 1f;
+    public float loadingOversight = 1f;
 
     // Quality Control Department
-    public float attentionToDetail; // Improves defect detection
-    public float inspectionSpeed;   // Speeds up inspection process
-    public float productKnowledge;  // Helps handle specific products
+    public float attentionToDetail = 1f; // Improves defect detection
+    public float inspectionSpeed = 1f;   // Speeds up inspection process
+    public float productKnowledge = 1f;  // Helps handle specific products
 
     // Quality Control Department (Manager)
-    public float inspectionProtocols;
-    public float defectReporting;
-    public float continuousImprovement;
+    public float inspectionProtocols = 1f;
+    public float defectReporting = 1f;
+    public float continuousImprovement = 1f;
 
     // Maintenance Department
-    public float repairSpeed;       // Increases equipment repair speed
-    public float preventativeMaintenance; // Reduces equipment failures
-    public float toolMastery;       // Increases repair tool effectiveness
+    public float repairSpeed = 1f;       // Increases equipment repair speed
+    public float preventativeMaintenance = 1f; // Reduces equipment failures
+    public float toolMastery = 1f;       // Increases repair tool effectiveness
 
     // Maintenance Department (Manager)
-    public float repairWorkflow;
-    public float partInventory;
-    public float maintenanceScheduling;
+    public float repairWorkflow = 1f;
+    public float partInventory = 1f;
+    public float maintenanceScheduling = 1f;
 
     // Robotics Department
-    public float robotCalibration;  // Ensures peak robot efficiency
-    public float speedEnhancement;  // Increases robot movement speed
-    public float roboticsAccuracy;          // Reduces robot movement errors
+    public float robotCalibration = 1f;  // Ensures peak robot efficiency
+    public float speedEnhancement = 1f;  // Increases robot movement speed
+    public float roboticsAccuracy = 1f;          // Reduces robot movement errors
 
     // Robotics Department (Manager)
-    public float automationPlanning;
-    public float firmwareManagement;
-    public float robotUptime;
+    public float automationPlanning = 1f;
+    public float firmwareManagement = 1f;
+    public float robotUptime = 1f;
 
     // Security Department
-    public float surveillance;      // Increases monitoring ability
-    public float alertness;         // Improves breach response time
-    public float patrolSpeed;       // Increases patrol coverage speed
+    public float surveillance = 1f;      // Increases monitoring ability
+    public float alertness = 1f;         // Improves breach response time
+    public float patrolSpeed = 1f;       // Increases patrol coverage speed
 
     // Security Department (Manager)
-    public float surveillanceOversight; // Increases monitoring effectiveness
-    public float patrolRouting; // Optimizes patrol routes
-    public float threatAssessment; // Improves threat detection
+    public float surveillanceOversight = 1f; // Increases monitoring effectiveness
+    public float patrolRouting = 1f; // Optimizes patrol routes
+    public float threatAssessment = 1f; // Improves threat detection
 
     // Cleaning Department
-    public float thoroughness;      // Ensures proper cleaning
-    public float routineMaintenance;// Maintains workspace cleanliness
+    public float thoroughness = 1f;      // Ensures proper cleaning
+    public float routineMaintenance = 1f;// Maintains workspace cleanliness
 
     // Cleaning Department (Manager)
-    public float zonePrioritization;  // Determines cleaning order
-    public float supplyManagement; // Ensures cleaning supplies are stocked
-    public float cleanlinessStandards; // Sets cleaning benchmarks
+    public float zonePrioritization = 1f;  // Determines cleaning order
+    public float supplyManagement = 1f; // Ensures cleaning supplies are stocked
+    public float cleanlinessStandards = 1f; // Sets cleaning benchmarks
 
     // Learning Department
-    public float trainingEffectiveness; // Improves training programs
-    public float skillTransfer;        // Increases skill gain rate
-    public float motivation;           // Increases training completion
+    public float trainingEffectiveness = 1f; // Improves training programs
+    public float skillTransfer = 1f;        // Increases skill gain rate
+    public float motivation = 1f;           // Increases training completion
 
     // Learning Department (Manager)
-    public float curriculumDesign;
-    public float progressTracking;
-    public float upskillingStrategy;
+    public float curriculumDesign = 1f;
+    public float progressTracking = 1f;
+    public float upskillingStrategy = 1f;
 
     // Safety Department
-    public float hazardIdentification; // Detects potential issues
-    public float accidentPrevention;   // Reduces accident likelihood
-    public float emergencyResponse;    // Improves emergency handling
+    public float hazardIdentification = 1f; // Detects potential issues
+    public float accidentPrevention = 1f;   // Reduces accident likelihood
+    public float emergencyResponse = 1f;    // Improves emergency handling
 
     //  Safety Department (Manager)
-    public float auditExecution; // Ensures safety audits are done
-    public float trainingEnforcement; // Ensures safety training is followed
-    public float incidentReview; // Reviews past incidents for improvement
+    public float auditExecution = 1f; // Ensures safety audits are done
+    public float trainingEnforcement = 1f; // Ensures safety training is followed
+    public float incidentReview = 1f; // Reviews past incidents for improvement
 
     // Recruiting Department
-    public float talentScouting;       // Identifies potential candidates
-    public float interviewingSkills;   // Conducts effective interviews
-    public float onboardingEfficieny;  // Streamlines new hire integration
+    public float talentScouting = 1f;       // Identifies potential candidates
+    public float interviewingSkills = 1f;   // Conducts effective interviews
+    public float onboardingEfficieny = 1f;  // Streamlines new hire integration
 
     // Recruiting Department (Manager)
-    public float candidatePipelineManagement; // Manages candidate flow
-    public float interviewOversight; // Ensures interview quality
-    public float onboardingStrategy; // Improves new hire integration
-
-
+    public float candidatePipelineManagement = 1f; // Manages candidate flow
+    public float interviewOversight = 1f; // Ensures interview quality
+    public float onboardingStrategy = 1f; // Improves new hire integration
 
     // Constructor to initialize an Employee object
     public Employee()

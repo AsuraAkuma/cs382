@@ -47,14 +47,15 @@ public class Globals
     public static int warehouselevel;
     public static int warehouseValue;
     public static int warehouseExp;
-    public static List<Employee> warehouseEmployees; // Array of employees in the warehouse
+    public static List<Employee> warehouseEmployees = new List<Employee>(); // Array of employees in the warehouse
     public static int warehouseMaxEmployees; // Maximum number of employees allowed in the warehouse
     // HR data
-    public static List<Employee> newHires; // Array of new hires in the warehouse
+    public static List<Employee> newHires = new List<Employee>(); // Array of new hires in the warehouse
     // Department data
-    public static List<Department> departments; // Array of departments in the warehouse
+    public static List<Department> departments = new List<Department>(); // Array of departments in the warehouse
     public static int departmentCount; // Number of departments in the warehouse
-    public static List<Department> disabledDepartments; // Departments that are currently disabled
+    public static List<Department> disabledDepartments = new List<Department>(); // Departments that are currently disabled
+    public static int departmentCost = 1000; // Cost to purchase a new department
     // Player data
     public static int playerId;
     public static string playerName = "Guest"; // Default player name
@@ -71,12 +72,12 @@ public class Globals
     public static float employeeMaxLevel = 10f; // Maximum level for employees
     public static int employeeInfractionMax = 3; // Maximum number of infractions for employees
     // Tutorial data
-    public static StatusType.Type tutorialStatus = StatusType.Type.InComplete; // Status of the tutorial
+    public static StatusType.Type tutorialStatus = StatusType.Type.Completed; // Status of the tutorial
     public static int tutorialStep = 0; // Index for the current step in the tutorial
     // Notification data
-    public static NotificationController notificationController = new NotificationController(); // Reference to the NotificationController
+    public static NotificationController notificationController; // Reference to the NotificationController
     public static List<Notification> notifications = new List<Notification>(); // Array of notifications for the player
-    public IEnumerator Save()
+    public static IEnumerator Save()
     {
         // Create a JSON object with the data to send
         var data = new
@@ -136,7 +137,7 @@ public class Globals
             }
         }
     }
-    public IEnumerator Load()
+    public static IEnumerator Load()
     {
         // Create a UnityWebRequest for a GET request
         using (UnityWebRequest request = UnityWebRequest.Get($"{apiURL}/load"))

@@ -1,6 +1,12 @@
 * {
-    margin: 0;
-    padding: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
     border-width: 0;
     border-color: rgba(0, 0, 0, 0);
 }
@@ -35,6 +41,27 @@
 }
 
 .unity-base-field {
+    margin: 0;
+    padding: 0;
+}
+
+.unity-scroller__slider {
+    width: 10px;
+    margin: 0;
+    padding: 0;
+    background-color: rgb(31, 31, 31);
+    position: relative;
+}
+
+.unity-base-slider--vertical {
+    width: 10px;
+    margin: 0;
+    padding: 0;
+    background-color: rgb(31, 31, 31);
+    position: relative;
+}
+
+.unity-base-slider--horizontal {
     width: 10px;
     margin: 0;
     padding: 0;
@@ -58,15 +85,7 @@
     position: relative;
 }
 
-.unity-scroller__slider {
-    width: 10px;
-    margin: 0;
-    padding: 0;
-    background-color: rgb(31, 31, 31);
-    position: relative;
-}
-
-.unity-base-slider--vertical {
+.unity-base-slider--horizontal {
     width: 10px;
     margin: 0;
     padding: 0;
@@ -75,6 +94,14 @@
 }
 
 .unity-scroller--vertical {
+    width: 10px;
+    margin: 0;
+    padding: 0;
+    background-color: rgb(31, 31, 31);
+    position: relative;
+}
+
+.unity-scroller--horizontal {
     width: 10px;
     margin: 0;
     padding: 0;
@@ -113,8 +140,10 @@
 }
 
 .unity-scroller--horizontal {
-    border-top-width: 1px;
-    border-top-color: rgb(70, 70, 70);
+    border-left-width: 1px;
+    border-left-color: rgb(70, 70, 70);
+    height: 10px;
+    width: 100%;
 }
 
 .unity-base-slider__dragger {
@@ -159,6 +188,8 @@
     width: 100%;
     flex-direction: row;
     background-color: rgb(46, 46, 46);
+    top: 0;
+    min-height: 7%;
 }
 
 .headerLabel {
@@ -169,23 +200,16 @@
     width: 25%;
 }
 
-.upgradeContainer {
+.upgradePanel {
     flex-grow: 1;
-    width: 90%;
+    width: 20%;
+    height: 93%;
     max-height: none;
-    left: 5%;
-    top: auto;
-    background-color: rgb(31, 31, 31);
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
-    border-bottom-left-radius: 10px;
-    flex-direction: row;
-    margin-top: 4%;
-    height: auto;
-    padding-top: 0;
-    padding-bottom: 0;
-    min-height: 60px;
+    background-color: rgb(46, 46, 46);
+    position: absolute;
+    border-right-color: rgb(255, 141, 0);
+    border-right-width: 2px;
+    top: 7%;
 }
 
 .upgradeLevel {
@@ -196,7 +220,42 @@
     min-height: 100%;
     color: rgb(255, 255, 255);
     -unity-text-align: middle-center;
-    font-size: 20px;
+    font-size: 100%;
+}
+
+.upgradeHeader {
+    font-size: 200%;
+    color: rgb(59, 255, 0);
+    -unity-text-align: middle-center;
+    top: auto;
+    width: 90%;
+    left: 5%;
+    border-bottom-color: rgb(255, 255, 255);
+    border-bottom-width: 2px;
+    margin-top: 0;
+    padding-bottom: 2%;
+    max-height: 7%;
+    height: 7%;
+    max-width: none;
+}
+
+.upgradeContainer {
+    flex-grow: 1;
+    width: 90%;
+    max-height: 10%;
+    left: 5%;
+    top: auto;
+    background-color: rgb(31, 31, 31);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    flex-direction: row;
+    margin-top: 4%;
+    height: 10%;
+    padding-top: 0;
+    padding-bottom: 0;
+    min-height: 10%;
 }
 
 .upgradeName {
@@ -214,6 +273,22 @@
     font-size: 20px;
 }
 
+.storeItemName {
+    width: 75%;
+    border-right-color: rgb(255, 255, 255);
+    border-right-width: 2px;
+    height: 100%;
+    max-height: 100%;
+    bottom: 0;
+    min-height: 100%;
+    color: rgb(255, 255, 255);
+    -unity-text-align: middle-center;
+    border-left-color: rgba(0, 0, 0, 0);
+    border-left-width: 0;
+    font-size: 130%;
+    white-space: pre-wrap;
+}
+
 .canUpgrade {
     color: rgb(59, 255, 0);
 }
@@ -223,9 +298,10 @@
 }
 
 .upgradeList {
-    max-height: 80%;
-    height: auto;
-    min-height: auto;
+    max-height: 82%;
+    height: 82%;
+    min-height: 82%;
+    width: 100%;
 }
 
 .department {
@@ -250,6 +326,7 @@
     border-bottom-color: rgb(255, 141, 0);
     height: 250px;
     margin-bottom: 1.25%;
+    overflow: hidden;
 }
 
 .departmentHeader {
@@ -330,7 +407,7 @@
     top: 30%;
     max-height: 15%;
     height: 15%;
-    background-image: url("project://database/Assets/square-caret-up-regular.png?fileID=6709490733029022491&guid=eef6e1ec2d2d2024ba5db7d777f3a147&type=3#square-caret-up-regular_0");
+    background-image: url("project://database/Assets/square-caret-up-regular.png?fileID=6709490733029022491&guid=d1e490dc26130b34f9d09936af8d4216&type=3#square-caret-up-regular_0");
     border-left-color: rgba(0, 0, 0, 0);
     border-right-color: rgba(0, 0, 0, 0);
     border-top-color: rgba(0, 0, 0, 0);
@@ -352,7 +429,7 @@
     border-top-color: rgba(0, 0, 0, 0);
     border-bottom-color: rgba(0, 0, 0, 0);
     background-color: rgba(0, 0, 0, 0);
-    background-image: url("project://database/Assets/square-caret-down-regular.png?fileID=5498669254548924694&guid=a75aeb9b20fafab4c8bcb7dd1c6d4679&type=3#square-caret-down-regular_0");
+    background-image: url("project://database/Assets/square-caret-down-regular.png?fileID=5498669254548924694&guid=8d80e9abf6f0bd54c8008c6b25f6003b&type=3#square-caret-down-regular_0");
 }
 
 .headerButton {
@@ -385,6 +462,31 @@
 .panelNav {
     flex-grow: 1;
     flex-direction: row;
+    border-top-width: 2px;
+    border-top-color: rgb(255, 141, 0);
+    border-left-color: rgb(255, 141, 0);
+    border-right-color: rgb(255, 141, 0);
+    border-bottom-color: rgb(255, 141, 0);
+    max-height: 10%;
+    height: 10%;
+    min-height: 10%;
+    justify-content: center;
+    align-items: auto;
+    align-self: auto;
+    align-content: flex-start;
+    width: 20%;
+    position: absolute;
+    top: 90%;
+}
+
+.managerLabel {
+    width: 70%;
+    left: 5%;
+    max-height: 20%;
+    height: 20%;
+    color: rgb(255, 255, 255);
+    font-size: 15px;
+    -unity-text-align: middle-center;
 }
 
 .panelNavButton {
@@ -397,10 +499,11 @@
     height: 100%;
     min-height: 100%;
     color: rgb(255, 255, 255);
-    font-size: 15px;
+    font-size: 100%;
     -unity-font-style: normal;
-    margin-left: 2%;
-    width: 30%;
+    margin-left: 1%;
+    width: 23%;
+    margin-right: 0;
 }
 
 .departmentSection {
@@ -416,13 +519,497 @@
     flex-direction: row;
 }
 
-.departmentEmployeeList {
-}
-
 .departmentEmployee {
     flex-grow: 1;
     width: 20%;
     height: 100%;
     max-height: 100%;
+    margin-left: 1%;
+    max-width: 20%;
+    min-width: 20%;
+    margin-right: 1%;
+}
+
+.departmentEmployeePicture {
+    flex-grow: 1;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(255, 141, 0);
+    border-right-color: rgb(255, 141, 0);
+    border-top-color: rgb(255, 141, 0);
+    border-bottom-color: rgb(255, 141, 0);
+    max-height: 75%;
+    min-height: 75%;
+    height: 75%;
+    margin-top: 5%;
+}
+
+.departmentEmployeeLabel {
+    width: 100%;
+    max-height: 20%;
+    height: 20%;
+    color: rgb(255, 255, 255);
+    font-size: 15px;
+    -unity-text-align: middle-center;
+    min-height: 20%;
+}
+
+.employeeListItem {
+    flex-grow: 1;
+    width: 92%;
+    max-width: none;
+    max-height: 30%;
+    left: 5%;
+    min-width: auto;
+    min-height: 30%;
+    height: 30%;
+    background-color: rgb(31, 31, 31);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    margin-top: 5%;
+    flex-direction: row;
+    overflow: hidden;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(255, 141, 0);
+    border-right-color: rgb(255, 141, 0);
+    border-top-color: rgb(255, 141, 0);
+    border-bottom-color: rgb(255, 141, 0);
+}
+
+.employeeListItemPicture {
+    flex-grow: 1;
+    width: auto;
+    max-width: 40%;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(255, 141, 0);
+    border-right-color: rgb(255, 141, 0);
+    border-top-color: rgb(255, 141, 0);
+    border-bottom-color: rgb(255, 141, 0);
+    max-height: 90%;
+    top: 5%;
     margin-left: 2%;
+    margin-right: 2%;
+    background-image: url("project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&guid=202aca5f490fa7a4b9a2bedf4d174cff&type=3#person pic_0");
+}
+
+.employeeListItemDetails {
+    max-width: 56%;
+    width: 54%;
+    height: 90%;
+    top: 5%;
+    color: rgb(255, 255, 255);
+    white-space: pre-wrap;
+    text-overflow: ellipsis;
+    font-size: 100%;
+}
+
+.newHireListItem {
+    flex-grow: 1;
+    width: 92%;
+    max-width: none;
+    max-height: 40%;
+    left: 5%;
+    min-width: auto;
+    min-height: 40%;
+    height: 40%;
+    background-color: rgb(31, 31, 31);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    margin-top: 5%;
+    flex-direction: row;
+    overflow: hidden;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(255, 141, 0);
+    border-right-color: rgb(255, 141, 0);
+    border-top-color: rgb(255, 141, 0);
+    border-bottom-color: rgb(255, 141, 0);
+}
+
+.newHireListItemPicture {
+    flex-grow: 1;
+    width: auto;
+    max-width: 40%;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(255, 141, 0);
+    border-right-color: rgb(255, 141, 0);
+    border-top-color: rgb(255, 141, 0);
+    border-bottom-color: rgb(255, 141, 0);
+    max-height: 70%;
+    top: 5%;
+    margin-left: 2%;
+    margin-right: 2%;
+    background-image: url("project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&guid=202aca5f490fa7a4b9a2bedf4d174cff&type=3#person pic_0");
+}
+
+.newHireListItemDetails {
+    max-width: 56%;
+    width: 54%;
+    height: 70%;
+    top: 5%;
+    color: rgb(255, 255, 255);
+    white-space: pre-wrap;
+    text-overflow: ellipsis;
+    font-size: 100%;
+}
+
+.newHireListItemRejectButton {
+    position: absolute;
+    width: 35%;
+    height: 15%;
+    top: 80%;
+    background-color: rgb(46, 46, 46);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(255, 0, 0);
+    border-right-color: rgb(255, 0, 0);
+    border-top-color: rgb(255, 0, 0);
+    border-bottom-color: rgb(255, 0, 0);
+    color: rgb(255, 255, 255);
+    left: 55%;
+    font-size: 120%;
+}
+
+.newHireListItemHireButton {
+    position: absolute;
+    width: 35%;
+    height: 15%;
+    top: 80%;
+    background-color: rgb(46, 46, 46);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(59, 255, 0);
+    border-right-color: rgb(59, 255, 0);
+    border-top-color: rgb(59, 255, 0);
+    border-bottom-color: rgb(59, 255, 0);
+    color: rgb(255, 255, 255);
+    left: 10%;
+    font-size: 120%;
+}
+
+.employeeManager {
+    flex-grow: 1;
+    position: absolute;
+    width: 30%;
+    background-color: rgb(31, 31, 31);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(255, 141, 0);
+    border-right-color: rgb(255, 141, 0);
+    border-top-color: rgb(255, 141, 0);
+    border-bottom-color: rgb(255, 141, 0);
+    height: 80%;
+    top: 9%;
+    left: 21%;
+    overflow: hidden;
+}
+
+.employeeManagerHeader {
+    flex-grow: 1;
+    width: 100%;
+    height: 10%;
+    max-height: 10%;
+    min-height: 10%;
+    border-bottom-width: 2px;
+    border-bottom-color: rgb(255, 141, 0);
+    flex-direction: row;
+}
+
+.employeeManagerHeaderName {
+    width: 78%;
+    height: 100%;
+    max-height: 100%;
+    color: rgb(255, 255, 255);
+    -unity-text-align: middle-left;
+    margin-left: 2%;
+    font-size: 200%;
+}
+
+.employeeManagerHeaderClose {
+    background-color: rgba(0, 0, 0, 0);
+    background-image: url("project://database/Assets/x-solid.png?fileID=-6459739394519215524&guid=706233d34ee7ba84dad835acd3794055&type=3#x-solid_0");
+    -unity-background-scale-mode: scale-to-fit;
+    background-size: 60% 50%;
+    width: 10%;
+    left: 10%;
+}
+
+.employeeManagerImage {
+    flex-grow: 1;
+    width: 30%;
+    max-width: 30%;
+    margin-left: 1%;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(255, 141, 0);
+    border-right-color: rgb(255, 141, 0);
+    border-top-color: rgb(255, 141, 0);
+    border-bottom-color: rgb(255, 141, 0);
+    background-image: url("project://database/Assets/person%20pic.jpg?fileID=2095417142389021186&guid=202aca5f490fa7a4b9a2bedf4d174cff&type=3#person pic_0");
+}
+
+.employeeManagerSection {
+    flex-grow: 1;
+    flex-direction: row;
+    max-height: 30%;
+}
+
+.employeeManagerDetails {
+    width: 67%;
+    max-width: 68%;
+    height: 100%;
+    max-height: 100%;
+    left: 1%;
+    color: rgb(255, 255, 255);
+    font-size: 110%;
+    white-space: pre-wrap;
+    text-overflow: ellipsis;
+}
+
+.employeeManagerSectionHeader {
+    color: rgb(255, 255, 255);
+    -unity-text-align: middle-center;
+    font-size: 140%;
+    max-height: 15%;
+    height: 15%;
+}
+
+.EMStat {
+    flex-grow: 1;
+    height: 31%;
+    max-height: 31%;
+    margin-bottom: 2%;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(255, 141, 0);
+    border-right-color: rgb(255, 141, 0);
+    border-top-color: rgb(255, 141, 0);
+    border-bottom-color: rgb(255, 141, 0);
+    width: 90%;
+    left: 5%;
+    background-color: rgb(46, 46, 46);
+    overflow: hidden;
+}
+
+.EMStatProgress {
+    flex-grow: 1;
+    width: 16%;
+    height: 100%;
+    max-height: 100%;
+    background-color: rgba(59, 255, 0, 0.5);
+}
+
+.EMStatText {
+    font-size: 160%;
+    height: 100%;
+    position: absolute;
+    width: 100%;
+    -unity-text-align: middle-center;
+    color: rgb(255, 255, 255);
+}
+
+.EMButton {
+    max-height: 100%;
+    height: 100%;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background-color: rgb(46, 46, 46);
+    color: rgb(255, 255, 255);
+    border-left-color: rgb(255, 141, 0);
+    border-right-color: rgb(255, 141, 0);
+    border-top-color: rgb(255, 141, 0);
+    border-bottom-color: rgb(255, 141, 0);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    padding-left: 1%;
+    padding-right: 1%;
+    margin-left: 0;
+    margin-right: 2%;
+}
+
+.EMButton {
+    max-height: 100%;
+    height: 100%;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background-color: rgb(46, 46, 46);
+    color: rgb(255, 255, 255);
+    border-left-color: rgb(255, 141, 0);
+    border-right-color: rgb(255, 141, 0);
+    border-top-color: rgb(255, 141, 0);
+    border-bottom-color: rgb(255, 141, 0);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    padding-left: 1%;
+    padding-right: 1%;
+    margin-left: 0;
+    margin-right: 2%;
+}
+
+.EditPanel {
+    flex-grow: 1;
+    position: absolute;
+    width: 50%;
+    background-color: rgb(31, 31, 31);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(255, 141, 0);
+    border-right-color: rgb(255, 141, 0);
+    border-top-color: rgb(255, 141, 0);
+    border-bottom-color: rgb(255, 141, 0);
+    height: 30%;
+    top: 10%;
+    left: 32%;
+}
+
+.EditPanelHeader {
+    width: 100%;
+    color: rgb(255, 255, 255);
+    -unity-text-align: middle-center;
+    font-size: 140%;
+    margin-top: 2%;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 2px;
+    border-left-width: 0;
+    border-bottom-color: rgb(255, 141, 0);
+    height: 20%;
+}
+
+.EditPanelOldValue {
+    color: rgb(255, 255, 255);
+    font-size: 100%;
+    -unity-text-align: middle-center;
+    margin-top: 2%;
+    white-space: pre-wrap;
+}
+
+.EditPanelInput {
+    background-color: rgb(109, 109, 109);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    width: 95%;
+    color: rgb(255, 255, 255);
+    font-size: 100%;
+    overflow: hidden;
+    top: 5%;
+    left: 2.5%;
+    height: 20%;
+    border-left-color: rgb(255, 141, 0);
+    border-right-color: rgb(255, 141, 0);
+    border-top-color: rgb(255, 141, 0);
+    border-bottom-color: rgb(255, 141, 0);
+    display: flex;
+}
+
+.EditPanelButton {
+    background-color: rgb(46, 46, 46);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(255, 141, 0);
+    border-right-color: rgb(255, 141, 0);
+    border-top-color: rgb(255, 141, 0);
+    border-bottom-color: rgb(255, 141, 0);
+    width: 50%;
+    height: 20%;
+    left: 25%;
+    top: 15%;
+    color: rgb(255, 255, 255);
+}
+
+.EditPanelCancel {
+    flex-grow: 1;
+    position: absolute;
+    top: 0;
+    left: 90%;
+    width: 8%;
+    max-width: 10%;
+    height: 22%;
+    background-image: url("project://database/Assets/x-solid.png?fileID=-6459739394519215524&guid=706233d34ee7ba84dad835acd3794055&type=3#x-solid_0");
+    background-size: 100% 60%;
 }

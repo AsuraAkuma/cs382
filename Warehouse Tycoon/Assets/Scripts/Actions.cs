@@ -2,10 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using System.Reflection;
 
 public class Actions : MonoBehaviour
 {
     public NotificationController notificationController; // Reference to the NotificationController for displaying notifications
+    public GameController gameController; // Reference to the GameController for managing game state
+    public void Start()
+    {
+        notificationController = FindFirstObjectByType<NotificationController>();
+        gameController = FindFirstObjectByType<GameController>();
+    }
     // Departments
     public class HR : Actions
     {
@@ -28,6 +35,7 @@ public class Actions : MonoBehaviour
             {
                 throw new System.InvalidOperationException("Employee does not have enough experience to level up.");
             }
+            gameController.UpdateEmployeeUIList(); // Update the UI of the game controller
             Debug.Log($"HR Employee {employee.employeeName} has successfully raised {affectedEmployee.employeeName}'s level to {affectedEmployee.level}.");
             yield break;
         }
@@ -106,6 +114,7 @@ public class Actions : MonoBehaviour
                 default:
                     throw new System.ArgumentOutOfRangeException(nameof(statType), "Invalid stat type.");
             }
+            gameController.UpdateEmployeeUIList(); // Update the UI of the game controller
             Debug.Log($"HR Employee {employee.employeeName} has successfully upgraded {affectedEmployee.employeeName}'s {StatTypes.GetStatName(statType)} to {affectedEmployee.GetStatValue(statType)}.");
             yield break;
         }
@@ -124,8 +133,11 @@ public class Actions : MonoBehaviour
                 throw new System.ArgumentNullException(newDepartment.departmentName, "Department cannot be null.");
             }
             affectedEmployee.department.RemoveEmployee(affectedEmployee); // Remove employee from the current department
+            affectedEmployee.department.UpdateEmployeeUIList(); // Update the UI of the current department
             affectedEmployee.department = newDepartment; // Assign the new department to the employee
             newDepartment.AddEmployee(affectedEmployee); // Add employee to the new department
+            newDepartment.UpdateEmployeeUIList(); // Update the UI of the new department
+            gameController.UpdateEmployeeUIList(); // Update the UI of the game controller
             Debug.Log($"HR Employee {employee.employeeName} has successfully assigned {affectedEmployee.employeeName} to the {newDepartment.departmentName} department.");
             yield break;
         }
@@ -140,9 +152,11 @@ public class Actions : MonoBehaviour
                 throw new System.ArgumentNullException(nameof(affectedEmployee), "Affected employee cannot be null.");
             }
             affectedEmployee.department.RemoveEmployee(affectedEmployee);
+            affectedEmployee.department.UpdateEmployeeUIList(); // Update the UI of the current department
             affectedEmployee.department = null; // Remove employee from the department
             Globals.warehouseEmployees.Remove(affectedEmployee); // Remove employee from the warehouse
             Globals.playerMoney += affectedEmployee.cost / 2; // Refund the cost of the employee
+            gameController.UpdateEmployeeUIList(); // Update the UI of the game controller
             Debug.Log($"HR Employee {employee.employeeName} has successfully fired {affectedEmployee.employeeName}. Refund: {affectedEmployee.cost / 2}.");
             yield break;
         }
@@ -202,6 +216,8 @@ public class Actions : MonoBehaviour
             Globals.warehouseEmployees.Add(affectedEmployee);
             Globals.newHires.Remove(affectedEmployee);
             Globals.playerMoney -= affectedEmployee.cost; // Deduct the cost of hiring from player's money
+            selectedDepartment.UpdateEmployeeUIList(); // Add the new hire to the department's UI
+            gameController.UpdateEmployeeUIList(); // Update the game controller's UI
             Debug.Log($"HR Employee {employee.employeeName} has successfully assigned {affectedEmployee.employeeName} to the {selectedDepartment.departmentType} department.");
             yield break;
         }
@@ -276,7 +292,7 @@ public class Actions : MonoBehaviour
                     case DepartmentTypes.Type.Security:
                         newManager = new SecurityManager(affectedEmployee);
                         break;
-                    case DepartmentTypes.Type.LearningAndDevelopment:
+                    case DepartmentTypes.Type.Learning:
                         newManager = new LearningManager(affectedEmployee);
                         break;
                     case DepartmentTypes.Type.Recruiting:
@@ -301,6 +317,24 @@ public class Actions : MonoBehaviour
             {
                 throw new System.InvalidOperationException("Employee is already at maximum level.");
             }
+            gameController.UpdateEmployeeUIList(); // Update the UI of the game controller
+            yield break;
+        }
+        public IEnumerator ResetInfractions(Employee employee = null, Employee affectedEmployee = null)
+        {
+            if (employee == null)
+            {
+                throw new System.ArgumentNullException(nameof(employee), "Employee cannot be null.");
+            }
+            if (affectedEmployee == null)
+            {
+                throw new System.ArgumentNullException(nameof(affectedEmployee), "Affected employee cannot be null.");
+            }
+            // Clear infractions for the affected employee
+            affectedEmployee.infractions = 0; // Reset the infractions count
+            affectedEmployee.department.UpdateEmployeeUIList(); // Update the UI of the affected employee's department
+            gameController.UpdateEmployeeUIList(); // Update the UI of the game controller
+            Debug.Log($"HR Employee {employee.employeeName} has successfully cleared infractions for {affectedEmployee.employeeName}.");
             yield break;
         }
         // Disabler actions
@@ -321,7 +355,7 @@ public class Actions : MonoBehaviour
                 Debug.Log($"HR Employee {employee.employeeName} found no injury disabler in the department.");
                 yield break;
             }
-
+            gameController.UpdateEmployeeUIList(); // Update the UI of the game controller
             Debug.Log($"HR Employee {employee.employeeName} is reporting an injury for {affectedEmployee.employeeName}.");
             yield break;
         }
@@ -342,6 +376,7 @@ public class Actions : MonoBehaviour
                 Debug.Log($"HR Employee {employee.employeeName} found no misconduct disabler in the department.");
                 yield break;
             }
+            gameController.UpdateEmployeeUIList(); // Update the UI of the game controller
             Debug.Log($"HR Employee {employee.employeeName} is reporting misconduct for {affectedEmployee.employeeName}.");
             yield break;
         }
@@ -528,6 +563,7 @@ public class Actions : MonoBehaviour
                 affectedEmployee.RemoveDisabler(computerDisabler);
             }
             Debug.Log($"IT Employee {employee.employeeName} has successfully fixed the computer failure for {affectedEmployee.employeeName}.");
+            gameController.UpdateEmployeeUIList(); // Update the UI of the game controller
             yield break;
         }
     }
@@ -913,6 +949,7 @@ public class Actions : MonoBehaviour
                     Debug.Log($"Maintenance Employee {employee.employeeName} found remaining disablers for {affectedEmployee.employeeName}.");
                 }
             }
+            gameController.UpdateEmployeeUIList(); // Update the UI of the game controller
             yield break;
         }
     }
@@ -1124,6 +1161,7 @@ public class Actions : MonoBehaviour
                     Debug.Log($"Cleaning Employee {employee.employeeName} found remaining disablers in the {department.departmentName} department.");
                 }
             }
+            gameController.UpdateEmployeeUIList(); // Update the UI of the game controller
             yield break;
         }
     }
@@ -1193,6 +1231,7 @@ public class Actions : MonoBehaviour
             {
                 Debug.Log($"Security Employee {employee.employeeName} found remaining disablers for {affectedEmployee.employeeName}.");
             }
+            gameController.UpdateEmployeeUIList(); // Update the UI of the game controller
             yield break;
         }
     }
@@ -1492,6 +1531,7 @@ public class Actions : MonoBehaviour
                     employee.department.AddActionRequest(actionRequest);
                 }
             }
+            gameController.UpdateEmployeeUIList(); // Update the UI of the game controller
             yield break;
         }
         public IEnumerator RespondToUnsafeStation(Employee employee = null, Employee affectedEmployee = null)
@@ -1529,6 +1569,7 @@ public class Actions : MonoBehaviour
                     employee.department.AddActionRequest(actionRequest);
                 }
             }
+            gameController.UpdateEmployeeUIList(); // Update the UI of the game controller
             yield break;
         }
     }
@@ -1599,6 +1640,7 @@ public class Actions : MonoBehaviour
                     randomStatValue += 0.5f;
                 }
                 statValues[randomNum] = Mathf.Min(6, randomStatValue);
+                statValues[randomNum] = Mathf.Max(1, randomStatValue); // Ensure the stat value is between 1 and 6
                 i++;
             }
             // Generate trait count
@@ -1607,11 +1649,17 @@ public class Actions : MonoBehaviour
             for (int i = 0; i < traitCount; i++)
             {
                 // Randomly pick a trait from the TraitValues class
-                TraitValues randomTrait = (TraitValues)System.Enum.GetValues(typeof(TraitValues)).GetValue(Random.Range(0, System.Enum.GetValues(typeof(TraitValues)).Length));
-                traits.Add(randomTrait);
+                traits.Add(GetRandomTrait());
+            }
+            for (int i = 0; i < 6; i++)
+            {
+                if (statValues[i] == 0)
+                {
+                    statValues[i] = 1;
+                }
             }
             // Create a new employee object
-            Employee newEmployee = new Employee();
+            Employee newEmployee = gameObject.AddComponent<Employee>();
             newEmployee.employeeName = $"{firstName} {lastName}";
             newEmployee.salary = salary;
             newEmployee.speed = statValues[0];
@@ -1622,6 +1670,9 @@ public class Actions : MonoBehaviour
             newEmployee.experience = statValues[5];
             newEmployee.traits = traits;
             newEmployee.actionState = ActionState.State.Idle; // Set initial action state to Idle
+            Debug.Log(newEmployee.employeeName + " has been created with the following stats:");
+            Debug.Log($"Speed: {newEmployee.speed}, Efficiency: {newEmployee.efficiency}, Stamina: {newEmployee.stamina}, Strength: {newEmployee.strength}, Focus: {newEmployee.focus}, Experience: {newEmployee.experience}");
+
             // Add the new employee to the warehouse new hire list
             Globals.newHires.Add(newEmployee);
             Debug.Log("New hire created successfully.");
@@ -1815,5 +1866,23 @@ public class Actions : MonoBehaviour
         public DepartmentTypes.Type departmentType;
         public int count;
     }
+
+    public static TraitValues GetRandomTrait()
+    {
+        // Get all public static readonly fields of TraitValues type
+        var traits = typeof(EmployeeTraits)
+            .GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Where(f => f.FieldType == typeof(TraitValues))
+            .ToArray();
+
+        // Create Random instance
+
+        // Get random trait field
+        var randomField = traits[Random.Range(0, traits.Length)];
+
+        // Return the TraitValues instance
+        return (TraitValues)randomField.GetValue(null);
+    }
+
 }
 

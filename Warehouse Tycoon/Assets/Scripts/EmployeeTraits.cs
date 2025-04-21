@@ -85,9 +85,9 @@ public static class EmployeeTraits
     public static readonly TraitValues PatrolEfficiency = new TraitValues { efficiency = 0.1f, departmentType = DepartmentTypes.Type.Security };
 
     // Learning & Development
-    public static readonly TraitValues TrainingExpert = new TraitValues { experience = 0.15f, departmentType = DepartmentTypes.Type.LearningAndDevelopment };
-    public static readonly TraitValues SkillTransfer = new TraitValues { efficiency = 0.1f, departmentType = DepartmentTypes.Type.LearningAndDevelopment };
-    public static readonly TraitValues MotivationalSpeaker = new TraitValues { stamina = 0.1f, departmentType = DepartmentTypes.Type.LearningAndDevelopment };
+    public static readonly TraitValues TrainingExpert = new TraitValues { experience = 0.15f, departmentType = DepartmentTypes.Type.Learning };
+    public static readonly TraitValues SkillTransfer = new TraitValues { efficiency = 0.1f, departmentType = DepartmentTypes.Type.Learning };
+    public static readonly TraitValues MotivationalSpeaker = new TraitValues { stamina = 0.1f, departmentType = DepartmentTypes.Type.Learning };
 }
 
 public class TraitValues
