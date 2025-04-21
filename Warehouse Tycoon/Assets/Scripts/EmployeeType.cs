@@ -7,6 +7,7 @@ public class EmployeeType
         ITManager,
         ITEmployee,
         OperationsManager,
+        OperationsEmployee,
         InboundManager,
         InboundEmployee,
         SortingManager,
@@ -16,7 +17,7 @@ public class EmployeeType
         PalletizingManager,
         PalletizingEmployee,
         WaterSpideringManager,
-        WaterSpideringEmployee,
+        WaterSpiderEmployee,
         FluidLoadManager,
         FluidLoadEmployee,
         QualityControlManager,
@@ -33,8 +34,10 @@ public class EmployeeType
         CleaningEmployee,
         SecurityManager,
         SecurityEmployee,
-        LearningAndDevelopmentManager,
-        LearningAndDevelopmentEmployee
+        LearningManager,
+        LearningEmployee,
+        RecruitingManager,
+        RecruitingEmployee
     }
 
     public static string GetEmployeeType(Type employeeType)

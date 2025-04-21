@@ -104,7 +104,7 @@ public class Department : MonoBehaviour
         Debug.Log($"Starting AddToUI for department: {departmentName}");
 
         // Find the parent element in the UI where the department will be added
-        UIDocument uiDocument = FindFirstObjectByType<UIDocument>();
+        UIDocument uiDocument = gameController.gameUI;
         if (uiDocument == null)
         {
             Debug.LogError("UIDocument not found in the scene!");
@@ -166,6 +166,12 @@ public class Department : MonoBehaviour
         departmentHeader.Add(doneTasksLabel);
 
         departmentElement.Add(departmentHeader);
+        // Create the department section
+        VisualElement departmentSection = new VisualElement();
+        departmentSection.name = "departmentSection";
+        departmentSection.AddToClassList("departmentSection");
+        departmentSection.style.flexDirection = FlexDirection.Row;
+        departmentElement.Add(departmentSection);
 
         // Create the department manager section
         VisualElement departmentManager = new VisualElement();
@@ -203,7 +209,7 @@ public class Department : MonoBehaviour
         managerLabel.AddToClassList("managerLabel");
         departmentManager.Add(managerLabel);
 
-        departmentElement.Add(departmentManager);
+        departmentSection.Add(departmentManager);
 
         // Create the department employees section
         VisualElement departmentEmployees = new VisualElement();
@@ -240,12 +246,18 @@ public class Department : MonoBehaviour
         }
 
         departmentEmployees.Add(employeeList);
-        departmentElement.Add(departmentEmployees);
+        departmentSection.Add(departmentEmployees);
 
         // Add the department element to the parent ScrollView
         parentElement.Add(departmentElement);
         Debug.Log($"Added department {departmentName} to UI successfully");
 
+        // Check if department was added to the parent element
+        if (parentElement.Q(departmentName) == null)
+        {
+            Debug.LogError($"Failed to add department {departmentName} to UI");
+            return;
+        }
         // Initialize manager display
         if (employees != null && employees.Count > 0)
         {
@@ -367,9 +379,6 @@ public class Department : MonoBehaviour
         {
             Globals.departments.Add(this);
             Debug.Log($"Added {departmentName} to Globals.departments");
-
-            // Add small delay to ensure UI is ready
-            Invoke("AddToUI", 0.1f);
         }
 
         Debug.Log($"Department Start() completed for {departmentName}");
@@ -416,7 +425,10 @@ public class HR : Department
             employee.salary = 250;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
+            Globals.warehouseEmployees.Add(employee);
         }
+        gameController.UpdateDepartmentUIList();
+        gameController.UpdateEmployeeUIList();
     }
 
     // Create ticket function
@@ -436,6 +448,33 @@ public class IT : Department
         departmentName = name;
         capacity = cap;
     }
+
+    new void Start()
+    {
+        base.Start();
+        if (employees.Count == 0)
+        {
+            Employee employee = gameObject.AddComponent<ITEmployee>();
+            employee.name = "ITEmployee";
+            employee.id = 2;
+            employee.employeeName = "Jane Smith";
+            employee.level = 1;
+            employee.department = this;
+            employee.employeeSprite = gameController.defaultEmployeeSprite;
+            employee.employeeType = EmployeeType.Type.ITEmployee;
+            employee.speed = 1;
+            employee.efficiency = 1;
+            employee.stamina = 1;
+            employee.strength = 1;
+            employee.focus = 1;
+            employee.salary = 300;
+            employee.actionState = ActionState.State.Idle;
+            employees.Add(employee);
+            Globals.warehouseEmployees.Add(employee);
+        }
+        gameController.UpdateDepartmentUIList();
+        gameController.UpdateEmployeeUIList();
+    }
 }
 
 [Serializable]
@@ -446,6 +485,33 @@ public class Operations : Department
     {
         departmentName = name;
         capacity = cap;
+    }
+
+    new void Start()
+    {
+        base.Start();
+        if (employees.Count == 0)
+        {
+            Employee employee = gameObject.AddComponent<OperationsEmployee>();
+            employee.name = "OperationsEmployee";
+            employee.id = 3;
+            employee.employeeName = "Mike Johnson";
+            employee.level = 1;
+            employee.department = this;
+            employee.employeeSprite = gameController.defaultEmployeeSprite;
+            employee.employeeType = EmployeeType.Type.OperationsManager;
+            employee.speed = 1;
+            employee.efficiency = 1;
+            employee.stamina = 1;
+            employee.strength = 1;
+            employee.focus = 1;
+            employee.salary = 275;
+            employee.actionState = ActionState.State.Idle;
+            employees.Add(employee);
+            Globals.warehouseEmployees.Add(employee);
+        }
+        gameController.UpdateDepartmentUIList();
+        gameController.UpdateEmployeeUIList();
     }
 }
 
@@ -458,6 +524,33 @@ public class Inbound : Department
         departmentName = name;
         capacity = cap;
     }
+
+    new void Start()
+    {
+        base.Start();
+        if (employees.Count == 0)
+        {
+            Employee employee = gameObject.AddComponent<InboundEmployee>();
+            employee.name = "InboundEmployee";
+            employee.id = 4;
+            employee.employeeName = "Sarah Wilson";
+            employee.level = 1;
+            employee.department = this;
+            employee.employeeSprite = gameController.defaultEmployeeSprite;
+            employee.employeeType = EmployeeType.Type.InboundEmployee;
+            employee.speed = 1;
+            employee.efficiency = 1;
+            employee.stamina = 1;
+            employee.strength = 1;
+            employee.focus = 1;
+            employee.salary = 260;
+            employee.actionState = ActionState.State.Idle;
+            employees.Add(employee);
+            Globals.warehouseEmployees.Add(employee);
+        }
+        gameController.UpdateDepartmentUIList();
+        gameController.UpdateEmployeeUIList();
+    }
 }
 
 [Serializable]
@@ -468,6 +561,33 @@ public class Sorting : Department
     {
         departmentName = name;
         capacity = cap;
+    }
+
+    new void Start()
+    {
+        base.Start();
+        if (employees.Count == 0)
+        {
+            Employee employee = gameObject.AddComponent<SortingEmployee>();
+            employee.name = "SortingEmployee";
+            employee.id = 5;
+            employee.employeeName = "Tom Brown";
+            employee.level = 1;
+            employee.department = this;
+            employee.employeeSprite = gameController.defaultEmployeeSprite;
+            employee.employeeType = EmployeeType.Type.SortingEmployee;
+            employee.speed = 1;
+            employee.efficiency = 1;
+            employee.stamina = 1;
+            employee.strength = 1;
+            employee.focus = 1;
+            employee.salary = 270;
+            employee.actionState = ActionState.State.Idle;
+            employees.Add(employee);
+            Globals.warehouseEmployees.Add(employee);
+        }
+        gameController.UpdateDepartmentUIList();
+        gameController.UpdateEmployeeUIList();
     }
 }
 
@@ -480,6 +600,33 @@ public class Repacking : Department
         departmentName = name;
         capacity = cap;
     }
+
+    new void Start()
+    {
+        base.Start();
+        if (employees.Count == 0)
+        {
+            Employee employee = gameObject.AddComponent<RepackingEmployee>();
+            employee.name = "RepackingEmployee";
+            employee.id = 6;
+            employee.employeeName = "Lisa Davis";
+            employee.level = 1;
+            employee.department = this;
+            employee.employeeSprite = gameController.defaultEmployeeSprite;
+            employee.employeeType = EmployeeType.Type.RepackingEmployee;
+            employee.speed = 1;
+            employee.efficiency = 1;
+            employee.stamina = 1;
+            employee.strength = 1;
+            employee.focus = 1;
+            employee.salary = 280;
+            employee.actionState = ActionState.State.Idle;
+            employees.Add(employee);
+            Globals.warehouseEmployees.Add(employee);
+        }
+        gameController.UpdateDepartmentUIList();
+        gameController.UpdateEmployeeUIList();
+    }
 }
 
 [Serializable]
@@ -490,6 +637,33 @@ public class Palletizing : Department
     {
         departmentName = name;
         capacity = cap;
+    }
+
+    new void Start()
+    {
+        base.Start();
+        if (employees.Count == 0)
+        {
+            Employee employee = gameObject.AddComponent<PalletizingEmployee>();
+            employee.name = "PalletizingEmployee";
+            employee.id = 7;
+            employee.employeeName = "James Miller";
+            employee.level = 1;
+            employee.department = this;
+            employee.employeeSprite = gameController.defaultEmployeeSprite;
+            employee.employeeType = EmployeeType.Type.PalletizingEmployee;
+            employee.speed = 1;
+            employee.efficiency = 1;
+            employee.stamina = 1;
+            employee.strength = 1;
+            employee.focus = 1;
+            employee.salary = 290;
+            employee.actionState = ActionState.State.Idle;
+            employees.Add(employee);
+            Globals.warehouseEmployees.Add(employee);
+        }
+        gameController.UpdateDepartmentUIList();
+        gameController.UpdateEmployeeUIList();
     }
 }
 
@@ -502,6 +676,33 @@ public class WaterSpidering : Department
         departmentName = name;
         capacity = cap;
     }
+
+    new void Start()
+    {
+        base.Start();
+        if (employees.Count == 0)
+        {
+            Employee employee = gameObject.AddComponent<WaterSpiderEmployee>();
+            employee.name = "WaterSpideringEmployee";
+            employee.id = 8;
+            employee.employeeName = "Emma White";
+            employee.level = 1;
+            employee.department = this;
+            employee.employeeSprite = gameController.defaultEmployeeSprite;
+            employee.employeeType = EmployeeType.Type.WaterSpiderEmployee;
+            employee.speed = 1;
+            employee.efficiency = 1;
+            employee.stamina = 1;
+            employee.strength = 1;
+            employee.focus = 1;
+            employee.salary = 300;
+            employee.actionState = ActionState.State.Idle;
+            employees.Add(employee);
+            Globals.warehouseEmployees.Add(employee);
+        }
+        gameController.UpdateDepartmentUIList();
+        gameController.UpdateEmployeeUIList();
+    }
 }
 
 [Serializable]
@@ -512,6 +713,33 @@ public class FluidLoad : Department
     {
         departmentName = name;
         capacity = cap;
+    }
+
+    new void Start()
+    {
+        base.Start();
+        if (employees.Count == 0)
+        {
+            Employee employee = gameObject.AddComponent<FluidLoadEmployee>();
+            employee.name = "FluidLoadEmployee";
+            employee.id = 9;
+            employee.employeeName = "David Taylor";
+            employee.level = 1;
+            employee.department = this;
+            employee.employeeSprite = gameController.defaultEmployeeSprite;
+            employee.employeeType = EmployeeType.Type.FluidLoadEmployee;
+            employee.speed = 1;
+            employee.efficiency = 1;
+            employee.stamina = 1;
+            employee.strength = 1;
+            employee.focus = 1;
+            employee.salary = 310;
+            employee.actionState = ActionState.State.Idle;
+            employees.Add(employee);
+            Globals.warehouseEmployees.Add(employee);
+        }
+        gameController.UpdateDepartmentUIList();
+        gameController.UpdateEmployeeUIList();
     }
 }
 
@@ -524,6 +752,33 @@ public class QualityControl : Department
         departmentName = name;
         capacity = cap;
     }
+
+    new void Start()
+    {
+        base.Start();
+        if (employees.Count == 0)
+        {
+            Employee employee = gameObject.AddComponent<QualityControlEmployee>();
+            employee.name = "QualityControlEmployee";
+            employee.id = 10;
+            employee.employeeName = "Mary Anderson";
+            employee.level = 1;
+            employee.department = this;
+            employee.employeeSprite = gameController.defaultEmployeeSprite;
+            employee.employeeType = EmployeeType.Type.QualityControlEmployee;
+            employee.speed = 1;
+            employee.efficiency = 1;
+            employee.stamina = 1;
+            employee.strength = 1;
+            employee.focus = 1;
+            employee.salary = 320;
+            employee.actionState = ActionState.State.Idle;
+            employees.Add(employee);
+            Globals.warehouseEmployees.Add(employee);
+        }
+        gameController.UpdateDepartmentUIList();
+        gameController.UpdateEmployeeUIList();
+    }
 }
 
 [Serializable]
@@ -534,6 +789,33 @@ public class Outbound : Department
     {
         departmentName = name;
         capacity = cap;
+    }
+
+    new void Start()
+    {
+        base.Start();
+        if (employees.Count == 0)
+        {
+            Employee employee = gameObject.AddComponent<OutboundEmployee>();
+            employee.name = "OutboundEmployee";
+            employee.id = 11;
+            employee.employeeName = "Robert Martin";
+            employee.level = 1;
+            employee.department = this;
+            employee.employeeSprite = gameController.defaultEmployeeSprite;
+            employee.employeeType = EmployeeType.Type.OutboundEmployee;
+            employee.speed = 1;
+            employee.efficiency = 1;
+            employee.stamina = 1;
+            employee.strength = 1;
+            employee.focus = 1;
+            employee.salary = 330;
+            employee.actionState = ActionState.State.Idle;
+            employees.Add(employee);
+            Globals.warehouseEmployees.Add(employee);
+        }
+        gameController.UpdateDepartmentUIList();
+        gameController.UpdateEmployeeUIList();
     }
 }
 
@@ -546,6 +828,33 @@ public class Maintenance : Department
         departmentName = name;
         capacity = cap;
     }
+
+    new void Start()
+    {
+        base.Start();
+        if (employees.Count == 0)
+        {
+            Employee employee = gameObject.AddComponent<MaintenanceEmployee>();
+            employee.name = "MaintenanceEmployee";
+            employee.id = 12;
+            employee.employeeName = "Patricia Garcia";
+            employee.level = 1;
+            employee.department = this;
+            employee.employeeSprite = gameController.defaultEmployeeSprite;
+            employee.employeeType = EmployeeType.Type.MaintenanceEmployee;
+            employee.speed = 1;
+            employee.efficiency = 1;
+            employee.stamina = 1;
+            employee.strength = 1;
+            employee.focus = 1;
+            employee.salary = 340;
+            employee.actionState = ActionState.State.Idle;
+            employees.Add(employee);
+            Globals.warehouseEmployees.Add(employee);
+        }
+        gameController.UpdateDepartmentUIList();
+        gameController.UpdateEmployeeUIList();
+    }
 }
 
 [Serializable]
@@ -556,6 +865,33 @@ public class Robotics : Department
     {
         departmentName = name;
         capacity = cap;
+    }
+
+    new void Start()
+    {
+        base.Start();
+        if (employees.Count == 0)
+        {
+            Employee employee = gameObject.AddComponent<RoboticsEmployee>();
+            employee.name = "RoboticsEmployee";
+            employee.id = 13;
+            employee.employeeName = "Michael Lee";
+            employee.level = 1;
+            employee.department = this;
+            employee.employeeSprite = gameController.defaultEmployeeSprite;
+            employee.employeeType = EmployeeType.Type.RoboticsEmployee;
+            employee.speed = 1;
+            employee.efficiency = 1;
+            employee.stamina = 1;
+            employee.strength = 1;
+            employee.focus = 1;
+            employee.salary = 350;
+            employee.actionState = ActionState.State.Idle;
+            employees.Add(employee);
+            Globals.warehouseEmployees.Add(employee);
+        }
+        gameController.UpdateDepartmentUIList();
+        gameController.UpdateEmployeeUIList();
     }
 }
 
@@ -568,6 +904,33 @@ public class Safety : Department
         departmentName = name;
         capacity = cap;
     }
+
+    new void Start()
+    {
+        base.Start();
+        if (employees.Count == 0)
+        {
+            Employee employee = gameObject.AddComponent<SafetyEmployee>();
+            employee.name = "SafetyEmployee";
+            employee.id = 14;
+            employee.employeeName = "Jennifer Clark";
+            employee.level = 1;
+            employee.department = this;
+            employee.employeeSprite = gameController.defaultEmployeeSprite;
+            employee.employeeType = EmployeeType.Type.SafetyEmployee;
+            employee.speed = 1;
+            employee.efficiency = 1;
+            employee.stamina = 1;
+            employee.strength = 1;
+            employee.focus = 1;
+            employee.salary = 360;
+            employee.actionState = ActionState.State.Idle;
+            employees.Add(employee);
+            Globals.warehouseEmployees.Add(employee);
+        }
+        gameController.UpdateDepartmentUIList();
+        gameController.UpdateEmployeeUIList();
+    }
 }
 
 [Serializable]
@@ -578,6 +941,33 @@ public class Cleaning : Department
     {
         departmentName = name;
         capacity = cap;
+    }
+
+    new void Start()
+    {
+        base.Start();
+        if (employees.Count == 0)
+        {
+            Employee employee = gameObject.AddComponent<CleaningEmployee>();
+            employee.name = "CleaningEmployee";
+            employee.id = 15;
+            employee.employeeName = "William Rodriguez";
+            employee.level = 1;
+            employee.department = this;
+            employee.employeeSprite = gameController.defaultEmployeeSprite;
+            employee.employeeType = EmployeeType.Type.CleaningEmployee;
+            employee.speed = 1;
+            employee.efficiency = 1;
+            employee.stamina = 1;
+            employee.strength = 1;
+            employee.focus = 1;
+            employee.salary = 370;
+            employee.actionState = ActionState.State.Idle;
+            employees.Add(employee);
+            Globals.warehouseEmployees.Add(employee);
+        }
+        gameController.UpdateDepartmentUIList();
+        gameController.UpdateEmployeeUIList();
     }
 }
 
@@ -590,6 +980,33 @@ public class Security : Department
         departmentName = name;
         capacity = cap;
     }
+
+    new void Start()
+    {
+        base.Start();
+        if (employees.Count == 0)
+        {
+            Employee employee = gameObject.AddComponent<SecurityEmployee>();
+            employee.name = "SecurityEmployee";
+            employee.id = 16;
+            employee.employeeName = "Linda Martinez";
+            employee.level = 1;
+            employee.department = this;
+            employee.employeeSprite = gameController.defaultEmployeeSprite;
+            employee.employeeType = EmployeeType.Type.SecurityEmployee;
+            employee.speed = 1;
+            employee.efficiency = 1;
+            employee.stamina = 1;
+            employee.strength = 1;
+            employee.focus = 1;
+            employee.salary = 380;
+            employee.actionState = ActionState.State.Idle;
+            employees.Add(employee);
+            Globals.warehouseEmployees.Add(employee);
+        }
+        gameController.UpdateDepartmentUIList();
+        gameController.UpdateEmployeeUIList();
+    }
 }
 
 [Serializable]
@@ -601,6 +1018,33 @@ public class Learning : Department
         departmentName = name;
         capacity = cap;
     }
+
+    new void Start()
+    {
+        base.Start();
+        if (employees.Count == 0)
+        {
+            Employee employee = gameObject.AddComponent<LearningEmployee>();
+            employee.name = "LearningEmployee";
+            employee.id = 17;
+            employee.employeeName = "Richard Thompson";
+            employee.level = 1;
+            employee.department = this;
+            employee.employeeSprite = gameController.defaultEmployeeSprite;
+            employee.employeeType = EmployeeType.Type.LearningEmployee;
+            employee.speed = 1;
+            employee.efficiency = 1;
+            employee.stamina = 1;
+            employee.strength = 1;
+            employee.focus = 1;
+            employee.salary = 390;
+            employee.actionState = ActionState.State.Idle;
+            employees.Add(employee);
+            Globals.warehouseEmployees.Add(employee);
+        }
+        gameController.UpdateDepartmentUIList();
+        gameController.UpdateEmployeeUIList();
+    }
 }
 
 [Serializable]
@@ -611,5 +1055,32 @@ public class Recruiting : Department
     {
         departmentName = name;
         capacity = cap;
+    }
+
+    new void Start()
+    {
+        base.Start();
+        if (employees.Count == 0)
+        {
+            Employee employee = gameObject.AddComponent<RecruitingEmployee>();
+            employee.name = "RecruitingEmployee";
+            employee.id = 18;
+            employee.employeeName = "Elizabeth Wright";
+            employee.level = 1;
+            employee.department = this;
+            employee.employeeSprite = gameController.defaultEmployeeSprite;
+            employee.employeeType = EmployeeType.Type.RecruitingEmployee;
+            employee.speed = 1;
+            employee.efficiency = 1;
+            employee.stamina = 1;
+            employee.strength = 1;
+            employee.focus = 1;
+            employee.salary = 400;
+            employee.actionState = ActionState.State.Idle;
+            employees.Add(employee);
+            Globals.warehouseEmployees.Add(employee);
+        }
+        gameController.UpdateDepartmentUIList();
+        gameController.UpdateEmployeeUIList();
     }
 }
