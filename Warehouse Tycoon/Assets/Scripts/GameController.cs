@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 using UnityEngine.UIElements;
+using System.Linq;
+using Unity.VisualScripting;
 
 public class GameController : MonoBehaviour
 {
@@ -9,10 +11,21 @@ public class GameController : MonoBehaviour
     Button employeesButton;
     Button storeButton;
     Button newHiresButton;
+    Button editNameButton;
+    Button editDepartmentButton;
+    Button promoteButton;
+    Button fireButton;
+    Employee selectedEmployee;
+    Button editNamePanelConfirmButton;
+    VisualElement editNamePanelCancelButton;
+    Button editDepartmentPanelConfirmButton;
+    VisualElement editDepartmentPanelCancelButton;
+    VisualElement employeeManagerCloseButton;
     string currentPanel = "employeesPanel";
     public Actions.GameSystem gameActions;
     public Actions.HR hrActions;
     public Sprite defaultEmployeeSprite;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -22,11 +35,30 @@ public class GameController : MonoBehaviour
         employeesButton = gameUI.rootVisualElement.Q<Button>("panelNavEmployeesButton");
         storeButton = gameUI.rootVisualElement.Q<Button>("panelNavStoreButton");
         newHiresButton = gameUI.rootVisualElement.Q<Button>("panelNavNewHiresButton");
+        editNameButton = gameUI.rootVisualElement.Q<Button>("EMEditNameButton");
+        editDepartmentButton = gameUI.rootVisualElement.Q<Button>("EMEditDepartmentButton");
+        promoteButton = gameUI.rootVisualElement.Q<Button>("EMPromoteButton");
+        fireButton = gameUI.rootVisualElement.Q<Button>("EMFireButton");
+        editNamePanelConfirmButton = gameUI.rootVisualElement.Q<Button>("editNamePanelConfirmButton");
+        editNamePanelCancelButton = gameUI.rootVisualElement.Q<VisualElement>("editNamePanelCancelButton");
+        editDepartmentPanelConfirmButton = gameUI.rootVisualElement.Q<Button>("editDepartmentPanelConfirmButton");
+        editDepartmentPanelCancelButton = gameUI.rootVisualElement.Q<VisualElement>("editDepartmentPanelCancelButton");
+        employeeManagerCloseButton = gameUI.rootVisualElement.Q<VisualElement>("employeeManagerHeaderClose");
         // Add click event listeners to the buttons
         upgradesButton.RegisterCallback<ClickEvent>(OnPanelNavButtonClick);
         employeesButton.RegisterCallback<ClickEvent>(OnPanelNavButtonClick);
         storeButton.RegisterCallback<ClickEvent>(OnPanelNavButtonClick);
         newHiresButton.RegisterCallback<ClickEvent>(OnPanelNavButtonClick);
+        editNameButton.RegisterCallback<ClickEvent>(OnEmployeeManagerButtonClick);
+        editDepartmentButton.RegisterCallback<ClickEvent>(OnEmployeeManagerButtonClick);
+        promoteButton.RegisterCallback<ClickEvent>(OnEmployeeManagerButtonClick);
+        fireButton.RegisterCallback<ClickEvent>(OnEmployeeManagerButtonClick);
+        editNamePanelConfirmButton.RegisterCallback<ClickEvent>(OnEditNamePanelButtonClick);
+        editNamePanelCancelButton.RegisterCallback<ClickEvent>(OnEditNamePanelButtonClick);
+        editDepartmentPanelConfirmButton.RegisterCallback<ClickEvent>(OnEditDepartmentPanelButtonClick);
+        editDepartmentPanelCancelButton.RegisterCallback<ClickEvent>(OnEditDepartmentPanelButtonClick);
+        employeeManagerCloseButton.RegisterCallback<ClickEvent>(OnEmployeeManagerButtonClick);
+        // Register click event for the edit name panel buttons
 
         // Check if the tutorial has been completed
         if (Globals.tutorialStatus == StatusType.Type.Completed)
@@ -116,7 +148,8 @@ public class GameController : MonoBehaviour
             // Create a new VisualElement for the employee list item
             VisualElement employeeListItem = new VisualElement();
             employeeListItem.AddToClassList("employeeListItem");
-
+            // Set the name of the employee list item for identification
+            employeeListItem.name = employee.employeeName;
             // Create a VisualElement for the employee's picture
             VisualElement employeeListItemPicture = new VisualElement();
             employeeListItemPicture.AddToClassList("employeeListItemPicture");
@@ -274,7 +307,144 @@ public class GameController : MonoBehaviour
                 return;
         }
     }
+    private void OnEmployeeManagerButtonClick(ClickEvent evt)
+    {
+        // Get the button that was clicked
+        Button clickedButton = evt.currentTarget as Button;
+        // Get the root visual element of the game UI
+        VisualElement root = gameUI.rootVisualElement;
+        // Get the employee manager panel
+        VisualElement employeeManager = root.Q<VisualElement>("employeeManager");
 
+        switch (clickedButton.name)
+        {
+            case "EMEditNameButton":
+                VisualElement editNamePanel = employeeManager.Q<VisualElement>("EditNamePanel");
+                // Show the edit name panel
+                editNamePanel.style.display = DisplayStyle.Flex;
+                editNamePanel.Q<Label>("EditNamePanelOldValue").text = $"Current Name: {selectedEmployee.employeeName}";
+                break;
+            case "EMEditDepartmentButton":
+                VisualElement editDepartmentPanel = employeeManager.Q<VisualElement>("EditDepartmentPanel");
+                DropdownField departmentDropdown = employeeManager.Q<DropdownField>("EditDepartmentPanelInput");
+                departmentDropdown.choices = Globals.departments.Select(d => d.departmentName).ToList();
+                editDepartmentPanel.Q<Label>("EditDepartmentPanelOldValue").text = $"Current Department: {selectedEmployee.department}";
+                break;
+            case "EMPromoteButton":
+                ActionRequest actionRequest = new ActionRequest(hrActions.PromoteEmployee(selectedEmployee), selectedEmployee);
+                // Get the HR department
+                Department hrDepartment = Globals.departments.Find(d => d.departmentType == DepartmentTypes.Type.HR);
+                // Add the action request to the HR department
+                hrDepartment.AddActionRequest(actionRequest);
+                break;
+            case "EMFireButton":
+                ActionRequest actionRequestFire = new ActionRequest(hrActions.FireEmployee(selectedEmployee), selectedEmployee);
+                // Get the HR department
+                Department hrDepartmentFire = Globals.departments.Find(d => d.departmentType == DepartmentTypes.Type.HR);
+                // Add the action request to the HR department
+                hrDepartmentFire.AddActionRequest(actionRequestFire);
+                break;
+            case "employeeManagerHeaderClose":
+                // Hide the employee manager panel
+                employeeManager.style.display = DisplayStyle.None;
+                // Clear the selected employee
+                selectedEmployee = null;
+                break;
+            default:
+                Debug.Log("Invalid button name.");
+                return;
+        }
+    }
+
+    private void OnEditNamePanelButtonClick(ClickEvent evt)
+    {
+        // Get the button that was clicked
+        Button clickedButton = evt.currentTarget as Button;
+        // Get the root visual element of the game UI
+        VisualElement root = gameUI.rootVisualElement;
+        VisualElement employeeManager = root.Q<VisualElement>("employeeManager");
+        // Get the edit name panel
+        VisualElement editNamePanel = employeeManager.Q<VisualElement>("EditNamePanel");
+
+        switch (clickedButton.name)
+        {
+            case "editNamePanelConfirmButton":
+                // Get the input field for the new name
+                TextField nameInputField = editNamePanel.Q<TextField>("EditNamePanelInput");
+                string newName = nameInputField.value;
+                // Add logic to update the employee's name
+                if (selectedEmployee != null)
+                {
+                    selectedEmployee.employeeName = newName;
+                    // Update the employee list UI
+                    UpdateEmployeeUIList();
+                    selectedEmployee.department.UpdateEmployeeUIList();
+                    // Hide the edit name panel
+                    editNamePanel.style.display = DisplayStyle.None;
+                    nameInputField.value = null;
+                    ShowEmployeeDetails(selectedEmployee);
+                }
+                else
+                {
+                    Debug.LogError("No employee selected.");
+                }
+
+                break;
+            case "editNamePanelCancelButton":
+                // Hide the edit name panel
+                editNamePanel.style.display = DisplayStyle.None;
+                break;
+            default:
+                Debug.Log("Invalid button name.");
+                return;
+        }
+    }
+
+    private void OnEditDepartmentPanelButtonClick(ClickEvent evt)
+    {
+        // Get the button that was clicked
+        Button clickedButton = evt.currentTarget as Button;
+        // Get the root visual element of the game UI
+        VisualElement root = gameUI.rootVisualElement;
+        VisualElement employeeManager = root.Q<VisualElement>("employeeManager");
+        // Get the edit department panel
+        VisualElement editDepartmentPanel = employeeManager.Q<VisualElement>("EditDepartmentPanel");
+
+        switch (clickedButton.name)
+        {
+            case "editDepartmentPanelConfirmButton":
+                // Get the input field for the new department
+                DropdownField departmentDropdown = editDepartmentPanel.Q<DropdownField>("EditDepartmentPanelInput");
+                Department newDepartment = Globals.departments.Find(d => d.departmentName == departmentDropdown.value);
+                // Add logic to update the employee's department
+                if (selectedEmployee != null)
+                {
+                    selectedEmployee.department.RemoveEmployee(selectedEmployee);
+                    selectedEmployee.department.UpdateEmployeeUIList();
+                    newDepartment.AddEmployee(selectedEmployee);
+                    selectedEmployee.department = newDepartment;
+                    selectedEmployee.department.UpdateEmployeeUIList();
+                    // Update the employee list UI
+                    UpdateEmployeeUIList();
+                    // Hide the edit department panel
+                    editDepartmentPanel.style.display = DisplayStyle.None;
+                    departmentDropdown.value = null;
+                }
+                else
+                {
+                    Debug.LogError("No employee selected.");
+                }
+
+                break;
+            case "editDepartmentPanelCancelButton":
+                // Hide the edit department panel
+                editDepartmentPanel.style.display = DisplayStyle.None;
+                break;
+            default:
+                Debug.Log("Invalid button name.");
+                return;
+        }
+    }
     private void OnEmployeeListItemClick(ClickEvent evt)
     {
         // Get the clicked employee list item
@@ -286,13 +456,14 @@ public class GameController : MonoBehaviour
             return;
         }
         // Get the employee name from the clicked item
-        string employeeName = clickedItem.Q<Label>("employeeNameLabel").text;
+        string employeeName = clickedItem.name;
         // Find the employee in the warehouse employees list
         Employee clickedEmployee = Globals.warehouseEmployees.Find(e => e.employeeName == employeeName);
         if (clickedEmployee != null)
         {
             // Show the employee details in a new panel or popup
             ShowEmployeeDetails(clickedEmployee);
+            selectedEmployee = clickedEmployee;
         }
         else
         {
@@ -314,28 +485,95 @@ public class GameController : MonoBehaviour
             $"Status: {employee.actionState}\n" +
             $"Salary: {employee.salary}\n";
         // Set EMStats
-        employeeManager.Q<VisualElement>("EMSpeedStat").Q<VisualElement>("EMStatProgress").style.width = new StyleLength(new Length(employee.speed / Globals.employeeStatMax, LengthUnit.Percent));
+        employeeManager.Q<VisualElement>("EMSpeedStat").Q<VisualElement>("EMStatProgress").style.width = new StyleLength(new Length(employee.speed / Globals.employeeStatMax * 100, LengthUnit.Percent));
         employeeManager.Q<VisualElement>("EMSpeedStat").Q<Label>("EMStatText").text = $"Speed: {employee.speed} / {Globals.employeeStatMax}";
-        employeeManager.Q<VisualElement>("EMEfficiencyStat").Q<VisualElement>("EMStatProgress").style.width = new StyleLength(new Length(employee.efficiency / Globals.employeeStatMax, LengthUnit.Percent));
+        employeeManager.Q<VisualElement>("EMEfficiencyStat").Q<VisualElement>("EMStatProgress").style.width = new StyleLength(new Length(employee.efficiency / Globals.employeeStatMax * 100, LengthUnit.Percent));
         employeeManager.Q<VisualElement>("EMEfficiencyStat").Q<Label>("EMStatText").text = $"Efficiency: {employee.efficiency} / {Globals.employeeStatMax}";
-        employeeManager.Q<VisualElement>("EMStaminaStat").Q<VisualElement>("EMStatProgress").style.width = new StyleLength(new Length(employee.stamina / Globals.employeeStatMax, LengthUnit.Percent));
+        employeeManager.Q<VisualElement>("EMStaminaStat").Q<VisualElement>("EMStatProgress").style.width = new StyleLength(new Length(employee.stamina / Globals.employeeStatMax * 100, LengthUnit.Percent));
         employeeManager.Q<VisualElement>("EMStaminaStat").Q<Label>("EMStatText").text = $"Stamina: {employee.stamina} / {Globals.employeeStatMax}";
-        employeeManager.Q<VisualElement>("EMStrengthStat").Q<VisualElement>("EMStatProgress").style.width = new StyleLength(new Length(employee.strength / Globals.employeeStatMax, LengthUnit.Percent));
+        employeeManager.Q<VisualElement>("EMStrengthStat").Q<VisualElement>("EMStatProgress").style.width = new StyleLength(new Length(employee.strength / Globals.employeeStatMax * 100, LengthUnit.Percent));
         employeeManager.Q<VisualElement>("EMStrengthStat").Q<Label>("EMStatText").text = $"Strength: {employee.strength} / {Globals.employeeStatMax}";
-        employeeManager.Q<VisualElement>("EMFocusStat").Q<VisualElement>("EMStatProgress").style.width = new StyleLength(new Length(employee.focus / Globals.employeeStatMax, LengthUnit.Percent));
+        employeeManager.Q<VisualElement>("EMFocusStat").Q<VisualElement>("EMStatProgress").style.width = new StyleLength(new Length(employee.focus / Globals.employeeStatMax * 100, LengthUnit.Percent));
         employeeManager.Q<VisualElement>("EMFocusStat").Q<Label>("EMStatText").text = $"Focus: {employee.focus} / {Globals.employeeStatMax}";
-        employeeManager.Q<VisualElement>("EMFExperienceStat").Q<VisualElement>("EMStatProgress").style.width = new StyleLength(new Length(employee.experience / Globals.employeeStatMax, LengthUnit.Percent));
-        employeeManager.Q<VisualElement>("EMFExperienceStat").Q<Label>("EMStatText").text = $"Experience: {employee.experience} / {Globals.employeeStatMax}";
+        employeeManager.Q<VisualElement>("EMExperienceStat").Q<VisualElement>("EMStatProgress").style.width = new StyleLength(new Length(employee.experience / Globals.employeeStatMax * 100, LengthUnit.Percent));
+        employeeManager.Q<VisualElement>("EMExperienceStat").Q<Label>("EMStatText").text = $"Experience: {employee.experience} / {Globals.employeeStatMax}";
         // Set traits
+        string traitsText = "";
         foreach (TraitValues trait in employee.traits)
         {
             // Get the trait name and value
-            string traitName = trait.GetType().Name;
-            Debug.Log($"Trait: {traitName}");
-
+            string traitName = TraitValues.GetTraitName(trait);
+            traitsText += $"{traitName}: ";
+            if (trait.speed > 0f)
+            {
+                if (trait.speed < 0f)
+                {
+                    traitsText += $"Speed -{trait.speed * 100}%|";
+                }
+                else
+                {
+                    traitsText += $"Speed +{trait.speed * 100}%|";
+                }
+            }
+            if (trait.efficiency > 0f)
+            {
+                if (trait.efficiency < 0f)
+                {
+                    traitsText += $"Efficiency -{trait.efficiency * 100}%|";
+                }
+                else
+                {
+                    traitsText += $"Efficiency +{trait.efficiency * 100}%|";
+                }
+            }
+            if (trait.stamina > 0f)
+            {
+                if (trait.stamina < 0f)
+                {
+                    traitsText += $"Stamina -{trait.stamina * 100}%|";
+                }
+                else
+                {
+                    traitsText += $"Stamina +{trait.stamina * 100}%|";
+                }
+            }
+            if (trait.strength > 0f)
+            {
+                if (trait.strength < 0f)
+                {
+                    traitsText += $"Strength -{trait.strength * 100}%|";
+                }
+                else
+                {
+                    traitsText += $"Strength +{trait.strength * 100}%|";
+                }
+            }
+            if (trait.focus > 0f)
+            {
+                if (trait.focus < 0f)
+                {
+                    traitsText += $"Focus -{trait.focus * 100}%|";
+                }
+                else
+                {
+                    traitsText += $"Focus +{trait.focus * 100}%|";
+                }
+            }
+            if (trait.experience > 0f)
+            {
+                if (trait.experience < 0f)
+                {
+                    traitsText += $"Experience -{trait.experience * 100}%|";
+                }
+                else
+                {
+                    traitsText += $"Experience +{trait.experience * 100}%|";
+                }
+            }
+            traitsText += $"Department: {trait.departmentType}\n\n";
         }
-        // employeeManager.Q<Label>("EMModifiers").text
-
+        Debug.Log($"Traits: {traitsText}");
+        employeeManager.Q<Label>("EMModifiers").text = traitsText;
         // Show the Employee Manager
         employeeManager.style.display = DisplayStyle.Flex;
     }

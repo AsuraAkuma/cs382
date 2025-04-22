@@ -374,7 +374,7 @@
                 </engine:VisualElement>
             </engine:VisualElement>
         </engine:ScrollView>
-        <engine:VisualElement name="employeeManager" class="employeeManager" style="display: none;">
+        <engine:VisualElement name="employeeManager" class="employeeManager" style="display: none; overflow: visible;">
             <engine:VisualElement name="employeeManagerHeader" class="employeeManagerHeader">
                 <engine:Label text="Employee Manager" name="employeeManagerHeaderName" class="employeeManagerHeaderName" />
                 <engine:Button name="employeeManagerHeaderClose" class="employeeManagerHeaderClose" />
@@ -418,11 +418,11 @@
             </engine:VisualElement>
             <engine:VisualElement name="employeeManagerSection" class="employeeManagerSection" style="margin-top: 2%; flex-direction: column;">
                 <engine:Label text="Traits" name="employeeManagerSectionHeader" class="employeeManagerSectionHeader" />
-                <engine:ScrollView name="employeeManagerModifiers">
-                    <engine:Label text="Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description" name="EMModifiers" style="width: 95%; height: auto; left: 2.5%; color: rgb(255, 255, 255); font-size: 18%;" />
+                <engine:ScrollView name="employeeManagerModifiers" style="max-height: 84%;">
+                    <engine:Label text="Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description&#10;Modifier Name: Description" name="EMModifiers" style="width: 95%; height: auto; left: 2.5%; color: rgb(255, 255, 255); font-size: 18%; white-space: pre-wrap;" />
                 </engine:ScrollView>
             </engine:VisualElement>
-            <engine:VisualElement name="EMButtonContainer" style="flex-grow: 1; flex-direction: row; position: absolute; width: 67%; left: 32%; max-height: 6%; height: 6%; top: 33%;">
+            <engine:VisualElement name="EMButtonContainer" style="flex-grow: 1; flex-direction: column; position: absolute; width: 35%; left: 102%; max-height: 38%; height: 30%; top: 10%;">
                 <engine:Button text="Edit Name" name="EMEditNameButton" class="EMButton" />
                 <engine:Button text="Edit Department" name="EMEditDepartmentButton" class="EMButton" />
                 <engine:Button text="Promote" name="EMPromoteButton" class="EMButton" style="border-left-color: rgb(59, 255, 0); border-right-color: rgb(59, 255, 0); border-top-color: rgb(59, 255, 0); border-bottom-color: rgb(59, 255, 0);" />
@@ -432,15 +432,15 @@
                 <engine:Label text="Edit Name" name="EditPanelHeader" class="EditPanelHeader" />
                 <engine:Label text="Current: Employee Name" name="EditNamePanelOldValue" class="EditPanelOldValue" />
                 <engine:TextField placeholder-text="New Name" name="EditNamePanelInput" class="EditPanelInput" />
-                <engine:Button text="Confirm" name="EditNamePanelButton" class="EditPanelButton" />
-                <engine:VisualElement name="EditNamePanelCancel" class="EditPanelCancel" />
+                <engine:Button text="Confirm" name="editNamePanelConfirmButton" class="EditPanelButton" />
+                <engine:VisualElement name="editNamePanelCancelButton" class="EditPanelCancel" />
             </engine:VisualElement>
             <engine:VisualElement name="EditDepartmentPanel" class="EditPanel" style="display: none;">
                 <engine:Label text="Edit Department" name="EditPanelHeader" class="EditPanelHeader" />
                 <engine:Label text="Current: HR" name="EditDepartmentPanelOldValue" class="EditPanelOldValue" />
-                <engine:DropdownField name="EditDepartmentPanelInput" choices="HR,IT,Operations,Inbound,Repacking,Palletizing,Water Spidering,Fluid Load,Quality Control,Outbound,Maintenance,Robotics,Safety,Cleaning,Security,Learning And Development,Recruiting" class="EditPanelInput" />
-                <engine:Button text="Confirm" name="EditDepartmentPanelButton" class="EditPanelButton" />
-                <engine:VisualElement name="EditDepartmentPanelCancel" class="EditPanelCancel" />
+                <engine:DropdownField name="EditDepartmentPanelInput" class="EditPanelInput" />
+                <engine:Button text="Confirm" name="editDepartmentPanelConfirmButton" class="EditPanelButton" />
+                <engine:VisualElement name="editDepartmentPanelCancelButton" class="EditPanelCancel" />
             </engine:VisualElement>
         </engine:VisualElement>
     </engine:VisualElement>

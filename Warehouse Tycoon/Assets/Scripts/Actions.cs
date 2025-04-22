@@ -311,11 +311,12 @@ public class Actions : MonoBehaviour
                 Globals.warehouseEmployees.Remove(affectedEmployee);
                 // Add the new manager to the warehouse employees list
                 Globals.warehouseEmployees.Add(newManager);
+                newManager.department.UpdateEmployeeUIList(); // Update the UI of the new manager's department
                 Debug.Log($"HR Employee {employee.employeeName} has successfully promoted {employee.employeeName} to level {employee.level}.");
             }
             else
             {
-                throw new System.InvalidOperationException("Employee is already at maximum level.");
+                throw new System.InvalidOperationException("Employee is not max level.");
             }
             gameController.UpdateEmployeeUIList(); // Update the UI of the game controller
             yield break;

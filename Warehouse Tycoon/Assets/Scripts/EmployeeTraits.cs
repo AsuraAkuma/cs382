@@ -1,5 +1,7 @@
 
 using System.Collections.Generic;
+using System.Reflection;
+using System.Linq;
 
 public static class EmployeeTraits
 {
@@ -93,12 +95,12 @@ public static class EmployeeTraits
 public class TraitValues
 {
     // Trait values for each trait
-    public float speed;
-    public float efficiency;
-    public float stamina;
-    public float strength;
-    public float focus;
-    public float experience;
+    public float speed = 0f;
+    public float efficiency = 0f;
+    public float stamina = 0f;
+    public float strength = 0f;
+    public float focus = 0f;
+    public float experience = 0f;
     public DepartmentTypes.Type departmentType;
 
     // Method to combine traits
@@ -121,5 +123,22 @@ public class TraitValues
             }
         }
         return combined;
+    }
+
+    public static string GetTraitName(TraitValues traitValue)
+    {
+        var fields = typeof(EmployeeTraits)
+            .GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Where(f => f.FieldType == typeof(TraitValues));
+
+        foreach (var field in fields)
+        {
+            if (field.GetValue(null) == traitValue)
+            {
+                return field.Name;
+            }
+        }
+
+        return "Unknown Trait";
     }
 }

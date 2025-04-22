@@ -425,6 +425,8 @@ public class HR : Department
             employee.salary = 250;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
+            // Add trait to employee
+            employee.traits.Add(EmployeeTraits.RobotTuner);
             Globals.warehouseEmployees.Add(employee);
         }
         gameController.UpdateDepartmentUIList();
