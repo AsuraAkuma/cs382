@@ -29,16 +29,17 @@ public class GameController : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        VisualElement employeeManager = gameUI.rootVisualElement.Q<VisualElement>("employeeManager");
         gameActions = gameObject.AddComponent<Actions.GameSystem>();
         hrActions = gameObject.AddComponent<Actions.HR>();
         upgradesButton = gameUI.rootVisualElement.Q<Button>("panelNavUpgradesButton");
         employeesButton = gameUI.rootVisualElement.Q<Button>("panelNavEmployeesButton");
         storeButton = gameUI.rootVisualElement.Q<Button>("panelNavStoreButton");
         newHiresButton = gameUI.rootVisualElement.Q<Button>("panelNavNewHiresButton");
-        editNameButton = gameUI.rootVisualElement.Q<Button>("EMEditNameButton");
-        editDepartmentButton = gameUI.rootVisualElement.Q<Button>("EMEditDepartmentButton");
-        promoteButton = gameUI.rootVisualElement.Q<Button>("EMPromoteButton");
-        fireButton = gameUI.rootVisualElement.Q<Button>("EMFireButton");
+        editNameButton = employeeManager.Q<Button>("EMEditNameButton");
+        editDepartmentButton = employeeManager.Q<Button>("EMEditDepartmentButton");
+        promoteButton = employeeManager.Q<Button>("EMPromoteButton");
+        fireButton = employeeManager.Q<Button>("EMFireButton");
         editNamePanelConfirmButton = gameUI.rootVisualElement.Q<Button>("editNamePanelConfirmButton");
         editNamePanelCancelButton = gameUI.rootVisualElement.Q<VisualElement>("editNamePanelCancelButton");
         editDepartmentPanelConfirmButton = gameUI.rootVisualElement.Q<Button>("editDepartmentPanelConfirmButton");
@@ -327,6 +328,7 @@ public class GameController : MonoBehaviour
             case "EMEditDepartmentButton":
                 VisualElement editDepartmentPanel = employeeManager.Q<VisualElement>("EditDepartmentPanel");
                 DropdownField departmentDropdown = employeeManager.Q<DropdownField>("EditDepartmentPanelInput");
+                editDepartmentPanel.style.display = DisplayStyle.Flex;
                 departmentDropdown.choices = Globals.departments.Select(d => d.departmentName).ToList();
                 editDepartmentPanel.Q<Label>("EditDepartmentPanelOldValue").text = $"Current Department: {selectedEmployee.department}";
                 break;
@@ -426,6 +428,7 @@ public class GameController : MonoBehaviour
                     selectedEmployee.department.UpdateEmployeeUIList();
                     // Update the employee list UI
                     UpdateEmployeeUIList();
+                    ShowEmployeeDetails(selectedEmployee);
                     // Hide the edit department panel
                     editDepartmentPanel.style.display = DisplayStyle.None;
                     departmentDropdown.value = null;
