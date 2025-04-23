@@ -83,10 +83,17 @@ public class GameController : MonoBehaviour
         hrDepartment.departmentName = "HR Department";
         hrDepartment.departmentLevel = 1;
         hrDepartment.capacity = 10;
+        IT itDepartment = gameObject.AddComponent<IT>();
+        itDepartment.departmentType = DepartmentTypes.Type.IT;
+        itDepartment.departmentName = "IT Department";
+        itDepartment.departmentLevel = 1;
+        itDepartment.capacity = 10;
         // Globals.departments.Add(hrDepartment);
         // UpdateDepartmentUIList();
         StartCoroutine(gameActions.CreateNewHire());
         UpdateNewHireUIList();
+        Globals.playerMoney = 10000;
+        Globals.gameState = State.Playing;
     }
 
     // Update is called once per frame
@@ -160,13 +167,13 @@ public class GameController : MonoBehaviour
             Label employeeListItemDetails = new Label
             {
                 text = $"Name: {employee.employeeName}\n" +
-                       $"Department: {employee.department}\n" +
-                       $"Speed: {employee.speed}\n" +
-                       $"Efficiency: {employee.efficiency}\n" +
-                       $"Stamina: {employee.stamina}\n" +
-                       $"Strength: {employee.strength}\n" +
-                       $"Focus: {employee.focus}\n" +
-                       $"Level: {employee.level}\n"
+                        $"Department: {(employee.department != null ? employee.department.departmentName : "None")}\n" +
+                        $"Speed: {employee.GetSpeed():F2}\n" +
+                        $"Efficiency: {employee.GetEfficiency():F2}\n" +
+                        $"Stamina: {employee.GetStamina():F2}\n" +
+                        $"Strength: {employee.GetStrength():F2}\n" +
+                        $"Focus: {employee.GetFocus():F2}\n" +
+                        $"Salary/Cost: ${employee.salary}\n"
             };
             employeeListItemDetails.AddToClassList("employeeListItemDetails");
             employeeListItem.Add(employeeListItemDetails);
@@ -192,6 +199,11 @@ public class GameController : MonoBehaviour
         // Loop through each new hire and add them to the UI
         foreach (Employee employee in Globals.newHires)
         {
+            if (employee.isHired == true)
+            {
+                // Skip the new hire if they are already hired or rejected
+                continue;
+            }
             // Create a new VisualElement for the new hire list item
             VisualElement newHireListItem = new VisualElement();
             newHireListItem.AddToClassList("newHireListItem");
@@ -209,21 +221,40 @@ public class GameController : MonoBehaviour
             Label newHireListItemDetails = new Label
             {
                 text = $"Name: {employee.employeeName}\n" +
-                       $"Department: {employee.department}\n" +
-                       $"Speed: {employee.speed}\n" +
-                       $"Efficiency: {employee.efficiency}\n" +
-                       $"Stamina: {employee.stamina}\n" +
-                       $"Strength: {employee.strength}\n" +
-                       $"Focus: {employee.focus}\n" +
+                       $"Department: {(employee.department != null ? employee.department.departmentName : "None")}\n" +
+                       $"Speed: {employee.GetSpeed():F2}\n" +
+                       $"Efficiency: {employee.GetEfficiency():F2}\n" +
+                       $"Stamina: {employee.GetStamina():F2}\n" +
+                       $"Strength: {employee.GetStrength():F2}\n" +
+                       $"Focus: {employee.GetFocus():F2}\n" +
                        $"Salary/Cost: ${employee.salary}\n"
             };
             newHireListItemDetails.AddToClassList("newHireListItemDetails");
             newHireListItem.Add(newHireListItemDetails);
             // Get Hr department
             Department hrDepartment = Globals.departments.Find(d => d.departmentType == DepartmentTypes.Type.HR);
-            ActionRequest actionRequest = new ActionRequest(hrActions.HireEmployee(employee), employee);
+            if (hrDepartment == null)
+            {
+                Debug.LogError("HR Department not found.");
+                return;
+            }
+            Employee targetEmployee = hrDepartment.employees.OrderBy(e => e.actionRequests.Count).FirstOrDefault();
+            ActionRequest actionRequest = new ActionRequest(hrActions.HireEmployee(targetEmployee, employee), employee);
             // Create Hire Button
-            Button hireButton = new Button(() => hrDepartment.AddActionRequest(actionRequest))
+            Button hireButton = new Button(() =>
+            {
+                if (employee.cost > Globals.playerMoney)
+                {
+                    Debug.Log("Not enough money to hire this employee.");
+                    return;
+                }
+                hrDepartment.AddActionRequest(actionRequest);
+                Debug.Log($"Hr Department reqs: {hrDepartment.newActionRequests.Count}");
+                // Remove the new hire from the list and update the UI
+                employee.isHired = true;
+                employee.isFired = false;
+                UpdateNewHireUIList();
+            })
             {
                 text = "Hire",
                 name = "newHireListItemHireButton"
@@ -252,7 +283,6 @@ public class GameController : MonoBehaviour
         // Clear the existing department list
         departmentListContainer.Clear();
         // Loop through each department and add them to the UI
-        Debug.Log($"Departments: {Globals.departments.Count}");
         foreach (Department department in Globals.departments)
         {
             department.AddToUI();
@@ -280,7 +310,6 @@ public class GameController : MonoBehaviour
         // Update the current panel name
         currentPanel = panelName;
     }
-
     private void OnPanelNavButtonClick(ClickEvent evt)
     {
         // Get the button that was clicked
@@ -316,7 +345,7 @@ public class GameController : MonoBehaviour
         VisualElement root = gameUI.rootVisualElement;
         // Get the employee manager panel
         VisualElement employeeManager = root.Q<VisualElement>("employeeManager");
-
+        Employee targetEmployee;
         switch (clickedButton.name)
         {
             case "EMEditNameButton":
@@ -330,20 +359,22 @@ public class GameController : MonoBehaviour
                 DropdownField departmentDropdown = employeeManager.Q<DropdownField>("EditDepartmentPanelInput");
                 editDepartmentPanel.style.display = DisplayStyle.Flex;
                 departmentDropdown.choices = Globals.departments.Select(d => d.departmentName).ToList();
-                editDepartmentPanel.Q<Label>("EditDepartmentPanelOldValue").text = $"Current Department: {selectedEmployee.department}";
+                editDepartmentPanel.Q<Label>("EditDepartmentPanelOldValue").text = $"Current Department: {selectedEmployee.department.departmentName}";
                 break;
             case "EMPromoteButton":
-                ActionRequest actionRequest = new ActionRequest(hrActions.PromoteEmployee(selectedEmployee), selectedEmployee);
                 // Get the HR department
                 Department hrDepartment = Globals.departments.Find(d => d.departmentType == DepartmentTypes.Type.HR);
                 // Add the action request to the HR department
+                targetEmployee = hrDepartment.employees.OrderBy(e => e.actionRequests.Count).FirstOrDefault();
+                ActionRequest actionRequest = new ActionRequest(hrActions.PromoteEmployee(targetEmployee), selectedEmployee);
                 hrDepartment.AddActionRequest(actionRequest);
                 break;
             case "EMFireButton":
-                ActionRequest actionRequestFire = new ActionRequest(hrActions.FireEmployee(selectedEmployee), selectedEmployee);
                 // Get the HR department
                 Department hrDepartmentFire = Globals.departments.Find(d => d.departmentType == DepartmentTypes.Type.HR);
                 // Add the action request to the HR department
+                targetEmployee = hrDepartmentFire.employees.OrderBy(e => e.actionRequests.Count).FirstOrDefault();
+                ActionRequest actionRequestFire = new ActionRequest(hrActions.FireEmployee(targetEmployee), selectedEmployee);
                 hrDepartmentFire.AddActionRequest(actionRequestFire);
                 break;
             case "employeeManagerHeaderClose":
@@ -357,7 +388,6 @@ public class GameController : MonoBehaviour
                 return;
         }
     }
-
     private void OnEditNamePanelButtonClick(ClickEvent evt)
     {
         // Get the button that was clicked
@@ -401,7 +431,6 @@ public class GameController : MonoBehaviour
                 return;
         }
     }
-
     private void OnEditDepartmentPanelButtonClick(ClickEvent evt)
     {
         // Get the button that was clicked
@@ -482,11 +511,11 @@ public class GameController : MonoBehaviour
         // Set the employee details in the UI
         employeeManager.Q<VisualElement>("employeeManagerImage").style.backgroundImage = new StyleBackground(employee.employeeSprite);
         employeeManager.Q<Label>("employeeManagerDetails").text = $"Name: {employee.employeeName}\n" +
-            $"Department: {employee.department}\n" +
+            $"Department: {employee.department.departmentName}\n" +
             $"Level: {employee.level}\n" +
             $"Infractions: {employee.infractions}\n" +
             $"Status: {employee.actionState}\n" +
-            $"Salary: {employee.salary}\n";
+            $"Salary: ${employee.salary}\n";
         // Set EMStats
         employeeManager.Q<VisualElement>("EMSpeedStat").Q<VisualElement>("EMStatProgress").style.width = new StyleLength(new Length(employee.speed / Globals.employeeStatMax * 100, LengthUnit.Percent));
         employeeManager.Q<VisualElement>("EMSpeedStat").Q<Label>("EMStatText").text = $"Speed: {employee.speed} / {Globals.employeeStatMax}";
@@ -575,7 +604,6 @@ public class GameController : MonoBehaviour
             }
             traitsText += $"Department: {trait.departmentType}\n\n";
         }
-        Debug.Log($"Traits: {traitsText}");
         employeeManager.Q<Label>("EMModifiers").text = traitsText;
         // Show the Employee Manager
         employeeManager.style.display = DisplayStyle.Flex;

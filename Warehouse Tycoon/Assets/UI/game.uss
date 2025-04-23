@@ -564,11 +564,11 @@
     flex-grow: 1;
     width: 92%;
     max-width: none;
-    max-height: 30%;
+    max-height: 35%;
     left: 5%;
     min-width: auto;
-    min-height: 30%;
-    height: 30%;
+    min-height: 35%;
+    height: 35%;
     background-color: rgb(31, 31, 31);
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
@@ -603,7 +603,7 @@
     border-right-color: rgb(255, 141, 0);
     border-top-color: rgb(255, 141, 0);
     border-bottom-color: rgb(255, 141, 0);
-    max-height: 90%;
+    max-height: 60%;
     top: 5%;
     margin-left: 2%;
     margin-right: 2%;
@@ -613,7 +613,7 @@
 .employeeListItemDetails {
     max-width: 56%;
     width: 54%;
-    height: 90%;
+    height: auto;
     top: 5%;
     color: rgb(255, 255, 255);
     white-space: pre-wrap;

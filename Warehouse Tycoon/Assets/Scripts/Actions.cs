@@ -1730,23 +1730,24 @@ public class Actions : MonoBehaviour
                     }
                     // Decide the IEnumerator action function for the request
                     ActionRequest actionRequest;
+                    Employee targetEmployee = resolvingDepartment.employees.OrderBy(e => e.actionRequests.Count).FirstOrDefault();
                     switch (randomDisabler.name)
                     {
                         // Warehouse
                         case "Fire":
-                            actionRequest = new ActionRequest(safetyInstance.RespondToFire(), null, department);
+                            actionRequest = new ActionRequest(safetyInstance.RespondToFire(targetEmployee), null, department);
                             resolvingDepartment.AddActionRequest(actionRequest);
                             break;
                         case "Power Outage":
-                            actionRequest = new ActionRequest(maintenanceInstance.RepairPowerOutage(), null, department);
+                            actionRequest = new ActionRequest(maintenanceInstance.RepairPowerOutage(targetEmployee), null, department);
                             resolvingDepartment.AddActionRequest(actionRequest);
                             break;
                         case "Security Breach":
-                            actionRequest = new ActionRequest(securityInstance.HandleSecurityBreach(), null, department);
+                            actionRequest = new ActionRequest(securityInstance.HandleSecurityBreach(targetEmployee), null, department);
                             resolvingDepartment.AddActionRequest(actionRequest);
                             break;
                         case "Network Failure":
-                            actionRequest = new ActionRequest(itInstance.FixNetworkFailure(), null, department);
+                            actionRequest = new ActionRequest(itInstance.FixNetworkFailure(targetEmployee), null, department);
                             resolvingDepartment.AddActionRequest(actionRequest);
                             break;
                         default:
@@ -1766,34 +1767,35 @@ public class Actions : MonoBehaviour
                 randomEmployee.AddDisabler(randomDisabler);
                 // create action request for new disabler on employee
                 ActionRequest actionRequest;
+                Employee targetEmployee = resolvingDepartment.employees.OrderBy(e => e.actionRequests.Count).FirstOrDefault();
                 switch (randomDisabler.name)
                 {
                     case "Injury":
-                        actionRequest = new ActionRequest(safetyInstance.RespondToInjury(), randomEmployee, null);
+                        actionRequest = new ActionRequest(safetyInstance.RespondToInjury(targetEmployee), randomEmployee, null);
                         resolvingDepartment.AddActionRequest(actionRequest);
                         break;
                     case "Employee Misconduct":
-                        actionRequest = new ActionRequest(hrInstance.DocumentMisconduct(), randomEmployee, null);
+                        actionRequest = new ActionRequest(hrInstance.DocumentMisconduct(targetEmployee), randomEmployee, null);
                         resolvingDepartment.AddActionRequest(actionRequest);
                         break;
                     case "Computer Failure":
-                        actionRequest = new ActionRequest(itInstance.FixComputerFailure(), randomEmployee, null);
+                        actionRequest = new ActionRequest(itInstance.FixComputerFailure(targetEmployee), randomEmployee, null);
                         resolvingDepartment.AddActionRequest(actionRequest);
                         break;
                     case "Equipment Malfunction":
-                        actionRequest = new ActionRequest(maintenanceInstance.RepairEquipmentMalfunction(), randomEmployee, null);
+                        actionRequest = new ActionRequest(maintenanceInstance.RepairEquipmentMalfunction(targetEmployee), randomEmployee, null);
                         resolvingDepartment.AddActionRequest(actionRequest);
                         break;
                     case "Theft":
-                        actionRequest = new ActionRequest(securityInstance.HandleTheft(), randomEmployee, null);
+                        actionRequest = new ActionRequest(securityInstance.HandleTheft(targetEmployee), randomEmployee, null);
                         resolvingDepartment.AddActionRequest(actionRequest);
                         break;
                     case "Dirty Station":
-                        actionRequest = new ActionRequest(cleaningInstance.CleanDirtyStation(), randomEmployee, null);
+                        actionRequest = new ActionRequest(cleaningInstance.CleanDirtyStation(targetEmployee), randomEmployee, null);
                         resolvingDepartment.AddActionRequest(actionRequest);
                         break;
                     case "Unsafe Station":
-                        actionRequest = new ActionRequest(safetyInstance.RespondToUnsafeStation(), randomEmployee, null);
+                        actionRequest = new ActionRequest(safetyInstance.RespondToUnsafeStation(targetEmployee), randomEmployee, null);
                         resolvingDepartment.AddActionRequest(actionRequest);
                         break;
                     default:
@@ -1812,42 +1814,43 @@ public class Actions : MonoBehaviour
                 randomDepartment.AddDisabler(randomDisabler);
                 // create action request for new disabler on employee
                 ActionRequest actionRequest;
+                Employee targetEmployee = resolvingDepartment.employees.OrderBy(e => e.actionRequests.Count).FirstOrDefault();
                 switch (randomDisabler.name)
                 {
                     case "Device Failure":
-                        actionRequest = new ActionRequest(itInstance.FixDeviceFailure(), null, randomDepartment);
+                        actionRequest = new ActionRequest(itInstance.FixDeviceFailure(targetEmployee), null, randomDepartment);
                         resolvingDepartment.AddActionRequest(actionRequest);
                         break;
                     case "Server Failure":
-                        actionRequest = new ActionRequest(itInstance.FixServerFailure(), null, randomDepartment);
+                        actionRequest = new ActionRequest(itInstance.FixServerFailure(targetEmployee), null, randomDepartment);
                         resolvingDepartment.AddActionRequest(actionRequest);
                         break;
                     case "Mechanical Failure":
-                        actionRequest = new ActionRequest(maintenanceInstance.RepairMechanicalFailure(), null, randomDepartment);
+                        actionRequest = new ActionRequest(maintenanceInstance.RepairMechanicalFailure(targetEmployee), null, randomDepartment);
                         resolvingDepartment.AddActionRequest(actionRequest);
                         break;
                     case "Electrical Failure":
-                        actionRequest = new ActionRequest(maintenanceInstance.RepairElectricalFailure(), null, randomDepartment);
+                        actionRequest = new ActionRequest(maintenanceInstance.RepairElectricalFailure(targetEmployee), null, randomDepartment);
                         resolvingDepartment.AddActionRequest(actionRequest);
                         break;
                     case "Flood":
-                        actionRequest = new ActionRequest(safetyInstance.RespondToFlood(), null, randomDepartment);
+                        actionRequest = new ActionRequest(safetyInstance.RespondToFlood(targetEmployee), null, randomDepartment);
                         resolvingDepartment.AddActionRequest(actionRequest);
                         break;
                     case "Chemical Spill":
-                        actionRequest = new ActionRequest(safetyInstance.RespondToChemicalSpill(), null, randomDepartment);
+                        actionRequest = new ActionRequest(safetyInstance.RespondToChemicalSpill(targetEmployee), null, randomDepartment);
                         resolvingDepartment.AddActionRequest(actionRequest);
                         break;
                     case "Equipment Failure":
-                        actionRequest = new ActionRequest(maintenanceInstance.RepairEquipmentFailure(), null, randomDepartment);
+                        actionRequest = new ActionRequest(maintenanceInstance.RepairEquipmentFailure(targetEmployee), null, randomDepartment);
                         resolvingDepartment.AddActionRequest(actionRequest);
                         break;
                     case "Accident":
-                        actionRequest = new ActionRequest(safetyInstance.RespondToAccident(), null, randomDepartment);
+                        actionRequest = new ActionRequest(safetyInstance.RespondToAccident(targetEmployee), null, randomDepartment);
                         resolvingDepartment.AddActionRequest(actionRequest);
                         break;
                     case "Hazardous Material":
-                        actionRequest = new ActionRequest(safetyInstance.RespondToHazardousMaterial(), null, randomDepartment);
+                        actionRequest = new ActionRequest(safetyInstance.RespondToHazardousMaterial(targetEmployee), null, randomDepartment);
                         resolvingDepartment.AddActionRequest(actionRequest);
                         break;
                     default:

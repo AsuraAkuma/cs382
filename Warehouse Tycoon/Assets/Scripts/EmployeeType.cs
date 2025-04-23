@@ -16,7 +16,7 @@ public class EmployeeType
         RepackingEmployee,
         PalletizingManager,
         PalletizingEmployee,
-        WaterSpideringManager,
+        WaterSpiderManager,
         WaterSpiderEmployee,
         FluidLoadManager,
         FluidLoadEmployee,

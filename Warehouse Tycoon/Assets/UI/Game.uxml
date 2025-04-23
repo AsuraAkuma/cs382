@@ -6,7 +6,7 @@
             <engine:ScrollView name="employeeList" vertical-scroller-visibility="Auto" class="upgradeList" style="min-height: 10px; width: 100%;">
                 <engine:VisualElement name="employeeListItem" class="employeeListItem">
                     <engine:VisualElement name="employeeListItemPicture" class="employeeListItemPicture" />
-                    <engine:Label text="Name: EmployeeName&#10;Department: HR&#10;Speed: 1&#10;Efficiency: 1&#10;Stamina: 1&#10;Strength: 1&#10;Focus: 1&#10;Experience: 0&#10;" name="employeeListItemDetails" class="employeeListItemDetails" />
+                    <engine:Label text="Name: EmployeeName&#10;Department: HR&#10;Department&#10;Speed: 1&#10;Efficiency: 1&#10;Stamina: 1&#10;Strength: 1&#10;Focus: 1&#10;Salary/Cost: $0&#10;" name="employeeListItemDetails" class="employeeListItemDetails" style="height: auto; white-space: normal;" />
                 </engine:VisualElement>
                 <engine:VisualElement name="employeeListItem" class="employeeListItem">
                     <engine:VisualElement name="employeeListItemPicture" class="employeeListItemPicture" />

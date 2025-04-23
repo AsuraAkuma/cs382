@@ -14,6 +14,8 @@ public class Employee : MonoBehaviour
     public int salary; // Salary of the employee
     public int cost; // Cost of the employee
     public int departmentId; // Identifier for the department the employee belongs to
+    public bool isHired; // Flag to indicate if the employee is hired
+    public bool isFired; // Flag to indicate if the employee is fired
     public EmployeeType.Type employeeType; // Type of the employee (e.g., HR, IT, etc.)
     public DepartmentTypes.Type departmentType; // Type of the department the employee belongs to
     public bool departmentPending; // Flag to indicate if the department is pending
@@ -224,6 +226,10 @@ public class Employee : MonoBehaviour
         strength = 1f;
         focus = 1f;
         experience = 1f;
+
+        // Initialize combinedTraits
+        combinedTraits = new TraitValues();
+        traits = new List<TraitValues>();
     }
     public Employee(Employee employee)
     {
@@ -396,89 +402,89 @@ public class Employee : MonoBehaviour
             return;
         }
 
-        stateTimer += Time.fixedDeltaTime;
+        // stateTimer += Time.fixedDeltaTime;
 
         // Update employee state based on actionState
-        switch (actionState)
-        {
-            case ActionState.State.Working:
-                if (stateTimer >= workInterval)
-                {
-                    stamina -= 0.01f * (1f / efficiency);
-                    experience += 0.005f * efficiency;
-                    efficiency += 0.002f;
-                    focus -= 0.005f;
-                    speed -= 0.003f;
-                    strength -= 0.002f;
-                    stateTimer = 0f;
-                }
-                break;
+        // switch (actionState)
+        // {
+        //     case ActionState.State.Working:
+        //         if (stateTimer >= workInterval)
+        //         {
+        //             stamina -= 0.01f * (1f / efficiency);
+        //             experience += 0.005f * efficiency;
+        //             efficiency += 0.002f;
+        //             focus -= 0.005f;
+        //             speed -= 0.003f;
+        //             strength -= 0.002f;
+        //             stateTimer = 0f;
+        //         }
+        //         break;
 
-            case ActionState.State.Resting:
-                if (stateTimer >= restInterval)
-                {
-                    stamina += 0.02f;
-                    focus += 0.01f;
-                    speed += 0.005f;
-                    efficiency += 0.001f;
-                    strength -= 0.003f;
-                    experience -= 0.001f;
-                    stateTimer = 0f;
-                }
-                break;
+        //     case ActionState.State.Resting:
+        //         if (stateTimer >= restInterval)
+        //         {
+        //             stamina += 0.02f;
+        //             focus += 0.01f;
+        //             speed += 0.005f;
+        //             efficiency += 0.001f;
+        //             strength -= 0.003f;
+        //             experience -= 0.001f;
+        //             stateTimer = 0f;
+        //         }
+        //         break;
 
-            case ActionState.State.Training:
-                if (stateTimer >= workInterval)
-                {
-                    experience += 0.015f * efficiency;
-                    focus += 0.01f;
-                    efficiency += 0.005f;
-                    stamina -= 0.01f;
-                    speed += 0.005f;
-                    strength += 0.003f;
-                    stateTimer = 0f;
-                }
-                break;
+        //     case ActionState.State.Training:
+        //         if (stateTimer >= workInterval)
+        //         {
+        //             experience += 0.015f * efficiency;
+        //             focus += 0.01f;
+        //             efficiency += 0.005f;
+        //             stamina -= 0.01f;
+        //             speed += 0.005f;
+        //             strength += 0.003f;
+        //             stateTimer = 0f;
+        //         }
+        //         break;
 
-            case ActionState.State.Emergency:
-                if (stateTimer >= workInterval)
-                {
-                    stamina -= 0.2f;
-                    speed += 0.02f;
-                    focus += 0.01f;
-                    strength += 0.015f;
-                    efficiency -= 0.005f;
-                    experience -= 0.01f;
-                    stateTimer = 0f;
-                }
-                break;
+        //     case ActionState.State.Emergency:
+        //         if (stateTimer >= workInterval)
+        //         {
+        //             stamina -= 0.2f;
+        //             speed += 0.02f;
+        //             focus += 0.01f;
+        //             strength += 0.015f;
+        //             efficiency -= 0.005f;
+        //             experience -= 0.01f;
+        //             stateTimer = 0f;
+        //         }
+        //         break;
 
-            case ActionState.State.Break:
-                if (stateTimer >= restInterval)
-                {
-                    stamina += 0.01f;
-                    focus += 0.005f;
-                    experience += 0.001f;
-                    speed -= 0.001f;
-                    strength -= 0.001f;
-                    efficiency -= 0.002f;
-                    stateTimer = 0f;
-                }
-                break;
+        //     case ActionState.State.Break:
+        //         if (stateTimer >= restInterval)
+        //         {
+        //             stamina += 0.01f;
+        //             focus += 0.005f;
+        //             experience += 0.001f;
+        //             speed -= 0.001f;
+        //             strength -= 0.001f;
+        //             efficiency -= 0.002f;
+        //             stateTimer = 0f;
+        //         }
+        //         break;
 
-            case ActionState.State.Idle:
-                if (stateTimer >= restInterval)
-                {
-                    stamina += 0.005f;
-                    experience -= 0.002f;
-                    focus -= 0.005f;
-                    efficiency -= 0.003f;
-                    speed -= 0.002f;
-                    strength -= 0.001f;
-                    stateTimer = 0f;
-                }
-                break;
-        }
+        //     case ActionState.State.Idle:
+        //         if (stateTimer >= restInterval)
+        //         {
+        //             stamina += 0.005f;
+        //             experience -= 0.002f;
+        //             focus -= 0.005f;
+        //             efficiency -= 0.003f;
+        //             speed -= 0.002f;
+        //             strength -= 0.001f;
+        //             stateTimer = 0f;
+        //         }
+        //         break;
+        // }
 
         // Clamp all stats to ensure none go below 0
         stamina = Mathf.Max(0f, stamina);
@@ -487,10 +493,20 @@ public class Employee : MonoBehaviour
         focus = Mathf.Max(0f, focus);
         strength = Mathf.Max(0f, strength);
         experience = Mathf.Max(0f, experience);
+        if (Random.Range(1, 101) <= 60)
+        {
+            // Do primary action
+            PrimaryAction();
+        }
+        else
+        {
+            // Do secondary action
+            SecondaryAction();
+        }
     }
     public float GetSpeed()
     {
-        return Mathf.Min(2f, speed + combinedTraits.speed);
+        return Mathf.Min(2f, speed + (combinedTraits?.speed ?? 0f));
     }
     public void SetSpeed(float value)
     {
@@ -498,7 +514,7 @@ public class Employee : MonoBehaviour
     }
     public float GetEfficiency()
     {
-        return Mathf.Min(2f, efficiency + combinedTraits.efficiency);
+        return Mathf.Min(2f, efficiency + (combinedTraits?.efficiency ?? 0f));
     }
     public void SetEfficiency(float value)
     {
@@ -506,7 +522,7 @@ public class Employee : MonoBehaviour
     }
     public float GetStamina()
     {
-        return Mathf.Min(2f, stamina + combinedTraits.stamina);
+        return Mathf.Min(2f, stamina + (combinedTraits?.stamina ?? 0f));
     }
     public void SetStamina(float value)
     {
@@ -514,7 +530,7 @@ public class Employee : MonoBehaviour
     }
     public float GetStrength()
     {
-        return Mathf.Min(2f, strength + combinedTraits.strength);
+        return Mathf.Min(2f, strength + (combinedTraits?.strength ?? 0f));
     }
     public void SetStrength(float value)
     {
@@ -522,7 +538,7 @@ public class Employee : MonoBehaviour
     }
     public float GetFocus()
     {
-        return Mathf.Min(2f, focus + combinedTraits.focus);
+        return Mathf.Min(2f, focus + (combinedTraits?.focus ?? 0f));
     }
     public void SetFocus(float value)
     {
@@ -530,7 +546,7 @@ public class Employee : MonoBehaviour
     }
     public float GetExperience()
     {
-        return Mathf.Min(2f, experience + combinedTraits.experience);
+        return Mathf.Min(2f, experience + (combinedTraits?.experience ?? 0f));
     }
     public void SetExperience(float value)
     {
@@ -583,6 +599,20 @@ public class Employee : MonoBehaviour
     }
     public void PrimaryAction()
     {
+        if (actionState != ActionState.State.Idle)
+        {
+            return;
+        }
+        if (department == null || department.newActionRequests == null || department.newActionRequests.Count == 0)
+        {
+            return;
+        }
+        if (department.newActionRequests.Count == 0)
+        {
+            return;
+        }
+
+        Debug.Log($"Employee {employeeName} is performing a primary action.");
         ActionRequest actionRequest = department.newActionRequests[0];
         StartCoroutine(HandleRequestSequence(actionRequest));
     } // Placeholder for primary action
@@ -590,18 +620,21 @@ public class Employee : MonoBehaviour
     {
         if (actionState != ActionState.State.Idle)
         {
-            Debug.Log($"Employee {employeeName} is busy with another action.");
             return;
         }
-        Debug.Log($"Employee {employeeName} is performing a secondary action.");
         // Check for claimedActionRequests in the department
-        if (department.claimedActionRequests.Count == 0)
+        if (department == null || department.claimedActionRequests == null || department.claimedActionRequests.Count == 0)
         {
-            Debug.Log($"Employee {employeeName} has no claimed action requests to review.");
             return;
         }
         // Get all claimedActionRequests from the department that have the status of "completed"
         List<ActionRequest> completedRequests = department.claimedActionRequests.Where(request => request.status == ActionRequest.StatusType.Type.Completed).ToList();
+        if (completedRequests.Count == 0)
+        {
+            return;
+        }
+        Debug.Log($"Employee {employeeName} is performing a secondary action.");
+
         // Give experience points based on completedRequests count
         int experiencePoints = completedRequests.Count * 5;
         // Update employee experience and check for level up
@@ -621,6 +654,7 @@ public class Employee : MonoBehaviour
             // Check for a action request
             ActionRequest actionRequest = actionRequests.FirstOrDefault();
             actionRequest.status = ActionRequest.StatusType.Type.Pending; // Set status to canceled
+            department.AddActionRequest(actionRequest); // Add the action request back to the department's newActionRequests
             StopAllCoroutines(); // Stop all ongoing actions
             actionState = ActionState.State.Idle; // Set state to idle
         }
@@ -633,7 +667,7 @@ public class Employee : MonoBehaviour
     {
         actionState = ActionState.State.Working;
         actionRequest.status = ActionRequest.StatusType.Type.InProgress;
-        yield return StartCoroutine(actionRequest.action);
+        yield return StartCoroutine(actionRequest.action); // Execute the action request
         // generate random number for success rate
         bool successful = Random.Range(1, 101) <= GetStatAverage() * 100;
         if (successful)
@@ -648,6 +682,8 @@ public class Employee : MonoBehaviour
         else
         {
             actionRequest.status = ActionRequest.StatusType.Type.Failed;
+            actionRequests.Remove(actionRequest); // Remove the action request from the employee's list
+            department.claimedActionRequests.Add(actionRequest); // Add the action request to the department's claimed list
             Debug.Log($"Employee {employeeName} failed the action request.");
             // Update employee experience based on the action request
             AddExperience(5); // Example experience points for completing an action request
@@ -699,6 +735,18 @@ public class Manager : Employee
     }
     public new void PrimaryAction()
     {
+        if (actionState != ActionState.State.Idle)
+        {
+            return;
+        }
+        if (department.newActionRequests.Count == 0)
+        {
+            return;
+        }
+        if (department.newActionRequests.Count == 0)
+        {
+            return;
+        }
         Debug.Log($"Manager {employeeName} is performing a secondary action.");
         StartCoroutine(HandleAssigningSequence());
     }
@@ -707,18 +755,21 @@ public class Manager : Employee
     {
         if (actionState != ActionState.State.Idle)
         {
-            Debug.Log($"Manager {employeeName} is busy with another action.");
             return;
         }
-        Debug.Log($"Manager {employeeName} is performing a secondary action.");
         // Check for claimedActionRequests in the department
         if (department.claimedActionRequests.Count == 0)
         {
-            Debug.Log($"Manager {employeeName} has no claimed action requests to review.");
             return;
         }
         // Get all claimedActionRequests from the department that have the status of "failed"
         List<ActionRequest> failedRequests = department.claimedActionRequests.Where(request => request.status == ActionRequest.StatusType.Type.Failed).ToList();
+        if (failedRequests.Count == 0)
+        {
+            return;
+        }
+        Debug.Log($"Manager {employeeName} is performing a secondary action.");
+
         // Reset all failed requests to "pending" status
         foreach (ActionRequest request in failedRequests)
         {
@@ -757,12 +808,11 @@ public class Manager : Employee
         // Get the first action request from the department
         ActionRequest actionRequest = department.newActionRequests[0];
         // Get the employee with the least action requests
-        Employee employee = department.employees.OrderBy(e => e.actionRequests.Count).FirstOrDefault();
-        if (employee == null)
+        if (actionRequest.employee == null)
         {
             yield break;
         }
-        yield return StartCoroutine(AssignRequestToEmployee(actionRequest, employee));
+        yield return StartCoroutine(AssignRequestToEmployee(actionRequest, actionRequest.employee));
         // Check if the action request was successful
         AddExperience(10); // Example experience points for completing an action request
         actionState = ActionState.State.Idle;
