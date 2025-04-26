@@ -102,31 +102,31 @@ public class Department : MonoBehaviour
 
     public void AddToUI()
     {
-        Debug.Log($"Starting AddToUI for department: {departmentName}");
+        // Debug.Log($"Starting AddToUI for department: {departmentName}");
 
         // Find the parent element in the UI where the department will be added
         UIDocument uiDocument = gameController.gameUI;
         if (uiDocument == null)
         {
-            Debug.LogError("UIDocument not found in the scene!");
+            // Debug.LogError("UIDocument not found in the scene!");
             return;
         }
 
         ScrollView parentElement = uiDocument.rootVisualElement.Q<ScrollView>("departmentsMainList");
         if (parentElement == null)
         {
-            Debug.LogError("Department list ScrollView not found! Make sure 'departmentsMainList' exists in UI.");
+            // Debug.LogError("Department list ScrollView not found! Make sure 'departmentsMainList' exists in UI.");
             return;
         }
 
         // Check if department already exists in UI
         if (parentElement.Q(departmentName) != null)
         {
-            Debug.Log($"Department {departmentName} already exists in UI");
+            // Debug.Log($"Department {departmentName} already exists in UI");
             return;
         }
 
-        Debug.Log($"Creating UI elements for department: {departmentName}");
+        // Debug.Log($"Creating UI elements for department: {departmentName}");
 
         // Create a new VisualElement for the department
         VisualElement departmentElement = new VisualElement();
@@ -221,7 +221,7 @@ public class Department : MonoBehaviour
         employeeList.name = "departmentEmployeeList";
         employeeList.AddToClassList("departmentEmployeeList");
         employeeList.mode = ScrollViewMode.Horizontal;
-
+        Debug.Log($"Adding {employees.Count} employees to UI for department: {departmentName}");
         if (employees != null)
         {
             foreach (Employee employee in employees)
@@ -251,12 +251,12 @@ public class Department : MonoBehaviour
 
         // Add the department element to the parent ScrollView
         parentElement.Add(departmentElement);
-        Debug.Log($"Added department {departmentName} to UI successfully");
+        // Debug.Log($"Added department {departmentName} to UI successfully");
 
         // Check if department was added to the parent element
         if (parentElement.Q(departmentName) == null)
         {
-            Debug.LogError($"Failed to add department {departmentName} to UI");
+            // Debug.LogError($"Failed to add department {departmentName} to UI");
             return;
         }
         // Initialize manager display
@@ -310,13 +310,13 @@ public class Department : MonoBehaviour
     }
     public void UpdateEmployeeUIList()
     {
-        Debug.Log("Adding employee to UI: " + departmentName);
+        // Debug.Log("Adding employee to UI: " + departmentName);
         // Find the parent element in the UI where the department will be added
         UIDocument uiDocument = gameController.gameUI;
         VisualElement parentElement = uiDocument.rootVisualElement.Q<VisualElement>(departmentName).Q<ScrollView>("departmentEmployeeList");
         if (parentElement == null)
         {
-            Debug.LogError("Parent element not found for department: " + departmentName);
+            // Debug.LogError("Parent element not found for department: " + departmentName);
             return;
         }
 
@@ -354,7 +354,7 @@ public class Department : MonoBehaviour
         gameController = FindFirstObjectByType<GameController>();
         if (gameController == null)
         {
-            Debug.LogError("GameController not found in the scene.");
+            // Debug.LogError("GameController not found in the scene.");
             return;
         }
 
@@ -362,10 +362,10 @@ public class Department : MonoBehaviour
         if (!Globals.departments.Contains(this))
         {
             Globals.departments.Add(this);
-            Debug.Log($"Added {departmentName} to Globals.departments");
+            // Debug.Log($"Added {departmentName} to Globals.departments");
         }
 
-        Debug.Log($"Department Start() completed for {departmentName}");
+        // Debug.Log($"Department Start() completed for {departmentName}");
     }
 
 }

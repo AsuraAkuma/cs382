@@ -44,11 +44,18 @@ public class Globals
     // Warehouse data
     public static string warehouseName;
     public static int warehouseId; // Unique identifier for the warehouse
-    public static int warehouselevel;
-    public static int warehouseValue;
-    public static int warehouseExp;
+    public static int warehouselevel = 1;
+    public static int warehouseValue = 0;
+    public static int warehouseExp = 0;
     public static List<Employee> warehouseEmployees = new List<Employee>(); // Array of employees in the warehouse
     public static int warehouseMaxEmployees; // Maximum number of employees allowed in the warehouse
+    public static int boxesInStorage = 0; // Number of boxes currently in storage
+    public static int palletsInStorage = 0; // Number of pallets currently in storage
+    public static int boxValue = 10;
+    public static int palletBoxLimit = 5;
+    public static int palletValue = palletBoxLimit * boxValue; // Value of a pallet based on the number of boxes it can hold
+    public static int truckPalletLimit = 10;
+    public static int truckValue = truckPalletLimit * palletValue; // Value of a truck based on the number of pallets it can hold
     // HR data
     public static List<Employee> newHires = new List<Employee>(); // Array of new hires in the warehouse
     // Department data
@@ -129,11 +136,11 @@ public class Globals
 
             if (request.result == UnityWebRequest.Result.Success)
             {
-                Debug.Log("Data saved successfully: " + request.downloadHandler.text);
+                // Debug.Log("Data saved successfully: " + request.downloadHandler.text);
             }
             else
             {
-                Debug.LogError("Error saving data: " + request.error);
+                // Debug.LogError("Error saving data: " + request.error);
             }
         }
     }
@@ -186,7 +193,7 @@ public class Globals
                 }
                 else
                 {
-                    Debug.LogError("Error loading data: " + request.error);
+                    // Debug.LogError("Error loading data: " + request.error);
                 }
             }
         }

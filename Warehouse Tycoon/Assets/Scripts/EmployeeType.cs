@@ -37,7 +37,8 @@ public class EmployeeType
         LearningManager,
         LearningEmployee,
         RecruitingManager,
-        RecruitingEmployee
+        RecruitingEmployee,
+        None
     }
 
     public static string GetEmployeeType(Type employeeType)

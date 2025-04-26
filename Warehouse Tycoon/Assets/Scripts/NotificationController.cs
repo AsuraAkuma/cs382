@@ -24,7 +24,7 @@ public class NotificationController : MonoBehaviour
                 if (notification.isVisible == false)
                 {
                     notification.isVisible = true; // Set the notification to visible
-                    Debug.Log(notification.message); // Display the notification message in the console
+                    // Debug.Log(notification.message); // Display the notification message in the console
                 }
             }
         }

@@ -80,14 +80,20 @@ public class GameController : MonoBehaviour
         // Create a new hire
         HR hrDepartment = gameObject.AddComponent<HR>();
         hrDepartment.departmentType = DepartmentTypes.Type.HR;
-        hrDepartment.departmentName = "HR Department";
+        hrDepartment.departmentName = "HR";
         hrDepartment.departmentLevel = 1;
         hrDepartment.capacity = 10;
-        IT itDepartment = gameObject.AddComponent<IT>();
-        itDepartment.departmentType = DepartmentTypes.Type.IT;
-        itDepartment.departmentName = "IT Department";
-        itDepartment.departmentLevel = 1;
-        itDepartment.capacity = 10;
+        Inbound inboundDepartment = gameObject.AddComponent<Inbound>();
+        inboundDepartment.departmentType = DepartmentTypes.Type.Inbound;
+        inboundDepartment.departmentName = "Inbound";
+        inboundDepartment.departmentLevel = 1;
+        inboundDepartment.capacity = 10;
+        FluidLoad fluidDepartment = gameObject.AddComponent<FluidLoad>();
+        fluidDepartment.departmentType = DepartmentTypes.Type.FluidLoad;
+        fluidDepartment.departmentName = "FluidLoad";
+        fluidDepartment.departmentLevel = 1;
+        fluidDepartment.capacity = 10;
+
         // Globals.departments.Add(hrDepartment);
         // UpdateDepartmentUIList();
         StartCoroutine(gameActions.CreateNewHire());
@@ -106,7 +112,10 @@ public class GameController : MonoBehaviour
             return;
         }
     }
-
+    void FixedUpdate()
+    {
+        // Debug.Log($"BoxesInStorage: {Globals.boxesInStorage}");
+    }
     // Method to start the tutorial
     private void ProgressTutorial()
     {
@@ -120,7 +129,7 @@ public class GameController : MonoBehaviour
                 break;
 
             default:
-                Debug.Log("No more tutorial steps available.");
+                // Debug.Log("No more tutorial steps available.");
                 break;
         }
     }
@@ -128,7 +137,7 @@ public class GameController : MonoBehaviour
     private void TutorialStep1()
     {
         // Add logic for tutorial step 1 here
-        Debug.Log("Tutorial Step 1: Welcome to the Warehouse Tycoon!");
+        // Debug.Log("Tutorial Step 1: Welcome to the Warehouse Tycoon!");
 
         // Move to the next step
         Globals.tutorialStep++;
@@ -139,7 +148,7 @@ public class GameController : MonoBehaviour
     {
         // Add logic to load the game state here
         // StartCoroutine(Globals.Load());
-        Debug.Log("Game state loaded.");
+        // Debug.Log("Game state loaded.");
     }
 
     public void UpdateEmployeeUIList()
@@ -168,11 +177,11 @@ public class GameController : MonoBehaviour
             {
                 text = $"Name: {employee.employeeName}\n" +
                         $"Department: {(employee.department != null ? employee.department.departmentName : "None")}\n" +
-                        $"Speed: {employee.GetSpeed():F2}\n" +
-                        $"Efficiency: {employee.GetEfficiency():F2}\n" +
-                        $"Stamina: {employee.GetStamina():F2}\n" +
-                        $"Strength: {employee.GetStrength():F2}\n" +
-                        $"Focus: {employee.GetFocus():F2}\n" +
+                        $"Speed: {employee.speed:F2}\n" +
+                        $"Efficiency: {employee.efficiency:F2}\n" +
+                        $"Stamina: {employee.stamina:F2}\n" +
+                        $"Strength: {employee.strength:F2}\n" +
+                        $"Focus: {employee.focus:F2}\n" +
                         $"Salary/Cost: ${employee.salary}\n"
             };
             employeeListItemDetails.AddToClassList("employeeListItemDetails");
@@ -186,7 +195,7 @@ public class GameController : MonoBehaviour
         {
             employeeListItem.RegisterCallback<ClickEvent>(OnEmployeeListItemClick);
         }
-        Debug.Log("Employee UI list updated.");
+        // Debug.Log("Employee UI list updated.");
     }
     public void UpdateNewHireUIList()
     {
@@ -235,21 +244,20 @@ public class GameController : MonoBehaviour
             Department hrDepartment = Globals.departments.Find(d => d.departmentType == DepartmentTypes.Type.HR);
             if (hrDepartment == null)
             {
-                Debug.LogError("HR Department not found.");
+                // Debug.LogError("HR Department not found.");
                 return;
             }
-            Employee targetEmployee = hrDepartment.employees.OrderBy(e => e.actionRequests.Count).FirstOrDefault();
-            ActionRequest actionRequest = new ActionRequest(hrActions.HireEmployee(targetEmployee, employee), employee);
+            ActionRequest actionRequest = new ActionRequest(hrActions.HireEmployee(employee), employee);
             // Create Hire Button
             Button hireButton = new Button(() =>
             {
                 if (employee.cost > Globals.playerMoney)
                 {
-                    Debug.Log("Not enough money to hire this employee.");
+                    // Debug.Log("Not enough money to hire this employee.");
                     return;
                 }
                 hrDepartment.AddActionRequest(actionRequest);
-                Debug.Log($"Hr Department reqs: {hrDepartment.newActionRequests.Count}");
+                // Debug.Log($"Hr Department reqs: {hrDepartment.newActionRequests.Count}");
                 // Remove the new hire from the list and update the UI
                 employee.isHired = true;
                 employee.isFired = false;
@@ -272,7 +280,7 @@ public class GameController : MonoBehaviour
             // Add the new hire list item to the container
             newHireListContainer.Add(newHireListItem);
         }
-        Debug.Log("New Hire UI list updated.");
+        // Debug.Log("New Hire UI list updated.");
     }
     public void UpdateDepartmentUIList()
     {
@@ -287,7 +295,7 @@ public class GameController : MonoBehaviour
         {
             department.AddToUI();
         }
-        Debug.Log("Department UI list updated.");
+        // Debug.Log("Department UI list updated.");
     }
     private void RejectNewHire(Employee newHire)
     {
@@ -295,7 +303,7 @@ public class GameController : MonoBehaviour
         // For example, remove them from the new hires list and update the UI
         Globals.newHires.Remove(newHire);
         UpdateNewHireUIList();
-        Debug.Log($"New hire {newHire.employeeName} rejected.");
+        // Debug.Log($"New hire {newHire.employeeName} rejected.");
     }
     // UI functionality
     // Side panel navigation
@@ -333,7 +341,7 @@ public class GameController : MonoBehaviour
                 ShowSidePanel("newHiresPanel");
                 break;
             default:
-                Debug.Log("Invalid button name.");
+                // Debug.Log("Invalid button name.");
                 return;
         }
     }
@@ -359,14 +367,14 @@ public class GameController : MonoBehaviour
                 DropdownField departmentDropdown = employeeManager.Q<DropdownField>("EditDepartmentPanelInput");
                 editDepartmentPanel.style.display = DisplayStyle.Flex;
                 departmentDropdown.choices = Globals.departments.Select(d => d.departmentName).ToList();
-                editDepartmentPanel.Q<Label>("EditDepartmentPanelOldValue").text = $"Current Department: {selectedEmployee.department.departmentName}";
+                editDepartmentPanel.Q<Label>("EditDepartmentPanelOldValue").text = $"Current Department: {(selectedEmployee.department != null ? selectedEmployee.department.departmentName : "None")}";
                 break;
             case "EMPromoteButton":
                 // Get the HR department
                 Department hrDepartment = Globals.departments.Find(d => d.departmentType == DepartmentTypes.Type.HR);
                 // Add the action request to the HR department
                 targetEmployee = hrDepartment.employees.OrderBy(e => e.actionRequests.Count).FirstOrDefault();
-                ActionRequest actionRequest = new ActionRequest(hrActions.PromoteEmployee(targetEmployee), selectedEmployee);
+                ActionRequest actionRequest = new ActionRequest(hrActions.PromoteEmployee(selectedEmployee), selectedEmployee);
                 hrDepartment.AddActionRequest(actionRequest);
                 break;
             case "EMFireButton":
@@ -374,17 +382,18 @@ public class GameController : MonoBehaviour
                 Department hrDepartmentFire = Globals.departments.Find(d => d.departmentType == DepartmentTypes.Type.HR);
                 // Add the action request to the HR department
                 targetEmployee = hrDepartmentFire.employees.OrderBy(e => e.actionRequests.Count).FirstOrDefault();
-                ActionRequest actionRequestFire = new ActionRequest(hrActions.FireEmployee(targetEmployee), selectedEmployee);
+                ActionRequest actionRequestFire = new ActionRequest(hrActions.FireEmployee(selectedEmployee), selectedEmployee);
                 hrDepartmentFire.AddActionRequest(actionRequestFire);
                 break;
             case "employeeManagerHeaderClose":
                 // Hide the employee manager panel
                 employeeManager.style.display = DisplayStyle.None;
+                ShowSidePanel("employeesPanel");
                 // Clear the selected employee
                 selectedEmployee = null;
                 break;
             default:
-                Debug.Log("Invalid button name.");
+                // Debug.Log("Invalid button name.");
                 return;
         }
     }
@@ -418,7 +427,7 @@ public class GameController : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogError("No employee selected.");
+                    // Debug.LogError("No employee selected.");
                 }
 
                 break;
@@ -427,7 +436,7 @@ public class GameController : MonoBehaviour
                 editNamePanel.style.display = DisplayStyle.None;
                 break;
             default:
-                Debug.Log("Invalid button name.");
+                // Debug.Log("Invalid button name.");
                 return;
         }
     }
@@ -450,8 +459,112 @@ public class GameController : MonoBehaviour
                 // Add logic to update the employee's department
                 if (selectedEmployee != null)
                 {
-                    selectedEmployee.department.RemoveEmployee(selectedEmployee);
-                    selectedEmployee.department.UpdateEmployeeUIList();
+                    // Create new employee to match department type
+                    Employee newEmployee;
+                    switch (newDepartment.departmentType)
+                    {
+                        case DepartmentTypes.Type.HR:
+                            newEmployee = gameObject.AddComponent<HREmployee>();
+                            newEmployee.Paste(selectedEmployee);
+                            newEmployee.employeeType = EmployeeType.Type.HREmployee;
+                            break;
+                        case DepartmentTypes.Type.IT:
+                            newEmployee = gameObject.AddComponent<ITEmployee>();
+                            newEmployee.Paste(selectedEmployee);
+                            newEmployee.employeeType = EmployeeType.Type.ITEmployee;
+                            break;
+                        case DepartmentTypes.Type.Operations:
+                            newEmployee = gameObject.AddComponent<OperationsEmployee>();
+                            newEmployee.Paste(selectedEmployee);
+                            newEmployee.employeeType = EmployeeType.Type.OperationsEmployee;
+                            break;
+                        case DepartmentTypes.Type.Inbound:
+                            newEmployee = gameObject.AddComponent<InboundEmployee>();
+                            newEmployee.Paste(selectedEmployee);
+                            newEmployee.employeeType = EmployeeType.Type.InboundEmployee;
+                            break;
+                        case DepartmentTypes.Type.Sorting:
+                            newEmployee = gameObject.AddComponent<SortingEmployee>();
+                            newEmployee.Paste(selectedEmployee);
+                            newEmployee.employeeType = EmployeeType.Type.SortingEmployee;
+                            break;
+                        case DepartmentTypes.Type.Repacking:
+                            newEmployee = gameObject.AddComponent<RepackingEmployee>();
+                            newEmployee.Paste(selectedEmployee);
+                            newEmployee.employeeType = EmployeeType.Type.RepackingEmployee;
+                            break;
+                        case DepartmentTypes.Type.Palletizing:
+                            newEmployee = gameObject.AddComponent<PalletizingEmployee>();
+                            newEmployee.Paste(selectedEmployee);
+                            newEmployee.employeeType = EmployeeType.Type.PalletizingEmployee;
+                            break;
+                        case DepartmentTypes.Type.WaterSpidering:
+                            newEmployee = gameObject.AddComponent<WaterSpiderEmployee>();
+                            newEmployee.Paste(selectedEmployee);
+                            newEmployee.employeeType = EmployeeType.Type.WaterSpiderEmployee;
+                            break;
+                        case DepartmentTypes.Type.FluidLoad:
+                            newEmployee = gameObject.AddComponent<FluidLoadEmployee>();
+                            newEmployee.Paste(selectedEmployee);
+                            newEmployee.employeeType = EmployeeType.Type.FluidLoadEmployee;
+                            break;
+                        case DepartmentTypes.Type.QualityControl:
+                            newEmployee = gameObject.AddComponent<QualityControlEmployee>();
+                            newEmployee.Paste(selectedEmployee);
+                            newEmployee.employeeType = EmployeeType.Type.QualityControlEmployee;
+                            break;
+                        case DepartmentTypes.Type.Outbound:
+                            newEmployee = gameObject.AddComponent<OutboundEmployee>();
+                            newEmployee.Paste(selectedEmployee);
+                            newEmployee.employeeType = EmployeeType.Type.OutboundEmployee;
+                            break;
+                        case DepartmentTypes.Type.Maintenance:
+                            newEmployee = gameObject.AddComponent<MaintenanceEmployee>();
+                            newEmployee.Paste(selectedEmployee);
+                            newEmployee.employeeType = EmployeeType.Type.MaintenanceEmployee;
+                            break;
+                        case DepartmentTypes.Type.Robotics:
+                            newEmployee = gameObject.AddComponent<RoboticsEmployee>();
+                            newEmployee.Paste(selectedEmployee);
+                            newEmployee.employeeType = EmployeeType.Type.RoboticsEmployee;
+                            break;
+                        case DepartmentTypes.Type.Safety:
+                            newEmployee = gameObject.AddComponent<SafetyEmployee>();
+                            newEmployee.Paste(selectedEmployee);
+                            newEmployee.employeeType = EmployeeType.Type.SafetyEmployee;
+                            break;
+                        case DepartmentTypes.Type.Cleaning:
+                            newEmployee = gameObject.AddComponent<CleaningEmployee>();
+                            newEmployee.Paste(selectedEmployee);
+                            newEmployee.employeeType = EmployeeType.Type.CleaningEmployee;
+                            break;
+                        case DepartmentTypes.Type.Security:
+                            newEmployee = gameObject.AddComponent<SecurityEmployee>();
+                            newEmployee.Paste(selectedEmployee);
+                            newEmployee.employeeType = EmployeeType.Type.SecurityEmployee;
+                            break;
+                        case DepartmentTypes.Type.Learning:
+                            newEmployee = gameObject.AddComponent<LearningEmployee>();
+                            newEmployee.Paste(selectedEmployee);
+                            newEmployee.employeeType = EmployeeType.Type.LearningEmployee;
+                            break;
+                        case DepartmentTypes.Type.Recruiting:
+                            newEmployee = gameObject.AddComponent<RecruitingEmployee>();
+                            newEmployee.Paste(selectedEmployee);
+                            newEmployee.employeeType = EmployeeType.Type.RecruitingEmployee;
+                            break;
+                        default:
+                            throw new System.ArgumentOutOfRangeException(nameof(newDepartment.departmentType), "Invalid department type.");
+                    }
+                    // Copy stats from the old employee data to the new employee
+                    if (selectedEmployee.department != null)
+                    {
+                        selectedEmployee.department.RemoveEmployee(selectedEmployee); // Remove old employee from the current department
+                        selectedEmployee.department.UpdateEmployeeUIList(); // Update the UI of the current department
+                    }
+                    Destroy(selectedEmployee); // Destroy the old employee data
+                    newEmployee.department = newDepartment; // Assign the new department to the employee
+                    newEmployee.departmentType = newDepartment.departmentType; // Set the department type
                     newDepartment.AddEmployee(selectedEmployee);
                     selectedEmployee.department = newDepartment;
                     selectedEmployee.department.UpdateEmployeeUIList();
@@ -464,7 +577,7 @@ public class GameController : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogError("No employee selected.");
+                    // Debug.LogError("No employee selected.");
                 }
 
                 break;
@@ -473,7 +586,7 @@ public class GameController : MonoBehaviour
                 editDepartmentPanel.style.display = DisplayStyle.None;
                 break;
             default:
-                Debug.Log("Invalid button name.");
+                // Debug.Log("Invalid button name.");
                 return;
         }
     }
@@ -484,7 +597,7 @@ public class GameController : MonoBehaviour
 
         if (clickedItem == null)
         {
-            Debug.LogError("Clicked item is not a VisualElement.");
+            // Debug.LogError("Clicked item is not a VisualElement.");
             return;
         }
         // Get the employee name from the clicked item
@@ -499,7 +612,7 @@ public class GameController : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"Employee {employeeName} not found in the warehouse employees list.");
+            // Debug.LogError($"Employee {employeeName} not found in the warehouse employees list.");
         }
     }
     private void ShowEmployeeDetails(Employee employee)
@@ -511,7 +624,7 @@ public class GameController : MonoBehaviour
         // Set the employee details in the UI
         employeeManager.Q<VisualElement>("employeeManagerImage").style.backgroundImage = new StyleBackground(employee.employeeSprite);
         employeeManager.Q<Label>("employeeManagerDetails").text = $"Name: {employee.employeeName}\n" +
-            $"Department: {employee.department.departmentName}\n" +
+            $"Department: {(employee.department != null ? employee.department.departmentName : "None")}\n" +
             $"Level: {employee.level}\n" +
             $"Infractions: {employee.infractions}\n" +
             $"Status: {employee.actionState}\n" +
