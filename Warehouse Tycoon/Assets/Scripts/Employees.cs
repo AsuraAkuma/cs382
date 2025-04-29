@@ -658,8 +658,11 @@ public class Employee : MonoBehaviour
             // Debug.Log($"Employee {employeeName} has canceled the current action.");
             // Check for a action request
             ActionRequest actionRequest = actionRequests.FirstOrDefault();
-            actionRequest.status = ActionRequest.StatusType.Type.Pending; // Set status to canceled
-            department.AddActionRequest(actionRequest); // Add the action request back to the department's newActionRequests
+            if (actionRequest != null)
+            {
+                actionRequest.status = ActionRequest.StatusType.Type.Pending; // Set status to canceled
+                department.AddActionRequest(actionRequest); // Add the action request back to the department's newActionRequests
+            }
             StopAllCoroutines(); // Stop all ongoing actions
             actionState = ActionState.State.Idle; // Set state to idle
         }

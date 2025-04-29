@@ -157,6 +157,11 @@ public class GameController : MonoBehaviour
         VisualElement root = gameUI.rootVisualElement;
         // Get the employee list container from the UI
         ScrollView employeeListContainer = root.Q<ScrollView>("employeeList");
+        // Remove all click event listeners from the existing employee list items
+        foreach (VisualElement employeeListItem in employeeListContainer.Children())
+        {
+            employeeListItem.UnregisterCallback<ClickEvent>(OnEmployeeListItemClick);
+        }
         // Clear the existing employee list
         employeeListContainer.Clear();
         // Loop through each employee in the warehouse and add them to the UI
@@ -459,6 +464,7 @@ public class GameController : MonoBehaviour
                 // Add logic to update the employee's department
                 if (selectedEmployee != null)
                 {
+                    selectedEmployee.CancelAction();
                     // Create new employee to match department type
                     Employee newEmployee;
                     switch (newDepartment.departmentType)
@@ -565,12 +571,24 @@ public class GameController : MonoBehaviour
                     Destroy(selectedEmployee); // Destroy the old employee data
                     newEmployee.department = newDepartment; // Assign the new department to the employee
                     newEmployee.departmentType = newDepartment.departmentType; // Set the department type
-                    newDepartment.AddEmployee(selectedEmployee);
-                    selectedEmployee.department = newDepartment;
-                    selectedEmployee.department.UpdateEmployeeUIList();
+                    newDepartment.AddEmployee(newEmployee);
+                    newEmployee.department = newDepartment;
+                    newEmployee.department.UpdateEmployeeUIList();
+
+                    // Update the warehouse employees list
+                    int oldIndex = Globals.warehouseEmployees.FindIndex(e => e.employeeName == newEmployee.employeeName);
+                    if (oldIndex != -1)
+                    {
+                        Globals.warehouseEmployees[oldIndex] = newEmployee;
+                    }
+                    else
+                    {
+                        Globals.warehouseEmployees.Add(newEmployee);
+                    }
+
                     // Update the employee list UI
                     UpdateEmployeeUIList();
-                    ShowEmployeeDetails(selectedEmployee);
+                    ShowEmployeeDetails(newEmployee);
                     // Hide the edit department panel
                     editDepartmentPanel.style.display = DisplayStyle.None;
                     departmentDropdown.value = null;
@@ -597,7 +615,7 @@ public class GameController : MonoBehaviour
 
         if (clickedItem == null)
         {
-            // Debug.LogError("Clicked item is not a VisualElement.");
+            Debug.LogError("Clicked item is not a VisualElement.");
             return;
         }
         // Get the employee name from the clicked item
@@ -612,7 +630,7 @@ public class GameController : MonoBehaviour
         }
         else
         {
-            // Debug.LogError($"Employee {employeeName} not found in the warehouse employees list.");
+            Debug.LogError($"Employee {employeeName} not found in the warehouse employees list.");
         }
     }
     private void ShowEmployeeDetails(Employee employee)
