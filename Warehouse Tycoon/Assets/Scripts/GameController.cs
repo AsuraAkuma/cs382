@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System.Linq;
 using Unity.VisualScripting;
+using System.Collections;
 
 public class GameController : MonoBehaviour
 {
@@ -21,11 +22,19 @@ public class GameController : MonoBehaviour
     Button editDepartmentPanelConfirmButton;
     VisualElement editDepartmentPanelCancelButton;
     VisualElement employeeManagerCloseButton;
+    VisualElement upgradePanel;
     string currentPanel = "employeesPanel";
     public Actions.GameSystem gameActions;
     public Actions.HR hrActions;
     public Sprite defaultEmployeeSprite;
-
+    VisualElement storeItemHR;
+    VisualElement storeItemInbound;
+    VisualElement storeItemFluidLoad;
+    VisualElement pauseScreen;
+    Button pauseScreenSaveButton;
+    Button pauseScreenExitButton;
+    Button pauseScreenResumeButton;
+    float previousTimeScale;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -45,6 +54,23 @@ public class GameController : MonoBehaviour
         editDepartmentPanelConfirmButton = gameUI.rootVisualElement.Q<Button>("editDepartmentPanelConfirmButton");
         editDepartmentPanelCancelButton = gameUI.rootVisualElement.Q<VisualElement>("editDepartmentPanelCancelButton");
         employeeManagerCloseButton = gameUI.rootVisualElement.Q<VisualElement>("employeeManagerHeaderClose");
+        upgradePanel = gameUI.rootVisualElement.Q<VisualElement>("upgradesPanel");
+        storeItemHR = gameUI.rootVisualElement.Q<VisualElement>("storeItemDepartmentHR");
+        storeItemInbound = gameUI.rootVisualElement.Q<VisualElement>("storeItemDepartmentInbound");
+        storeItemFluidLoad = gameUI.rootVisualElement.Q<VisualElement>("storeItemDepartmentFluidLoad");
+        pauseScreen = gameUI.rootVisualElement.Q<VisualElement>("pauseScreen");
+        pauseScreenSaveButton = pauseScreen.Q<Button>("pauseSaveButton");
+        pauseScreenExitButton = pauseScreen.Q<Button>("pauseExitButton");
+        pauseScreenResumeButton = pauseScreen.Q<Button>("pauseResumeButton");
+
+        // Hide pause screen initially
+        pauseScreen.style.display = DisplayStyle.None;
+
+        // Register pause screen button callbacks
+        pauseScreenSaveButton.RegisterCallback<ClickEvent>(OnPauseScreenButtonClick);
+        pauseScreenExitButton.RegisterCallback<ClickEvent>(OnPauseScreenButtonClick);
+        pauseScreenResumeButton.RegisterCallback<ClickEvent>(OnPauseScreenButtonClick);
+
         // Add click event listeners to the buttons
         upgradesButton.RegisterCallback<ClickEvent>(OnPanelNavButtonClick);
         employeesButton.RegisterCallback<ClickEvent>(OnPanelNavButtonClick);
@@ -76,6 +102,8 @@ public class GameController : MonoBehaviour
             // Start the tutorial
             ProgressTutorial();
         }
+        // speed up the game
+        // Time.timeScale = 40f;
         // TESTING ONLY
         // Create a new hire
         HR hrDepartment = gameObject.AddComponent<HR>();
@@ -94,28 +122,141 @@ public class GameController : MonoBehaviour
         fluidDepartment.departmentLevel = 1;
         fluidDepartment.capacity = 10;
 
+        int departmentCountHR = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.HR);
+        int departmentCountInbound = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Inbound);
+        int departmentCountFluidLoad = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.FluidLoad);
+        int itemCostValueHR = Globals.departmentCost + 5000 * (departmentCountHR + 1);
+        int itemCostValueInbound = Globals.departmentCost + 5000 * (departmentCountInbound + 1);
+        int itemCostValueFluidLoad = Globals.departmentCost + 5000 * (departmentCountFluidLoad + 1);
+        storeItemHR.Q<Label>("storeItemCost").text = $"Cost\n${itemCostValueHR}";
+        storeItemInbound.Q<Label>("storeItemCost").text = $"Cost\n${itemCostValueInbound}";
+        storeItemFluidLoad.Q<Label>("storeItemCost").text = $"Cost\n${itemCostValueFluidLoad}";
+        storeItemHR.RegisterCallback<ClickEvent>(OnStoreItemClick);
+        storeItemInbound.RegisterCallback<ClickEvent>(OnStoreItemClick);
+        storeItemFluidLoad.RegisterCallback<ClickEvent>(OnStoreItemClick);
         // Globals.departments.Add(hrDepartment);
-        // UpdateDepartmentUIList();
         StartCoroutine(gameActions.CreateNewHire());
         UpdateNewHireUIList();
-        Globals.playerMoney = 10000;
+        UpdateDepartmentUIList();
+        Globals.playerMoney = 100000;
         Globals.gameState = State.Playing;
+
+        // Update separtment UI list every 10 seconds
+        InvokeRepeating("UpdateDepartmentUIList", 0f, 10f);
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        // Check if the game is paused
-        if (Globals.gameState == State.Paused)
+        if (Globals.gameState != State.Playing)
         {
             // Pause the game logic here
             return;
         }
+        if (selectedEmployee != null)
+        {
+            // UpdateUpgradeUIList();
+        }
+        UpdateHeaderUI();
+        // UpdateDepartmentUIList();
+        // Elapse game time
+        // One real minute = 1 game hour
+        // One real second = 1 game minute
+        Globals.gameTimeElapsed += Time.fixedDeltaTime / 60f;
+        // When game time is 24 in game hours, reset to 0
+        if (Globals.gameTimeElapsed >= 24f)
+        {
+            Globals.gameTimeElapsed = 0f;
+            // subtract employee salary from balance
+            foreach (Employee employee in Globals.warehouseEmployees)
+            {
+                Globals.playerMoney -= employee.salary;
+            }
+            StartCoroutine(gameActions.CreateNewHire());
+            if (Globals.newHires.Count > 5)
+            {
+                // Remove the oldest new hire
+                Globals.newHires.RemoveAt(0);
+            }
+            UpdateNewHireUIList();
+            // Debug.Log("Game time reset to 0.");
+        }
+        // Debug.Log($"Game time elapsed: {Globals.gameTimeElapsed} hours.");
     }
-    void FixedUpdate()
+
+    // Add input handling in Update to check for Escape key press
+    void Update()
     {
-        // Debug.Log($"BoxesInStorage: {Globals.boxesInStorage}");
+        // Check for escape key press to toggle pause screen
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            TogglePauseScreen();
+        }
     }
+
+    // Method to toggle the pause screen
+    private void TogglePauseScreen()
+    {
+        if (pauseScreen.style.display == DisplayStyle.None)
+        {
+            // Show pause screen and pause game
+            pauseScreen.style.display = DisplayStyle.Flex;
+            previousTimeScale = Time.timeScale;
+            Time.timeScale = 0f;
+            Globals.gameState = State.Paused;
+        }
+        else
+        {
+            // Hide pause screen and resume game
+            pauseScreen.style.display = DisplayStyle.None;
+            Time.timeScale = previousTimeScale;
+            Globals.gameState = State.Playing;
+        }
+    }
+
+    // Handler for pause screen button clicks
+    private void OnPauseScreenButtonClick(ClickEvent evt)
+    {
+        Button clickedButton = evt.currentTarget as Button;
+
+        switch (clickedButton.name)
+        {
+            case "pauseSaveButton":
+                SaveGame();
+                break;
+
+            case "pauseExitButton":
+                ExitGame();
+                break;
+
+            case "pauseResumeButton":
+                TogglePauseScreen();
+                break;
+
+            default:
+                Debug.Log("Unknown pause screen button clicked");
+                break;
+        }
+    }
+
+    // Method to save the game state
+    private void SaveGame()
+    {
+        Debug.Log("Saving game...");
+        StartCoroutine(Globals.Save());
+    }
+
+    // Method to exit the game
+    private void ExitGame()
+    {
+        Debug.Log("Exiting game...");
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
+    }
+
     // Method to start the tutorial
     private void ProgressTutorial()
     {
@@ -150,7 +291,20 @@ public class GameController : MonoBehaviour
         // StartCoroutine(Globals.Load());
         // Debug.Log("Game state loaded.");
     }
-
+    private void UpdateHeaderUI()
+    {
+        // Get the root visual element of the game UI
+        VisualElement root = gameUI.rootVisualElement;
+        // Get the header UI elements
+        VisualElement header = root.Q<VisualElement>("header");
+        Label warehouseName = header.Q<Label>("warehouseName");
+        Label balance = header.Q<Label>("balance");
+        Label playerName = header.Q<Label>("playerName");
+        // Update the header UI elements with the current values
+        warehouseName.text = Globals.warehouseName;
+        balance.text = $"Balance: ${Globals.playerMoney}";
+        playerName.text = Globals.playerName;
+    }
     public void UpdateEmployeeUIList()
     {
         // Get the root visual element of the game UI
@@ -293,14 +447,32 @@ public class GameController : MonoBehaviour
         VisualElement root = gameUI.rootVisualElement;
         // Get the department list container from the UI
         ScrollView departmentListContainer = root.Q<ScrollView>("departmentsMainList");
+
         // Clear the existing department list
         departmentListContainer.Clear();
+        Debug.Log($"Department list count: {Globals.departments.Count}");
+
         // Loop through each department and add them to the UI
         foreach (Department department in Globals.departments)
         {
             department.AddToUI();
         }
-        // Debug.Log("Department UI list updated.");
+        Debug.Log("Department UI list updated.");
+
+        // Force the ScrollView to update its layout
+        departmentListContainer.style.display = DisplayStyle.None;
+        departmentListContainer.style.display = DisplayStyle.Flex;
+
+        // Force layout recalculation
+        departmentListContainer.contentContainer.style.height = new StyleLength(StyleKeyword.Auto);
+
+        // Schedule a deferred action to update the ScrollView after the frame completes
+        departmentListContainer.schedule.Execute(() =>
+        {
+            departmentListContainer.contentContainer.style.minHeight = new StyleLength(
+                new Length(100f * Globals.departments.Count, LengthUnit.Pixel));
+            departmentListContainer.contentViewport.MarkDirtyRepaint();
+        }).StartingIn(100);
     }
     private void RejectNewHire(Employee newHire)
     {
@@ -625,8 +797,8 @@ public class GameController : MonoBehaviour
         if (clickedEmployee != null)
         {
             // Show the employee details in a new panel or popup
-            ShowEmployeeDetails(clickedEmployee);
             selectedEmployee = clickedEmployee;
+            ShowEmployeeDetails(clickedEmployee);
         }
         else
         {
@@ -646,7 +818,8 @@ public class GameController : MonoBehaviour
             $"Level: {employee.level}\n" +
             $"Infractions: {employee.infractions}\n" +
             $"Status: {employee.actionState}\n" +
-            $"Salary: ${employee.salary}\n";
+            $"Salary: ${employee.salary}\n" +
+            $"Exp: {employee.exp}\n";
         // Set EMStats
         employeeManager.Q<VisualElement>("EMSpeedStat").Q<VisualElement>("EMStatProgress").style.width = new StyleLength(new Length(employee.speed / Globals.employeeStatMax * 100, LengthUnit.Percent));
         employeeManager.Q<VisualElement>("EMSpeedStat").Q<Label>("EMStatText").text = $"Speed: {employee.speed} / {Globals.employeeStatMax}";
@@ -736,7 +909,594 @@ public class GameController : MonoBehaviour
             traitsText += $"Department: {trait.departmentType}\n\n";
         }
         employeeManager.Q<Label>("EMModifiers").text = traitsText;
+        UpdateUpgradeUIList();
         // Show the Employee Manager
         employeeManager.style.display = DisplayStyle.Flex;
+    }
+    private void UpdateUpgradeUIList()
+    {
+        if (selectedEmployee == null || Globals.warehouseEmployees == null || Globals.warehouseEmployees.Count == 0)
+        {
+            // Debug.LogError("No selected employee or no employees found in the warehouse employees list.");
+            return;
+        }
+        Employee employee = Globals.warehouseEmployees.Find(e => e.employeeName == selectedEmployee.employeeName);
+        if (employee == null)
+        {
+            // Debug.LogError("Selected employee not found in the warehouse employees list.");
+            return;
+        }
+        VisualElement upgradeList = upgradePanel.Q<VisualElement>("upgradeList");
+        if (upgradeList == null)
+        {
+            // Debug.LogError("Upgrade list not found in the upgrade panel.");
+            return;
+        }
+        // Remove any click event listeners from the upgrade list items
+        foreach (VisualElement upgradeListItem in upgradeList.Children())
+        {
+            upgradeListItem.UnregisterCallback<ClickEvent>(OnUpgradeListItemClick);
+        }
+        // Clear the existing upgrade list
+        upgradeList.Clear();
+        // Create upgrade list items
+        string[] upgradeNames = { "speed", "efficiency", "stamina", "strength", "focus", "experience" };
+        foreach (string upgradeName in upgradeNames)
+        {
+            // Create a new VisualElement for the upgrade list item
+            VisualElement upgradeListItem = new VisualElement();
+            upgradeListItem.AddToClassList("upgradeContainer");
+            // Set the name of the upgrade list item for identification
+            upgradeListItem.name = $"{upgradeName}UpgradeButton";
+            // Create a Label for the upgrade details
+            string upgradeLevelText = "LVL\n1";
+            int upgradeCostAmount = 0;
+            switch (upgradeName)
+            {
+                case "speed":
+                    upgradeLevelText = $"LVL\n{employee.speed}";
+                    upgradeCostAmount = (int)(Globals.employeeStatUpgradeCost * employee.speed);
+                    break;
+                case "efficiency":
+                    upgradeLevelText = $"LVL\n{employee.efficiency}";
+                    upgradeCostAmount = (int)(Globals.employeeStatUpgradeCost * employee.efficiency);
+                    break;
+                case "stamina":
+                    upgradeLevelText = $"LVL\n{employee.stamina}";
+                    upgradeCostAmount = (int)(Globals.employeeStatUpgradeCost * employee.stamina);
+                    break;
+                case "strength":
+                    upgradeLevelText = $"LVL\n{employee.strength}";
+                    upgradeCostAmount = (int)(Globals.employeeStatUpgradeCost * employee.strength);
+                    break;
+                case "focus":
+                    upgradeLevelText = $"LVL\n{employee.focus}";
+                    upgradeCostAmount = (int)(Globals.employeeStatUpgradeCost * employee.focus);
+                    break;
+                case "experience":
+                    upgradeLevelText = $"LVL\n{employee.experience}";
+                    upgradeCostAmount = (int)(Globals.employeeStatUpgradeCost * employee.experience);
+                    break;
+                default:
+                    Debug.LogError($"Upgrade {upgradeName} is not a valid upgrade.");
+                    continue;
+            }
+            Label upgradeLevel = new Label
+            {
+                name = "upgradeLevel",
+                text = upgradeLevelText,
+            };
+            upgradeLevel.AddToClassList("upgradeLevel");
+            upgradeListItem.Add(upgradeLevel);
+            Label upgradeNameLabel = new Label
+            {
+                name = "upgradeName",
+                text = upgradeName[0].ToString().ToUpper() + upgradeName.Substring(1),
+            };
+            upgradeNameLabel.AddToClassList("upgradeName");
+            upgradeListItem.Add(upgradeNameLabel);
+            Label upgradeCost = new Label
+            {
+                name = "upgradeCost",
+                text = $"COST\n${upgradeCostAmount}",
+            };
+            upgradeCost.AddToClassList("upgradeLevel");
+            if (Globals.playerMoney < upgradeCostAmount)
+            {
+                upgradeCost.AddToClassList("cannotUpgrade");
+            }
+            else
+            {
+                upgradeCost.AddToClassList("canUpgrade");
+            }
+            upgradeListItem.Add(upgradeCost);
+            // Add click event listener to the upgrade list item
+            upgradeListItem.RegisterCallback<ClickEvent>(OnUpgradeListItemClick);
+            // Add the upgrade list item to the container
+            upgradeList.Add(upgradeListItem);
+        }
+        // Debug.Log("Upgrade UI list updated.");
+    }
+    private void OnUpgradeListItemClick(ClickEvent evt)
+    {
+        // Get the clicked upgrade list item
+        VisualElement clickedItem = evt.currentTarget as VisualElement;
+        if (clickedItem == null)
+        {
+            Debug.LogError("Clicked item is not a VisualElement.");
+            return;
+        }
+        if (selectedEmployee == null)
+        {
+            Debug.LogError("No employee selected for upgrade.");
+            return;
+        }
+        // Get the upgrade name from the clicked item
+        string upgradeName = clickedItem.name;
+        // Get the employee from the global list
+        Employee clickedEmployee = Globals.warehouseEmployees.Find(e => e.employeeName == selectedEmployee.employeeName);
+        switch (upgradeName)
+        {
+            case "speedUpgradeButton":
+                // Check if the employee has enough experience to upgrade speed
+                if (Globals.playerMoney >= Globals.employeeStatUpgradeCost * clickedEmployee.speed)
+                {
+                    clickedEmployee.speed += Globals.employeeStatUpgradeValue;
+                    Globals.playerMoney -= Globals.employeeStatUpgradeCost * clickedEmployee.speed;
+                    UpdateEmployeeUIList();
+                    ShowEmployeeDetails(clickedEmployee);
+                }
+                else
+                {
+                    Debug.Log("Not enough money to upgrade speed.");
+                }
+                break;
+            case "efficiencyUpgradeButton":
+                // Check if the employee has enough experience to upgrade efficiency
+                if (Globals.playerMoney >= Globals.employeeStatUpgradeCost * clickedEmployee.efficiency)
+                {
+                    clickedEmployee.efficiency += Globals.employeeStatUpgradeValue;
+                    Globals.playerMoney -= Globals.employeeStatUpgradeCost * clickedEmployee.efficiency;
+                    UpdateEmployeeUIList();
+                    ShowEmployeeDetails(clickedEmployee);
+                }
+                else
+                {
+                    Debug.Log("Not enough money to upgrade efficiency.");
+                }
+                break;
+            case "staminaUpgradeButton":
+                // Check if the employee has enough experience to upgrade stamina
+                if (Globals.playerMoney >= Globals.employeeStatUpgradeCost * clickedEmployee.stamina)
+                {
+                    clickedEmployee.stamina += Globals.employeeStatUpgradeValue;
+                    Globals.playerMoney -= Globals.employeeStatUpgradeCost * clickedEmployee.stamina;
+                    UpdateEmployeeUIList();
+                    ShowEmployeeDetails(clickedEmployee);
+                }
+                else
+                {
+                    Debug.Log("Not enough money to upgrade stamina.");
+                }
+                break;
+            case "strengthUpgradeButton":
+                // Check if the employee has enough experience to upgrade strength
+                if (Globals.playerMoney >= Globals.employeeStatUpgradeCost * clickedEmployee.strength)
+                {
+                    clickedEmployee.strength += Globals.employeeStatUpgradeValue;
+                    Globals.playerMoney -= Globals.employeeStatUpgradeCost * clickedEmployee.strength;
+                    UpdateEmployeeUIList();
+                    ShowEmployeeDetails(clickedEmployee);
+                }
+                else
+                {
+                    Debug.Log("Not enough money to upgrade strength.");
+                }
+                break;
+            case "focusUpgradeButton":
+                // Check if the employee has enough experience to upgrade focus
+                if (Globals.playerMoney >= Globals.employeeStatUpgradeCost * clickedEmployee.focus)
+                {
+                    clickedEmployee.focus += Globals.employeeStatUpgradeValue;
+                    Globals.playerMoney -= Globals.employeeStatUpgradeCost * clickedEmployee.focus;
+                    UpdateEmployeeUIList();
+                    ShowEmployeeDetails(clickedEmployee);
+                }
+                else
+                {
+                    Debug.Log("Not enough money to upgrade focus.");
+                }
+                break;
+            case "experienceUpgradeButton":
+                // Check if the employee has enough experience to upgrade experience
+                if (Globals.playerMoney >= Globals.employeeStatUpgradeCost * clickedEmployee.experience)
+                {
+                    clickedEmployee.experience += Globals.employeeStatUpgradeValue;
+                    Globals.playerMoney -= Globals.employeeStatUpgradeCost * clickedEmployee.experience;
+                    UpdateEmployeeUIList();
+                    ShowEmployeeDetails(clickedEmployee);
+                }
+                else
+                {
+                    Debug.Log("Not enough money to upgrade experience.");
+                }
+                break;
+            default:
+                Debug.LogError($"Upgrade {upgradeName} is not a valid upgrade.");
+                break;
+        }
+    }
+    private void OnStoreItemClick(ClickEvent evt)
+    {
+        // Get the clicked store item
+        VisualElement clickedItem = evt.currentTarget as VisualElement;
+        if (clickedItem == null)
+        {
+            Debug.LogError("Clicked item is not a VisualElement.");
+            return;
+        }
+        // Get the item name from the clicked item
+        string itemName = clickedItem.name;
+        Label itemCostLabel = clickedItem.Q<Label>("storeItemCost");
+        int itemCostValue = Globals.departmentCost;
+        switch (itemName)
+        {
+            case "storeItemDepartmentHR":
+                int departmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.HR);
+                itemCostValue = Globals.departmentCost + 5000 * (departmentCount + 1);
+                if (Globals.playerMoney < itemCostValue)
+                {
+                    Debug.Log("Not enough money to buy this item.");
+                    return;
+                }
+                HR hrDepartment = gameObject.AddComponent<HR>();
+                hrDepartment.departmentType = DepartmentTypes.Type.HR;
+                hrDepartment.departmentName = $"HR [{departmentCount + 1}]";
+                hrDepartment.departmentLevel = 1;
+                hrDepartment.capacity = 10;
+                Globals.departments.Add(hrDepartment);
+                Globals.playerMoney -= itemCostValue;
+                StartCoroutine(DelayDepartmentUpdate(hrDepartment));
+                break;
+            case "storeItemDepartmentIT":
+                int itDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.IT);
+                itemCostValue = Globals.departmentCost + 5000 * (itDepartmentCount + 1);
+                if (Globals.playerMoney < itemCostValue)
+                {
+                    Debug.Log("Not enough money to buy this item.");
+                    return;
+                }
+                IT itDepartment = gameObject.AddComponent<IT>();
+                itDepartment.departmentType = DepartmentTypes.Type.IT;
+                itDepartment.departmentName = $"IT [{itDepartmentCount + 1}]";
+                itDepartment.departmentLevel = 1;
+                itDepartment.capacity = 10;
+                Globals.departments.Add(itDepartment);
+                Globals.playerMoney -= itemCostValue;
+                StartCoroutine(DelayDepartmentUpdate(itDepartment));
+                break;
+            case "storeItemDepartmentOperations":
+                int operationsDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Operations);
+                itemCostValue = Globals.departmentCost + 5000 * (operationsDepartmentCount + 1);
+                if (Globals.playerMoney < itemCostValue)
+                {
+                    Debug.Log("Not enough money to buy this item.");
+                    return;
+                }
+                Operations operationsDepartment = gameObject.AddComponent<Operations>();
+                operationsDepartment.departmentType = DepartmentTypes.Type.Operations;
+                operationsDepartment.departmentName = $"Operations [{operationsDepartmentCount + 1}]";
+                operationsDepartment.departmentLevel = 1;
+                operationsDepartment.capacity = 10;
+                Globals.departments.Add(operationsDepartment);
+                Globals.playerMoney -= itemCostValue;
+                StartCoroutine(DelayDepartmentUpdate(operationsDepartment));
+                break;
+            case "storeItemDepartmentInbound":
+                int inboundDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Inbound);
+                itemCostValue = Globals.departmentCost + 5000 * (inboundDepartmentCount + 1);
+                if (Globals.playerMoney < itemCostValue)
+                {
+                    Debug.Log("Not enough money to buy this item.");
+                    return;
+                }
+                Inbound inboundDepartment = gameObject.AddComponent<Inbound>();
+                inboundDepartment.departmentType = DepartmentTypes.Type.Inbound;
+                inboundDepartment.departmentName = $"Inbound [{inboundDepartmentCount + 1}]";
+                inboundDepartment.departmentLevel = 1;
+                inboundDepartment.capacity = 10;
+                Globals.departments.Add(inboundDepartment);
+                Globals.playerMoney -= itemCostValue;
+                StartCoroutine(DelayDepartmentUpdate(inboundDepartment));
+                break;
+            case "storeItemDepartmentFluidLoad":
+                int fluidDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.FluidLoad);
+                itemCostValue = Globals.departmentCost + 5000 * (fluidDepartmentCount + 1);
+                if (Globals.playerMoney < itemCostValue)
+                {
+                    Debug.Log("Not enough money to buy this item.");
+                    return;
+                }
+                FluidLoad fluidDepartment = gameObject.AddComponent<FluidLoad>();
+                fluidDepartment.departmentType = DepartmentTypes.Type.FluidLoad;
+                fluidDepartment.departmentName = $"FluidLoad [{fluidDepartmentCount + 1}]";
+                fluidDepartment.departmentLevel = 1;
+                fluidDepartment.capacity = 10;
+                Globals.departments.Add(fluidDepartment);
+                Globals.playerMoney -= itemCostValue;
+                StartCoroutine(DelayDepartmentUpdate(fluidDepartment));
+                break;
+            case "storeItemDepartmentOutbound":
+                int outboundDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Outbound);
+                itemCostValue = Globals.departmentCost + 5000 * (outboundDepartmentCount + 1);
+                if (Globals.playerMoney < itemCostValue)
+                {
+                    Debug.Log("Not enough money to buy this item.");
+                    return;
+                }
+                Outbound outboundDepartment = gameObject.AddComponent<Outbound>();
+                outboundDepartment.departmentType = DepartmentTypes.Type.Outbound;
+                outboundDepartment.departmentName = $"Outbound [{outboundDepartmentCount + 1}]";
+                outboundDepartment.departmentLevel = 1;
+                outboundDepartment.capacity = 10;
+                Globals.departments.Add(outboundDepartment);
+                Globals.playerMoney -= itemCostValue;
+                StartCoroutine(DelayDepartmentUpdate(outboundDepartment));
+                break;
+            case "storeItemDepartmentSorting":
+                int sortingDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Sorting);
+                itemCostValue = Globals.departmentCost + 5000 * (sortingDepartmentCount + 1);
+                if (Globals.playerMoney < itemCostValue)
+                {
+                    Debug.Log("Not enough money to buy this item.");
+                    return;
+                }
+                Sorting sortingDepartment = gameObject.AddComponent<Sorting>();
+                sortingDepartment.departmentType = DepartmentTypes.Type.Sorting;
+                sortingDepartment.departmentName = $"Sorting [{sortingDepartmentCount + 1}]";
+                sortingDepartment.departmentLevel = 1;
+                sortingDepartment.capacity = 10;
+                Globals.departments.Add(sortingDepartment);
+                Globals.playerMoney -= itemCostValue;
+                StartCoroutine(DelayDepartmentUpdate(sortingDepartment));
+                break;
+            case "storeItemDepartmentRepacking":
+                int repackingDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Repacking);
+                itemCostValue = Globals.departmentCost + 5000 * (repackingDepartmentCount + 1);
+                if (Globals.playerMoney < itemCostValue)
+                {
+                    Debug.Log("Not enough money to buy this item.");
+                    return;
+                }
+                Repacking repackingDepartment = gameObject.AddComponent<Repacking>();
+                repackingDepartment.departmentType = DepartmentTypes.Type.Repacking;
+                repackingDepartment.departmentName = $"Repacking [{repackingDepartmentCount + 1}]";
+                repackingDepartment.departmentLevel = 1;
+                repackingDepartment.capacity = 10;
+                Globals.departments.Add(repackingDepartment);
+                Globals.playerMoney -= itemCostValue;
+                StartCoroutine(DelayDepartmentUpdate(repackingDepartment));
+                break;
+            case "storeItemDepartmentPalletizing":
+                int palletizingDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Palletizing);
+                itemCostValue = Globals.departmentCost + 5000 * (palletizingDepartmentCount + 1);
+                if (Globals.playerMoney < itemCostValue)
+                {
+                    Debug.Log("Not enough money to buy this item.");
+                    return;
+                }
+                Palletizing palletizingDepartment = gameObject.AddComponent<Palletizing>();
+                palletizingDepartment.departmentType = DepartmentTypes.Type.Palletizing;
+                palletizingDepartment.departmentName = $"Palletizing [{palletizingDepartmentCount + 1}]";
+                palletizingDepartment.departmentLevel = 1;
+                palletizingDepartment.capacity = 10;
+                Globals.departments.Add(palletizingDepartment);
+                Globals.playerMoney -= itemCostValue;
+                StartCoroutine(DelayDepartmentUpdate(palletizingDepartment));
+                break;
+            case "storeItemDepartmentWaterSpidering":
+                int waterSpideringDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.WaterSpidering);
+                itemCostValue = Globals.departmentCost + 5000 * (waterSpideringDepartmentCount + 1);
+                if (Globals.playerMoney < itemCostValue)
+                {
+                    Debug.Log("Not enough money to buy this item.");
+                    return;
+                }
+                WaterSpidering waterSpideringDepartment = gameObject.AddComponent<WaterSpidering>();
+                waterSpideringDepartment.departmentType = DepartmentTypes.Type.WaterSpidering;
+                waterSpideringDepartment.departmentName = $"Water Spidering [{waterSpideringDepartmentCount + 1}]";
+                waterSpideringDepartment.departmentLevel = 1;
+                waterSpideringDepartment.capacity = 10;
+                Globals.departments.Add(waterSpideringDepartment);
+                Globals.playerMoney -= itemCostValue;
+                StartCoroutine(DelayDepartmentUpdate(waterSpideringDepartment));
+                break;
+            case "storeItemDepartmentQualityControl":
+                int qualityControlDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.QualityControl);
+                itemCostValue = Globals.departmentCost + 5000 * (qualityControlDepartmentCount + 1);
+                if (Globals.playerMoney < itemCostValue)
+                {
+                    Debug.Log("Not enough money to buy this item.");
+                    return;
+                }
+                QualityControl qualityControlDepartment = gameObject.AddComponent<QualityControl>();
+                qualityControlDepartment.departmentType = DepartmentTypes.Type.QualityControl;
+                qualityControlDepartment.departmentName = $"Quality Control [{qualityControlDepartmentCount + 1}]";
+                qualityControlDepartment.departmentLevel = 1;
+                qualityControlDepartment.capacity = 10;
+                Globals.departments.Add(qualityControlDepartment);
+                Globals.playerMoney -= itemCostValue;
+                StartCoroutine(DelayDepartmentUpdate(qualityControlDepartment));
+                break;
+            case "storeItemDepartmentMaintenance":
+                int maintenanceDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Maintenance);
+                itemCostValue = Globals.departmentCost + 5000 * (maintenanceDepartmentCount + 1);
+                if (Globals.playerMoney < itemCostValue)
+                {
+                    Debug.Log("Not enough money to buy this item.");
+                    return;
+                }
+                Maintenance maintenanceDepartment = gameObject.AddComponent<Maintenance>();
+                maintenanceDepartment.departmentType = DepartmentTypes.Type.Maintenance;
+                maintenanceDepartment.departmentName = $"Maintenance [{maintenanceDepartmentCount + 1}]";
+                maintenanceDepartment.departmentLevel = 1;
+                maintenanceDepartment.capacity = 10;
+                Globals.departments.Add(maintenanceDepartment);
+                Globals.playerMoney -= itemCostValue;
+                StartCoroutine(DelayDepartmentUpdate(maintenanceDepartment));
+                break;
+            case "storeItemDepartmentRobotics":
+                int roboticsDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Robotics);
+                itemCostValue = Globals.departmentCost + 5000 * (roboticsDepartmentCount + 1);
+                if (Globals.playerMoney < itemCostValue)
+                {
+                    Debug.Log("Not enough money to buy this item.");
+                    return;
+                }
+                Robotics roboticsDepartment = gameObject.AddComponent<Robotics>();
+                roboticsDepartment.departmentType = DepartmentTypes.Type.Robotics;
+                roboticsDepartment.departmentName = $"Robotics [{roboticsDepartmentCount + 1}]";
+                roboticsDepartment.departmentLevel = 1;
+                roboticsDepartment.capacity = 10;
+                Globals.departments.Add(roboticsDepartment);
+                Globals.playerMoney -= itemCostValue;
+                StartCoroutine(DelayDepartmentUpdate(roboticsDepartment));
+                break;
+            case "storeItemDepartmentSafety":
+                int safetyDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Safety);
+                itemCostValue = Globals.departmentCost + 5000 * (safetyDepartmentCount + 1);
+                if (Globals.playerMoney < itemCostValue)
+                {
+                    Debug.Log("Not enough money to buy this item.");
+                    return;
+                }
+                Safety safetyDepartment = gameObject.AddComponent<Safety>();
+                safetyDepartment.departmentType = DepartmentTypes.Type.Safety;
+                safetyDepartment.departmentName = $"Safety [{safetyDepartmentCount + 1}]";
+                safetyDepartment.departmentLevel = 1;
+                safetyDepartment.capacity = 10;
+                Globals.departments.Add(safetyDepartment);
+                Globals.playerMoney -= itemCostValue;
+                StartCoroutine(DelayDepartmentUpdate(safetyDepartment));
+                break;
+            case "storeItemDepartmentCleaning":
+                int cleaningDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Cleaning);
+                itemCostValue = Globals.departmentCost + 5000 * (cleaningDepartmentCount + 1);
+                if (Globals.playerMoney < itemCostValue)
+                {
+                    Debug.Log("Not enough money to buy this item.");
+                    return;
+                }
+                Cleaning cleaningDepartment = gameObject.AddComponent<Cleaning>();
+                cleaningDepartment.departmentType = DepartmentTypes.Type.Cleaning;
+                cleaningDepartment.departmentName = $"Cleaning [{cleaningDepartmentCount + 1}]";
+                cleaningDepartment.departmentLevel = 1;
+                cleaningDepartment.capacity = 10;
+                Globals.departments.Add(cleaningDepartment);
+                Globals.playerMoney -= itemCostValue;
+                StartCoroutine(DelayDepartmentUpdate(cleaningDepartment));
+                break;
+            case "storeItemDepartmentSecurity":
+                int securityDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Security);
+                itemCostValue = Globals.departmentCost + 5000 * (securityDepartmentCount + 1);
+                if (Globals.playerMoney < itemCostValue)
+                {
+                    Debug.Log("Not enough money to buy this item.");
+                    return;
+                }
+                Security securityDepartment = gameObject.AddComponent<Security>();
+                securityDepartment.departmentType = DepartmentTypes.Type.Security;
+                securityDepartment.departmentName = $"Security [{securityDepartmentCount + 1}]";
+                securityDepartment.departmentLevel = 1;
+                securityDepartment.capacity = 10;
+                Globals.departments.Add(securityDepartment);
+                Globals.playerMoney -= itemCostValue;
+                StartCoroutine(DelayDepartmentUpdate(securityDepartment));
+                break;
+            case "storeItemDepartmentLearning":
+                int learningDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Learning);
+                itemCostValue = Globals.departmentCost + 5000 * (learningDepartmentCount + 1);
+                if (Globals.playerMoney < itemCostValue)
+                {
+                    Debug.Log("Not enough money to buy this item.");
+                    return;
+                }
+                Learning learningDepartment = gameObject.AddComponent<Learning>();
+                learningDepartment.departmentType = DepartmentTypes.Type.Learning;
+                learningDepartment.departmentName = $"Learning [{learningDepartmentCount + 1}]";
+                learningDepartment.departmentLevel = 1;
+                learningDepartment.capacity = 10;
+                Globals.departments.Add(learningDepartment);
+                Globals.playerMoney -= itemCostValue;
+                StartCoroutine(DelayDepartmentUpdate(learningDepartment));
+                break;
+            case "storeItemDepartmentRecruiting":
+                int recruitingDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Recruiting);
+                itemCostValue = Globals.departmentCost + 5000 * (recruitingDepartmentCount + 1);
+                if (Globals.playerMoney < itemCostValue)
+                {
+                    Debug.Log("Not enough money to buy this item.");
+                    return;
+                }
+                Recruiting recruitingDepartment = gameObject.AddComponent<Recruiting>();
+                recruitingDepartment.departmentType = DepartmentTypes.Type.Recruiting;
+                recruitingDepartment.departmentName = $"Recruiting [{recruitingDepartmentCount + 1}]";
+                recruitingDepartment.departmentLevel = 1;
+                recruitingDepartment.capacity = 10;
+                Globals.departments.Add(recruitingDepartment);
+                Globals.playerMoney -= itemCostValue;
+                StartCoroutine(DelayDepartmentUpdate(recruitingDepartment));
+                break;
+            default:
+                Debug.LogError($"Store item {itemName} is not a valid store item.");
+                break;
+        }
+    }
+
+    private IEnumerator DelayDepartmentUpdate(Department newDepartment)
+    {
+        Debug.Log($"Starting department update for {newDepartment.departmentName}");
+
+        // Short delay to allow initialization
+        yield return null;
+
+        // Ensure department has reference to game controller
+        newDepartment.gameController = this;
+
+        // Update UI lists
+        UpdateEmployeeUIList();
+        UpdateStoreDepartmentCosts();
+
+        // Delay slightly to ensure the department component is fully initialized
+        yield return new WaitForSeconds(1f);
+
+        // Force departments panel display
+        ShowSidePanel("employeesPanel");
+
+        // Update department list
+        UpdateDepartmentUIList();
+
+        // Force another update after a short delay to ensure proper rendering
+        yield return new WaitForSeconds(0.2f);
+        VisualElement root = gameUI.rootVisualElement;
+        ScrollView departmentListContainer = root.Q<ScrollView>("departmentsMainList");
+        departmentListContainer.contentContainer.style.minHeight = new StyleLength(
+            new Length(100f * Globals.departments.Count, LengthUnit.Pixel));
+        departmentListContainer.contentViewport.MarkDirtyRepaint();
+
+        // Log for debugging
+        Debug.Log($"Department {newDepartment.departmentName} UI update complete");
+    }
+
+    private void UpdateStoreDepartmentCosts()
+    {
+        // Update store item costs based on department counts
+        int departmentCountHR = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.HR);
+        int departmentCountInbound = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Inbound);
+        int departmentCountFluidLoad = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.FluidLoad);
+
+        storeItemHR.Q<Label>("storeItemCost").text = $"Cost\n${Globals.departmentCost + 5000 * (departmentCountHR + 1)}";
+        storeItemInbound.Q<Label>("storeItemCost").text = $"Cost\n${Globals.departmentCost + 5000 * (departmentCountInbound + 1)}";
+        storeItemFluidLoad.Q<Label>("storeItemCost").text = $"Cost\n${Globals.departmentCost + 5000 * (departmentCountFluidLoad + 1)}";
     }
 }

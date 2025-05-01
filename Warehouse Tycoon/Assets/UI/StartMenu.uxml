@@ -1,0 +1,32 @@
+<UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="UnityEngine.UIElements" schemaLocation="UnityEngine.UIElements ../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <VisualElement name="root" class="root" style="width: 30%; left: 35%; top: 30%;">
+        <VisualElement name="startScreen" class="screen" style="display: flex;">
+            <Label text="Warehouse Tycoon" class="title" style="font-size: 35px; -unity-text-align: middle-center;" />
+            <Button text="Start Game" name="startButton" class="main-button" style="font-size: 29px;" />
+        </VisualElement>
+        <VisualElement name="inputScreen" class="screen hidden" style="display: none;">
+            <Label text="Setup Your Warehouse" class="subtitle" style="font-size: 32px; -unity-text-align: middle-center;" />
+            <VisualElement class="input-container">
+                <Label text="Warehouse Name:" class="input-label" style="font-size: 20px;" />
+                <TextField name="warehouseNameField" />
+            </VisualElement>
+            <VisualElement class="input-container">
+                <Label text="Your Name:" class="input-label" style="font-size: 20px;" />
+                <TextField name="playerNameField" />
+            </VisualElement>
+            
+            <!-- Save Selection Section -->
+            <VisualElement class="input-container" style="margin-top: 10px;">
+                <Toggle label="Load Existing Save" name="loadSaveToggle" class="input-toggle" style="font-size: 20px;" />
+            </VisualElement>
+            <VisualElement name="saveSelectionContainer" class="input-container" style="display: none;">
+                <Label text="Select Save File:" class="input-label" style="font-size: 20px;" />
+                <DropdownField name="saveFileDropdown" class="input-dropdown" />
+                <Button text="Browse..." name="browseSaveButton" class="secondary-button" style="width: 120px; font-size: 16px; margin-top: 5px;" />
+            </VisualElement>
+            
+            <Button text="Start Playing" name="confirmButton" class="main-button" style="font-size: 20px; margin-top: 15px;" />
+            <Button text="Back" name="backButton" class="secondary-button" style="font-size: 20px;" />
+        </VisualElement>
+    </VisualElement>
+</UXML>

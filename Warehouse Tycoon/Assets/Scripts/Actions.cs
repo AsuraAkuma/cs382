@@ -1163,8 +1163,8 @@ public class Actions : MonoBehaviour
             // Generate a random first name and last name
             string firstName = firstNames[Random.Range(0, firstNames.Count)];
             string lastName = lastNames[Random.Range(0, lastNames.Count)];
-            // Generate a random salary between 250 and 1000
-            int salary = Random.Range(250, 1001);
+            // Generate a random salary between 1000 and 1500
+            int salary = Random.Range(1000, 1501);
             // Generate random stats based on salary percentage 
             // [ 0% - 50% ] = 1 - 2.5, [ 51% - 70% ] = 2.5 - 4, [ 71% - 100% ] = 4.5 - 6
             // Pick 3 random stats to recieve a bonus
@@ -1172,7 +1172,7 @@ public class Actions : MonoBehaviour
             float[] statValues = new float[6];
             int minStatWholeValue;
             int maxStatWholeValue;
-            float salaryPercentage = (float)salary / 1000f; // Assuming max salary is 1000
+            float salaryPercentage = (float)salary / 1500f; // Assuming max salary is 1000
             if (salaryPercentage <= 0.5f)
             {
                 minStatWholeValue = 1;
@@ -1239,6 +1239,7 @@ public class Actions : MonoBehaviour
 
             // Add the new employee to the warehouse new hire list
             Globals.newHires.Add(newEmployee);
+            Globals.daysSinceLastNewHire = 0; // Reset the days since last new hire
             yield break;
         }
         public IEnumerator StartRandomDisabler()

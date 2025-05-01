@@ -952,7 +952,8 @@ public class InboundEmployee : Employee
         yield return new WaitForSeconds(10f / GetSpeed()); // Simulate time taken to offload boxes
 
         // Calculate boxes to add based on employee stats
-        int boxesToAdd = 5 * (int)GetStatAverage();
+        // Debug.Log($"Stat Average: {GetStatAverage()}");
+        int boxesToAdd = 10 * (int)GetStatAverage();
         int updatedBoxCount = Globals.boxesInStorage + boxesToAdd;
 
         // Log the box calculation
@@ -1130,8 +1131,8 @@ public class FluidLoadEmployee : Employee
         // Remove boxes from storage
         Globals.boxesInStorage -= boxesToRemove;
         truckBoxCount += boxesToRemove;
-        Debug.Log($"{employeeName} loaded {boxesToRemove} boxes onto the truck.");
-        Debug.Log($"Current: {Globals.boxesInStorage} - Removing: {boxesToRemove} = New Total: {Globals.boxesInStorage - boxesToRemove}");
+        // Debug.Log($"{employeeName} loaded {boxesToRemove} boxes onto the truck.");
+        // Debug.Log($"Current: {Globals.boxesInStorage} - Removing: {boxesToRemove} = New Total: {Globals.boxesInStorage - boxesToRemove}");
         // Check if truck is full
         if (truckBoxCount >= truckBoxLimit)
         {

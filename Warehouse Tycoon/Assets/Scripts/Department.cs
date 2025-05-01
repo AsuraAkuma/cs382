@@ -3,6 +3,42 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+public static class NameGenerator
+{
+    private static List<string> usedNames = new List<string>();
+    private static readonly string[] firstNames = {
+        "John", "Emma", "Michael", "Sophia", "William", "Olivia", "James", "Ava", "Alexander", "Isabella",
+        "Benjamin", "Mia", "Daniel", "Charlotte", "Henry", "Amelia", "Joseph", "Harper", "Samuel", "Evelyn",
+        "David", "Abigail", "Carter", "Emily", "Owen", "Elizabeth", "Wyatt", "Sofia", "Jack", "Victoria",
+        "Luke", "Camila", "Gabriel", "Aria", "Anthony", "Scarlett", "Isaac", "Luna", "Grayson", "Chloe"
+    };
+    private static readonly string[] lastNames = {
+        "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez",
+        "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin",
+        "Lee", "Perez", "Thompson", "White", "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson",
+        "Walker", "Young", "Allen", "King", "Wright", "Scott", "Torres", "Nguyen", "Hill", "Flores"
+    };
+
+    public static string GetRandomUnusedName()
+    {
+        string fullName;
+        do
+        {
+            string firstName = firstNames[UnityEngine.Random.Range(0, firstNames.Length)];
+            string lastName = lastNames[UnityEngine.Random.Range(0, lastNames.Length)];
+            fullName = $"{firstName} {lastName}";
+        } while (usedNames.Contains(fullName));
+
+        usedNames.Add(fullName);
+        return fullName;
+    }
+
+    public static void ResetUsedNames()
+    {
+        usedNames.Clear();
+    }
+}
+
 [Serializable]
 public class Department : MonoBehaviour
 {
@@ -16,9 +52,9 @@ public class Department : MonoBehaviour
     public int departmentExp = 0; // Experience points of the department
     public DepartmentTypes.Type departmentType = DepartmentTypes.Type.None; // Type of the department (e.g., HR, IT, etc.)
     public int managerCapacity = 0; // Maximum number of managers that can work in this department
-    public List<Employee> employees = null; // Array of employees in this department
+    public List<Employee> employees = new List<Employee>(); // Array of employees in this department
     public List<Disablers.Disabler> disablers = new List<Disablers.Disabler>(); // Array of disablers associated with this department
-    private int managerIndex = 0; // Index of the current manager in the department
+    public int managerIndex = 0; // Index of the current manager in the department
     public List<Employee> managers = new List<Employee>(); // Array of managers in this department
     public string ToJson()
     {
@@ -102,31 +138,32 @@ public class Department : MonoBehaviour
 
     public void AddToUI()
     {
-        // Debug.Log($"Starting AddToUI for department: {departmentName}");
+        Debug.Log($"Starting AddToUI for department: {departmentName}");
 
         // Find the parent element in the UI where the department will be added
         UIDocument uiDocument = gameController.gameUI;
         if (uiDocument == null)
         {
-            // Debug.LogError("UIDocument not found in the scene!");
+            Debug.LogError("UIDocument not found in the scene!");
             return;
         }
 
-        ScrollView parentElement = uiDocument.rootVisualElement.Q<ScrollView>("departmentsMainList");
+        VisualElement parentElement = uiDocument.rootVisualElement.Q<ScrollView>("departmentsMainList").contentContainer;
         if (parentElement == null)
         {
-            // Debug.LogError("Department list ScrollView not found! Make sure 'departmentsMainList' exists in UI.");
+            Debug.LogError("Department list ScrollView not found! Make sure 'departmentsMainList' exists in UI.");
             return;
         }
 
         // Check if department already exists in UI
-        if (parentElement.Q(departmentName) != null)
+        VisualElement existingDepartment = parentElement.Q<VisualElement>(departmentName);
+        if (existingDepartment != null)
         {
-            // Debug.Log($"Department {departmentName} already exists in UI");
+            Debug.Log($"Department {departmentName} already exists in UI\n{existingDepartment.parent.name}");
             return;
         }
 
-        // Debug.Log($"Creating UI elements for department: {departmentName}");
+        Debug.Log($"Creating UI elements for department: {departmentName}");
 
         // Create a new VisualElement for the department
         VisualElement departmentElement = new VisualElement();
@@ -251,12 +288,12 @@ public class Department : MonoBehaviour
 
         // Add the department element to the parent ScrollView
         parentElement.Add(departmentElement);
-        // Debug.Log($"Added department {departmentName} to UI successfully");
+        Debug.Log($"Added department {departmentName} to UI successfully");
 
         // Check if department was added to the parent element
         if (parentElement.Q(departmentName) == null)
         {
-            // Debug.LogError($"Failed to add department {departmentName} to UI");
+            Debug.LogError($"Failed to add department {departmentName} to UI");
             return;
         }
         // Initialize manager display
@@ -349,7 +386,7 @@ public class Department : MonoBehaviour
     {
 
     }
-    public void Start()
+    public void Awake()
     {
         gameController = FindFirstObjectByType<GameController>();
         if (gameController == null)
@@ -359,11 +396,8 @@ public class Department : MonoBehaviour
         }
 
         // Ensure we add to Globals.departments before updating UI
-        if (!Globals.departments.Contains(this))
-        {
-            Globals.departments.Add(this);
-            // Debug.Log($"Added {departmentName} to Globals.departments");
-        }
+        Globals.departments.Add(this);
+        // Debug.Log($"Added {departmentName} to Globals.departments");
 
         // Debug.Log($"Department Start() completed for {departmentName}");
     }
@@ -388,15 +422,15 @@ public class HR : Department
         capacity = cap;
     }
 
-    new void Start()
+    new void Awake()
     {
-        base.Start();
+        base.Awake();
         if (employees.Count == 0)
         {
             // Create Employee and add to the department
             HREmployee employee = gameObject.AddComponent<HREmployee>();
             employee.id = 1;
-            employee.employeeName = "John Doe";
+            employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
             employee.employeeSprite = gameController.defaultEmployeeSprite;
@@ -406,16 +440,16 @@ public class HR : Department
             employee.stamina = 1;
             employee.strength = 1;
             employee.focus = 1;
-            employee.salary = 250;
+            employee.salary = 1000;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
-            // Add trait to employee
             employee.traits.Add(EmployeeTraits.RobotTuner);
             Globals.warehouseEmployees.Add(employee);
+
             // Create Manager and add to the department
             HRManager manager = gameObject.AddComponent<HRManager>();
             manager.id = 2;
-            manager.employeeName = "Rebecca Green";
+            manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
             manager.employeeSprite = gameController.defaultEmployeeSprite;
@@ -425,19 +459,16 @@ public class HR : Department
             manager.stamina = 1;
             manager.strength = 1;
             manager.focus = 1;
-            manager.salary = 250;
+            manager.salary = 1500;
             manager.actionState = ActionState.State.Idle;
             managers.Add(manager);
-            // Add trait to employee
             manager.traits.Add(EmployeeTraits.RobotTuner);
             Globals.warehouseEmployees.Add(manager);
-
         }
         gameController.UpdateDepartmentUIList();
         gameController.UpdateEmployeeUIList();
         gameController.UpdateNewHireUIList();
     }
-
 }
 
 [Serializable]
@@ -458,14 +489,14 @@ public class IT : Department
         capacity = cap;
     }
 
-    new void Start()
+    new void Awake()
     {
-        base.Start();
+        base.Awake();
         if (employees.Count == 0)
         {
             ITEmployee employee = gameObject.AddComponent<ITEmployee>();
             employee.id = 3;
-            employee.employeeName = "Jane Smith";
+            employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
             employee.employeeSprite = gameController.defaultEmployeeSprite;
@@ -475,14 +506,14 @@ public class IT : Department
             employee.stamina = 1;
             employee.strength = 1;
             employee.focus = 1;
-            employee.salary = 300;
+            employee.salary = 1100;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
             Globals.warehouseEmployees.Add(employee);
 
             ITManager manager = gameObject.AddComponent<ITManager>();
             manager.id = 4;
-            manager.employeeName = "Alan Turner";
+            manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
             manager.employeeSprite = gameController.defaultEmployeeSprite;
@@ -492,7 +523,7 @@ public class IT : Department
             manager.stamina = 1;
             manager.strength = 1;
             manager.focus = 1;
-            manager.salary = 300;
+            manager.salary = 1650;
             manager.actionState = ActionState.State.Idle;
             managers.Add(manager);
             manager.traits.Add(EmployeeTraits.RobotTuner);
@@ -522,14 +553,14 @@ public class Operations : Department
         capacity = cap;
     }
 
-    new void Start()
+    new void Awake()
     {
-        base.Start();
+        base.Awake();
         if (employees.Count == 0)
         {
             OperationsEmployee employee = gameObject.AddComponent<OperationsEmployee>();
             employee.id = 5;
-            employee.employeeName = "Mike Johnson";
+            employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
             employee.employeeSprite = gameController.defaultEmployeeSprite;
@@ -539,14 +570,14 @@ public class Operations : Department
             employee.stamina = 1;
             employee.strength = 1;
             employee.focus = 1;
-            employee.salary = 275;
+            employee.salary = 1200;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
             Globals.warehouseEmployees.Add(employee);
 
             OperationsManager manager = gameObject.AddComponent<OperationsManager>();
             manager.id = 6;
-            manager.employeeName = "Oliver Chang";
+            manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
             manager.employeeSprite = gameController.defaultEmployeeSprite;
@@ -556,7 +587,7 @@ public class Operations : Department
             manager.stamina = 1;
             manager.strength = 1;
             manager.focus = 1;
-            manager.salary = 275;
+            manager.salary = 1800;
             manager.actionState = ActionState.State.Idle;
             managers.Add(manager);
             manager.traits.Add(EmployeeTraits.RobotTuner);
@@ -586,14 +617,14 @@ public class Inbound : Department
         capacity = cap;
     }
 
-    new void Start()
+    new void Awake()
     {
-        base.Start();
+        base.Awake();
         if (employees.Count == 0)
         {
             InboundEmployee employee = gameObject.AddComponent<InboundEmployee>();
             employee.id = 7;
-            employee.employeeName = "Sarah Wilson";
+            employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
             employee.employeeSprite = gameController.defaultEmployeeSprite;
@@ -603,14 +634,14 @@ public class Inbound : Department
             employee.stamina = 1;
             employee.strength = 1;
             employee.focus = 1;
-            employee.salary = 260;
+            employee.salary = 1300;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
             Globals.warehouseEmployees.Add(employee);
 
             InboundManager manager = gameObject.AddComponent<InboundManager>();
             manager.id = 8;
-            manager.employeeName = "Emily Carter";
+            manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
             manager.employeeSprite = gameController.defaultEmployeeSprite;
@@ -620,7 +651,7 @@ public class Inbound : Department
             manager.stamina = 1;
             manager.strength = 1;
             manager.focus = 1;
-            manager.salary = 260;
+            manager.salary = 1950;
             manager.actionState = ActionState.State.Idle;
             managers.Add(manager);
             manager.traits.Add(EmployeeTraits.RobotTuner);
@@ -650,14 +681,14 @@ public class Sorting : Department
         capacity = cap;
     }
 
-    new void Start()
+    new void Awake()
     {
-        base.Start();
+        base.Awake();
         if (employees.Count == 0)
         {
             SortingEmployee employee = gameObject.AddComponent<SortingEmployee>();
             employee.id = 9;
-            employee.employeeName = "Tom Brown";
+            employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
             employee.employeeSprite = gameController.defaultEmployeeSprite;
@@ -667,14 +698,14 @@ public class Sorting : Department
             employee.stamina = 1;
             employee.strength = 1;
             employee.focus = 1;
-            employee.salary = 270;
+            employee.salary = 1400;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
             Globals.warehouseEmployees.Add(employee);
 
             SortingManager manager = gameObject.AddComponent<SortingManager>();
             manager.id = 10;
-            manager.employeeName = "Sophia Adams";
+            manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
             manager.employeeSprite = gameController.defaultEmployeeSprite;
@@ -684,7 +715,7 @@ public class Sorting : Department
             manager.stamina = 1;
             manager.strength = 1;
             manager.focus = 1;
-            manager.salary = 270;
+            manager.salary = 2100;
             manager.actionState = ActionState.State.Idle;
             managers.Add(manager);
             manager.traits.Add(EmployeeTraits.RobotTuner);
@@ -714,14 +745,14 @@ public class Repacking : Department
         capacity = cap;
     }
 
-    new void Start()
+    new void Awake()
     {
-        base.Start();
+        base.Awake();
         if (employees.Count == 0)
         {
             RepackingEmployee employee = gameObject.AddComponent<RepackingEmployee>();
             employee.id = 11;
-            employee.employeeName = "Lisa Davis";
+            employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
             employee.employeeSprite = gameController.defaultEmployeeSprite;
@@ -731,14 +762,14 @@ public class Repacking : Department
             employee.stamina = 1;
             employee.strength = 1;
             employee.focus = 1;
-            employee.salary = 280;
+            employee.salary = 1500;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
             Globals.warehouseEmployees.Add(employee);
 
             RepackingManager manager = gameObject.AddComponent<RepackingManager>();
             manager.id = 12;
-            manager.employeeName = "Daniel Evans";
+            manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
             manager.employeeSprite = gameController.defaultEmployeeSprite;
@@ -748,7 +779,7 @@ public class Repacking : Department
             manager.stamina = 1;
             manager.strength = 1;
             manager.focus = 1;
-            manager.salary = 280;
+            manager.salary = 2250;
             manager.actionState = ActionState.State.Idle;
             managers.Add(manager);
             manager.traits.Add(EmployeeTraits.RobotTuner);
@@ -778,14 +809,14 @@ public class Palletizing : Department
         capacity = cap;
     }
 
-    new void Start()
+    new void Awake()
     {
-        base.Start();
+        base.Awake();
         if (employees.Count == 0)
         {
             PalletizingEmployee employee = gameObject.AddComponent<PalletizingEmployee>();
             employee.id = 13;
-            employee.employeeName = "James Miller";
+            employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
             employee.employeeSprite = gameController.defaultEmployeeSprite;
@@ -795,14 +826,14 @@ public class Palletizing : Department
             employee.stamina = 1;
             employee.strength = 1;
             employee.focus = 1;
-            employee.salary = 290;
+            employee.salary = 1600;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
             Globals.warehouseEmployees.Add(employee);
 
             PalletizingManager manager = gameObject.AddComponent<PalletizingManager>();
             manager.id = 14;
-            manager.employeeName = "Victoria Scott";
+            manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
             manager.employeeSprite = gameController.defaultEmployeeSprite;
@@ -812,7 +843,7 @@ public class Palletizing : Department
             manager.stamina = 1;
             manager.strength = 1;
             manager.focus = 1;
-            manager.salary = 290;
+            manager.salary = 2400;
             manager.actionState = ActionState.State.Idle;
             managers.Add(manager);
             manager.traits.Add(EmployeeTraits.RobotTuner);
@@ -842,14 +873,14 @@ public class WaterSpidering : Department
         capacity = cap;
     }
 
-    new void Start()
+    new void Awake()
     {
-        base.Start();
+        base.Awake();
         if (employees.Count == 0)
         {
             WaterSpiderEmployee employee = gameObject.AddComponent<WaterSpiderEmployee>();
             employee.id = 15;
-            employee.employeeName = "Emma White";
+            employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
             employee.employeeSprite = gameController.defaultEmployeeSprite;
@@ -859,14 +890,14 @@ public class WaterSpidering : Department
             employee.stamina = 1;
             employee.strength = 1;
             employee.focus = 1;
-            employee.salary = 300;
+            employee.salary = 1700;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
             Globals.warehouseEmployees.Add(employee);
 
             WaterSpiderManager manager = gameObject.AddComponent<WaterSpiderManager>();
             manager.id = 16;
-            manager.employeeName = "Benjamin Harris";
+            manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
             manager.employeeSprite = gameController.defaultEmployeeSprite;
@@ -876,7 +907,7 @@ public class WaterSpidering : Department
             manager.stamina = 1;
             manager.strength = 1;
             manager.focus = 1;
-            manager.salary = 300;
+            manager.salary = 2550;
             manager.actionState = ActionState.State.Idle;
             managers.Add(manager);
             manager.traits.Add(EmployeeTraits.RobotTuner);
@@ -894,7 +925,7 @@ public class FluidLoad : Department
     public FluidLoad()
     {
         departmentType = DepartmentTypes.Type.FluidLoad;
-        departmentName = "Fluid Load";
+        // departmentName = "Fluid Load";
         capacity = 10;
         managerCapacity = 1;
         employees = new List<Employee>();
@@ -906,14 +937,14 @@ public class FluidLoad : Department
         capacity = cap;
     }
 
-    new void Start()
+    new void Awake()
     {
-        base.Start();
+        base.Awake();
         if (employees.Count == 0)
         {
             FluidLoadEmployee employee = gameObject.AddComponent<FluidLoadEmployee>();
             employee.id = 17;
-            employee.employeeName = "David Taylor";
+            employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
             employee.employeeSprite = gameController.defaultEmployeeSprite;
@@ -923,14 +954,14 @@ public class FluidLoad : Department
             employee.stamina = 1;
             employee.strength = 1;
             employee.focus = 1;
-            employee.salary = 310;
+            employee.salary = 1800;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
             Globals.warehouseEmployees.Add(employee);
 
             FluidLoadManager manager = gameObject.AddComponent<FluidLoadManager>();
             manager.id = 18;
-            manager.employeeName = "Charlotte Brooks";
+            manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
             manager.employeeSprite = gameController.defaultEmployeeSprite;
@@ -940,7 +971,7 @@ public class FluidLoad : Department
             manager.stamina = 1;
             manager.strength = 1;
             manager.focus = 1;
-            manager.salary = 310;
+            manager.salary = 2700;
             manager.actionState = ActionState.State.Idle;
             managers.Add(manager);
             manager.traits.Add(EmployeeTraits.RobotTuner);
@@ -970,14 +1001,14 @@ public class QualityControl : Department
         capacity = cap;
     }
 
-    new void Start()
+    new void Awake()
     {
-        base.Start();
+        base.Awake();
         if (employees.Count == 0)
         {
             QualityControlEmployee employee = gameObject.AddComponent<QualityControlEmployee>();
             employee.id = 19;
-            employee.employeeName = "Mary Anderson";
+            employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
             employee.employeeSprite = gameController.defaultEmployeeSprite;
@@ -987,14 +1018,14 @@ public class QualityControl : Department
             employee.stamina = 1;
             employee.strength = 1;
             employee.focus = 1;
-            employee.salary = 320;
+            employee.salary = 1900;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
             Globals.warehouseEmployees.Add(employee);
 
             QualityControlManager manager = gameObject.AddComponent<QualityControlManager>();
             manager.id = 20;
-            manager.employeeName = "Ethan Cooper";
+            manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
             manager.employeeSprite = gameController.defaultEmployeeSprite;
@@ -1004,7 +1035,7 @@ public class QualityControl : Department
             manager.stamina = 1;
             manager.strength = 1;
             manager.focus = 1;
-            manager.salary = 320;
+            manager.salary = 2850;
             manager.actionState = ActionState.State.Idle;
             managers.Add(manager);
             manager.traits.Add(EmployeeTraits.RobotTuner);
@@ -1034,14 +1065,14 @@ public class Outbound : Department
         capacity = cap;
     }
 
-    new void Start()
+    new void Awake()
     {
-        base.Start();
+        base.Awake();
         if (employees.Count == 0)
         {
             OutboundEmployee employee = gameObject.AddComponent<OutboundEmployee>();
             employee.id = 21;
-            employee.employeeName = "Robert Martin";
+            employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
             employee.employeeSprite = gameController.defaultEmployeeSprite;
@@ -1051,14 +1082,14 @@ public class Outbound : Department
             employee.stamina = 1;
             employee.strength = 1;
             employee.focus = 1;
-            employee.salary = 330;
+            employee.salary = 2000;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
             Globals.warehouseEmployees.Add(employee);
 
             OutboundManager manager = gameObject.AddComponent<OutboundManager>();
             manager.id = 22;
-            manager.employeeName = "Grace Foster";
+            manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
             manager.employeeSprite = gameController.defaultEmployeeSprite;
@@ -1068,7 +1099,7 @@ public class Outbound : Department
             manager.stamina = 1;
             manager.strength = 1;
             manager.focus = 1;
-            manager.salary = 330;
+            manager.salary = 3000;
             manager.actionState = ActionState.State.Idle;
             managers.Add(manager);
             manager.traits.Add(EmployeeTraits.RobotTuner);
@@ -1098,14 +1129,14 @@ public class Maintenance : Department
         capacity = cap;
     }
 
-    new void Start()
+    new void Awake()
     {
-        base.Start();
+        base.Awake();
         if (employees.Count == 0)
         {
             MaintenanceEmployee employee = gameObject.AddComponent<MaintenanceEmployee>();
             employee.id = 23;
-            employee.employeeName = "Patricia Garcia";
+            employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
             employee.employeeSprite = gameController.defaultEmployeeSprite;
@@ -1115,14 +1146,14 @@ public class Maintenance : Department
             employee.stamina = 1;
             employee.strength = 1;
             employee.focus = 1;
-            employee.salary = 340;
+            employee.salary = 2100;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
             Globals.warehouseEmployees.Add(employee);
 
             MaintenanceManager manager = gameObject.AddComponent<MaintenanceManager>();
             manager.id = 24;
-            manager.employeeName = "Jack Morgan";
+            manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
             manager.employeeSprite = gameController.defaultEmployeeSprite;
@@ -1132,7 +1163,7 @@ public class Maintenance : Department
             manager.stamina = 1;
             manager.strength = 1;
             manager.focus = 1;
-            manager.salary = 340;
+            manager.salary = 3150;
             manager.actionState = ActionState.State.Idle;
             managers.Add(manager);
             manager.traits.Add(EmployeeTraits.RobotTuner);
@@ -1162,14 +1193,14 @@ public class Robotics : Department
         capacity = cap;
     }
 
-    new void Start()
+    new void Awake()
     {
-        base.Start();
+        base.Awake();
         if (employees.Count == 0)
         {
             RoboticsEmployee employee = gameObject.AddComponent<RoboticsEmployee>();
             employee.id = 25;
-            employee.employeeName = "Michael Lee";
+            employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
             employee.employeeSprite = gameController.defaultEmployeeSprite;
@@ -1179,14 +1210,14 @@ public class Robotics : Department
             employee.stamina = 1;
             employee.strength = 1;
             employee.focus = 1;
-            employee.salary = 350;
+            employee.salary = 2200;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
             Globals.warehouseEmployees.Add(employee);
 
             RoboticsManager manager = gameObject.AddComponent<RoboticsManager>();
             manager.id = 26;
-            manager.employeeName = "Hannah Reed";
+            manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
             manager.employeeSprite = gameController.defaultEmployeeSprite;
@@ -1196,7 +1227,7 @@ public class Robotics : Department
             manager.stamina = 1;
             manager.strength = 1;
             manager.focus = 1;
-            manager.salary = 350;
+            manager.salary = 3300;
             manager.actionState = ActionState.State.Idle;
             managers.Add(manager);
             manager.traits.Add(EmployeeTraits.RobotTuner);
@@ -1226,14 +1257,14 @@ public class Safety : Department
         capacity = cap;
     }
 
-    new void Start()
+    new void Awake()
     {
-        base.Start();
+        base.Awake();
         if (employees.Count == 0)
         {
             SafetyEmployee employee = gameObject.AddComponent<SafetyEmployee>();
             employee.id = 27;
-            employee.employeeName = "Jennifer Clark";
+            employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
             employee.employeeSprite = gameController.defaultEmployeeSprite;
@@ -1243,14 +1274,14 @@ public class Safety : Department
             employee.stamina = 1;
             employee.strength = 1;
             employee.focus = 1;
-            employee.salary = 360;
+            employee.salary = 2300;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
             Globals.warehouseEmployees.Add(employee);
 
             SafetyManager manager = gameObject.AddComponent<SafetyManager>();
             manager.id = 28;
-            manager.employeeName = "Ryan Bennett";
+            manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
             manager.employeeSprite = gameController.defaultEmployeeSprite;
@@ -1260,7 +1291,7 @@ public class Safety : Department
             manager.stamina = 1;
             manager.strength = 1;
             manager.focus = 1;
-            manager.salary = 360;
+            manager.salary = 3450;
             manager.actionState = ActionState.State.Idle;
             managers.Add(manager);
             manager.traits.Add(EmployeeTraits.RobotTuner);
@@ -1290,14 +1321,14 @@ public class Cleaning : Department
         capacity = cap;
     }
 
-    new void Start()
+    new void Awake()
     {
-        base.Start();
+        base.Awake();
         if (employees.Count == 0)
         {
             CleaningEmployee employee = gameObject.AddComponent<CleaningEmployee>();
             employee.id = 29;
-            employee.employeeName = "William Rodriguez";
+            employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
             employee.employeeSprite = gameController.defaultEmployeeSprite;
@@ -1307,14 +1338,14 @@ public class Cleaning : Department
             employee.stamina = 1;
             employee.strength = 1;
             employee.focus = 1;
-            employee.salary = 370;
+            employee.salary = 2400;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
             Globals.warehouseEmployees.Add(employee);
 
             CleaningManager manager = gameObject.AddComponent<CleaningManager>();
             manager.id = 30;
-            manager.employeeName = "Ella Phillips";
+            manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
             manager.employeeSprite = gameController.defaultEmployeeSprite;
@@ -1324,7 +1355,7 @@ public class Cleaning : Department
             manager.stamina = 1;
             manager.strength = 1;
             manager.focus = 1;
-            manager.salary = 370;
+            manager.salary = 3600;
             manager.actionState = ActionState.State.Idle;
             managers.Add(manager);
             manager.traits.Add(EmployeeTraits.RobotTuner);
@@ -1354,14 +1385,14 @@ public class Security : Department
         capacity = cap;
     }
 
-    new void Start()
+    new void Awake()
     {
-        base.Start();
+        base.Awake();
         if (employees.Count == 0)
         {
             SecurityEmployee employee = gameObject.AddComponent<SecurityEmployee>();
             employee.id = 31;
-            employee.employeeName = "Linda Martinez";
+            employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
             employee.employeeSprite = gameController.defaultEmployeeSprite;
@@ -1371,14 +1402,14 @@ public class Security : Department
             employee.stamina = 1;
             employee.strength = 1;
             employee.focus = 1;
-            employee.salary = 380;
+            employee.salary = 2500;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
             Globals.warehouseEmployees.Add(employee);
 
             SecurityManager manager = gameObject.AddComponent<SecurityManager>();
             manager.id = 32;
-            manager.employeeName = "Lucas Parker";
+            manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
             manager.employeeSprite = gameController.defaultEmployeeSprite;
@@ -1388,7 +1419,7 @@ public class Security : Department
             manager.stamina = 1;
             manager.strength = 1;
             manager.focus = 1;
-            manager.salary = 380;
+            manager.salary = 3750;
             manager.actionState = ActionState.State.Idle;
             managers.Add(manager);
             manager.traits.Add(EmployeeTraits.RobotTuner);
@@ -1418,14 +1449,14 @@ public class Learning : Department
         capacity = cap;
     }
 
-    new void Start()
+    new void Awake()
     {
-        base.Start();
+        base.Awake();
         if (employees.Count == 0)
         {
             LearningEmployee employee = gameObject.AddComponent<LearningEmployee>();
             employee.id = 33;
-            employee.employeeName = "Richard Thompson";
+            employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
             employee.employeeSprite = gameController.defaultEmployeeSprite;
@@ -1435,14 +1466,14 @@ public class Learning : Department
             employee.stamina = 1;
             employee.strength = 1;
             employee.focus = 1;
-            employee.salary = 390;
+            employee.salary = 2600;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
             Globals.warehouseEmployees.Add(employee);
 
             LearningManager manager = gameObject.AddComponent<LearningManager>();
             manager.id = 34;
-            manager.employeeName = "Mia Sanders";
+            manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
             manager.employeeSprite = gameController.defaultEmployeeSprite;
@@ -1452,7 +1483,7 @@ public class Learning : Department
             manager.stamina = 1;
             manager.strength = 1;
             manager.focus = 1;
-            manager.salary = 390;
+            manager.salary = 3900;
             manager.actionState = ActionState.State.Idle;
             managers.Add(manager);
             manager.traits.Add(EmployeeTraits.RobotTuner);
@@ -1482,14 +1513,14 @@ public class Recruiting : Department
         capacity = cap;
     }
 
-    new void Start()
+    new void Awake()
     {
-        base.Start();
+        base.Awake();
         if (employees.Count == 0)
         {
             RecruitingEmployee employee = gameObject.AddComponent<RecruitingEmployee>();
             employee.id = 35;
-            employee.employeeName = "Elizabeth Wright";
+            employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
             employee.employeeSprite = gameController.defaultEmployeeSprite;
@@ -1499,14 +1530,14 @@ public class Recruiting : Department
             employee.stamina = 1;
             employee.strength = 1;
             employee.focus = 1;
-            employee.salary = 400;
+            employee.salary = 2700;
             employee.actionState = ActionState.State.Idle;
             employees.Add(employee);
             Globals.warehouseEmployees.Add(employee);
 
             RecruitingManager manager = gameObject.AddComponent<RecruitingManager>();
             manager.id = 36;
-            manager.employeeName = "Nathan Bell";
+            manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
             manager.employeeSprite = gameController.defaultEmployeeSprite;
@@ -1516,7 +1547,7 @@ public class Recruiting : Department
             manager.stamina = 1;
             manager.strength = 1;
             manager.focus = 1;
-            manager.salary = 400;
+            manager.salary = 4050;
             manager.actionState = ActionState.State.Idle;
             managers.Add(manager);
             manager.traits.Add(EmployeeTraits.RobotTuner);

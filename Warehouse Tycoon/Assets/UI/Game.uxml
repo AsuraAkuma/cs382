@@ -144,11 +144,11 @@
                     <engine:Label text="HR" name="storeItemName" class="storeItemName" />
                     <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
                 </engine:VisualElement>
-                <engine:VisualElement name="storeItemDepartmentIT" class="upgradeContainer">
+                <engine:VisualElement name="storeItemDepartmentIT" class="upgradeContainer" style="display: none;">
                     <engine:Label text="IT" name="storeItemName" class="storeItemName" />
                     <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
                 </engine:VisualElement>
-                <engine:VisualElement name="storeItemDepartmentOperations" class="upgradeContainer">
+                <engine:VisualElement name="storeItemDepartmentOperations" class="upgradeContainer" style="display: none;">
                     <engine:Label text="Operations" name="storeItemName" class="storeItemName" />
                     <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
                 </engine:VisualElement>
@@ -156,19 +156,19 @@
                     <engine:Label text="Inbound" name="storeItemName" class="storeItemName" />
                     <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
                 </engine:VisualElement>
-                <engine:VisualElement name="storeItemDepartmentSorting" class="upgradeContainer">
+                <engine:VisualElement name="storeItemDepartmentSorting" class="upgradeContainer" style="display: none;">
                     <engine:Label text="Sorting" name="storeItemName" class="storeItemName" />
                     <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
                 </engine:VisualElement>
-                <engine:VisualElement name="storeItemDepartmentRepacking" class="upgradeContainer">
+                <engine:VisualElement name="storeItemDepartmentRepacking" class="upgradeContainer" style="display: none;">
                     <engine:Label text="Repacking" name="storeItemName" class="storeItemName" />
                     <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
                 </engine:VisualElement>
-                <engine:VisualElement name="storeItemDepartmentPalletizing" class="upgradeContainer">
+                <engine:VisualElement name="storeItemDepartmentPalletizing" class="upgradeContainer" style="display: none;">
                     <engine:Label text="Palletizing" name="storeItemName" class="storeItemName" />
                     <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
                 </engine:VisualElement>
-                <engine:VisualElement name="storeItemDepartmentWaterSpidering" class="upgradeContainer">
+                <engine:VisualElement name="storeItemDepartmentWaterSpidering" class="upgradeContainer" style="display: none;">
                     <engine:Label text="Water Spidering" name="storeItemName" class="storeItemName" />
                     <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
                 </engine:VisualElement>
@@ -176,39 +176,39 @@
                     <engine:Label text="Fluid Load" name="storeItemName" class="storeItemName" />
                     <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
                 </engine:VisualElement>
-                <engine:VisualElement name="storeItemDepartmentQualityControl" class="upgradeContainer">
+                <engine:VisualElement name="storeItemDepartmentQualityControl" class="upgradeContainer" style="display: none;">
                     <engine:Label text="Quality Control" name="storeItemName" class="storeItemName" />
                     <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
                 </engine:VisualElement>
-                <engine:VisualElement name="storeItemDepartmentOutbound" class="upgradeContainer">
+                <engine:VisualElement name="storeItemDepartmentOutbound" class="upgradeContainer" style="display: none;">
                     <engine:Label text="Outbound" name="storeItemName" class="storeItemName" />
                     <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
                 </engine:VisualElement>
-                <engine:VisualElement name="storeItemDepartmentMaintenance" class="upgradeContainer">
+                <engine:VisualElement name="storeItemDepartmentMaintenance" class="upgradeContainer" style="display: none;">
                     <engine:Label text="Maintenance" name="storeItemName" class="storeItemName" />
                     <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
                 </engine:VisualElement>
-                <engine:VisualElement name="storeItemDepartmentRobotics" class="upgradeContainer">
+                <engine:VisualElement name="storeItemDepartmentRobotics" class="upgradeContainer" style="display: none;">
                     <engine:Label text="Robotics" name="storeItemName" class="storeItemName" />
                     <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
                 </engine:VisualElement>
-                <engine:VisualElement name="storeItemDepartmentSafety" class="upgradeContainer">
+                <engine:VisualElement name="storeItemDepartmentSafety" class="upgradeContainer" style="display: none;">
                     <engine:Label text="Safety" name="storeItemName" class="storeItemName" />
                     <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
                 </engine:VisualElement>
-                <engine:VisualElement name="storeItemDepartmentCleaning" class="upgradeContainer">
+                <engine:VisualElement name="storeItemDepartmentCleaning" class="upgradeContainer" style="display: none;">
                     <engine:Label text="Cleaning" name="storeItemName" class="storeItemName" />
                     <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
                 </engine:VisualElement>
-                <engine:VisualElement name="storeItemDepartmentSecurity" class="upgradeContainer">
+                <engine:VisualElement name="storeItemDepartmentSecurity" class="upgradeContainer" style="display: none;">
                     <engine:Label text="Security" name="storeItemName" class="storeItemName" />
                     <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
                 </engine:VisualElement>
-                <engine:VisualElement name="storeItemDepartmentLearningAndDevelopment" class="upgradeContainer">
+                <engine:VisualElement name="storeItemDepartmentLearningAndDevelopment" class="upgradeContainer" style="display: none;">
                     <engine:Label text="Learning" name="storeItemName" class="storeItemName" />
                     <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
                 </engine:VisualElement>
-                <engine:VisualElement name="storeItemDepartmentRecruiting" class="upgradeContainer">
+                <engine:VisualElement name="storeItemDepartmentRecruiting" class="upgradeContainer" style="display: none;">
                     <engine:Label text="Recruiting" name="storeItemName" class="storeItemName" />
                     <engine:Label text="COST&#10;$1000" name="storeItemCost" class="upgradeLevel canUpgrade" />
                 </engine:VisualElement>

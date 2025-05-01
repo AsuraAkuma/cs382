@@ -537,6 +537,7 @@ GameObject:
   - component: {fileID: 1665696750}
   - component: {fileID: 1665696752}
   - component: {fileID: 1665696753}
+  - component: {fileID: 1665696754}
   m_Layer: 0
   m_Name: Controller
   m_TagString: Untagged
@@ -602,6 +603,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   notificationController: {fileID: 1665696752}
   gameController: {fileID: 1665696750}
+--- !u!114 &1665696754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1665696749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee17f19ebebac2c4b94063c2600cf3df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameUI: {fileID: 67482214}
 --- !u!1 &1883882465
 GameObject:
   m_ObjectHideFlags: 0
