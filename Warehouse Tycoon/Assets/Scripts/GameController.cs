@@ -65,6 +65,20 @@ public class GameController : MonoBehaviour
 
         // Hide pause screen initially
         pauseScreen.style.display = DisplayStyle.None;
+        if (Globals.tutorialStatus == StatusType.Type.Completed)
+        {
+            // Load the game state
+            LoadGameState();
+            // Update the employee UI list
+            UpdateEmployeeUIList();
+            // Update the new hire UI list
+            UpdateNewHireUIList();
+        }
+        else
+        {
+            // Start the tutorial
+            ProgressTutorial();
+        }
 
         // Register pause screen button callbacks
         pauseScreenSaveButton.RegisterCallback<ClickEvent>(OnPauseScreenButtonClick);
@@ -88,20 +102,6 @@ public class GameController : MonoBehaviour
         // Register click event for the edit name panel buttons
 
         // Check if the tutorial has been completed
-        if (Globals.tutorialStatus == StatusType.Type.Completed)
-        {
-            // Load the game state
-            LoadGameState();
-            // Update the employee UI list
-            UpdateEmployeeUIList();
-            // Update the new hire UI list
-            UpdateNewHireUIList();
-        }
-        else
-        {
-            // Start the tutorial
-            ProgressTutorial();
-        }
         // speed up the game
         // Time.timeScale = 40f;
         // TESTING ONLY
@@ -172,13 +172,21 @@ public class GameController : MonoBehaviour
             {
                 Globals.playerMoney -= employee.salary;
             }
-            StartCoroutine(gameActions.CreateNewHire());
-            if (Globals.newHires.Count > 5)
+            if (Globals.daysSinceLastNewHire == 2)
             {
-                // Remove the oldest new hire
-                Globals.newHires.RemoveAt(0);
+                Globals.daysSinceLastNewHire = 0;
+                StartCoroutine(gameActions.CreateNewHire());
+                if (Globals.newHires.Count > 5)
+                {
+                    // Remove the oldest new hire
+                    Globals.newHires.RemoveAt(0);
+                }
+                UpdateNewHireUIList();
             }
-            UpdateNewHireUIList();
+            else
+            {
+                Globals.daysSinceLastNewHire++;
+            }
             // Debug.Log("Game time reset to 0.");
         }
         // Debug.Log($"Game time elapsed: {Globals.gameTimeElapsed} hours.");
@@ -288,7 +296,7 @@ public class GameController : MonoBehaviour
     private void LoadGameState()
     {
         // Add logic to load the game state here
-        // StartCoroutine(Globals.Load());
+        StartCoroutine(Globals.Load());
         // Debug.Log("Game state loaded.");
     }
     private void UpdateHeaderUI()

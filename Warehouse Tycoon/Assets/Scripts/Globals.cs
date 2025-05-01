@@ -38,6 +38,8 @@ public struct SerializableEmployee
     public float workInterval;
     public float restInterval;
     public int infractions;
+    public List<Disablers.Disabler> disablers; // List of disablers associated with the employee
+    public List<ActionRequest> actionRequests; // List of action requests associated with the employee
     // Department-specific stats
     // HR Department
     public float empathy;
@@ -336,7 +338,7 @@ public struct SerializableEmployee
         // Load sprite by name if available
         if (!string.IsNullOrEmpty(this.spriteName))
         {
-            employee.employeeSprite = Resources.Load<Sprite>("EmployeeSprites/" + this.spriteName);
+            employee.employeeSprite = Resources.Load<Sprite>("Assets/" + this.spriteName);
         }
         employee.salary = this.salary;
         employee.cost = this.cost;
@@ -469,8 +471,8 @@ public struct SerializableEmployee
         employee.onboardingStrategy = this.onboardingStrategy;
 
         // Initialize empty lists
-        employee.disablers = new List<Disablers.Disabler>();
-        employee.actionRequests = new List<ActionRequest>();
+        employee.disablers = this.disablers;
+        employee.actionRequests = this.actionRequests ?? new List<ActionRequest>();
 
         return employee;
     }
@@ -489,15 +491,26 @@ public struct SerializableDepartment
     public int departmentExp; // Experience points of the department
     public DepartmentTypes.Type departmentType; // Type of the department (e.g., HR, IT, etc.)
     public int managerCapacity; // Maximum number of managers that can work in this department
-    public List<Employee> employees; // Array of employees in this department
+    public List<SerializableEmployee> employees; // Array of employees in this department
     public List<Disablers.Disabler> disablers; // Array of disablers associated with this department
     private int managerIndex; // Index of the current manager in the department
-    public List<Employee> managers; // Array of managers in this department
+    public List<SerializableEmployee> managers; // Array of managers in this department
 
     // Add any other Department properties that need to be saved
 
     public static SerializableDepartment FromDepartment(Department department)
     {
+        List<SerializableEmployee> serializableEmployees = new List<SerializableEmployee>();
+        foreach (Employee emp in department.employees)
+        {
+            serializableEmployees.Add(SerializableEmployee.FromEmployee(emp));
+        }
+        List<SerializableEmployee> serializableManagers = new List<SerializableEmployee>();
+        foreach (Employee emp in department.managers)
+        {
+            serializableManagers.Add(SerializableEmployee.FromEmployee(emp));
+        }
+
         return new SerializableDepartment
         {
             capacity = department.capacity,
@@ -510,11 +523,10 @@ public struct SerializableDepartment
             departmentExp = department.departmentExp,
             departmentType = department.departmentType,
             managerCapacity = department.managerCapacity,
-            employees = new List<Employee>(department.employees),
+            employees = serializableEmployees,
             disablers = new List<Disablers.Disabler>(department.disablers),
             managerIndex = department.managerIndex,
-            managers = new List<Employee>(department.managers)
-            // Copy other needed properties
+            managers = serializableManagers
         };
     }
 
@@ -586,7 +598,18 @@ public struct SerializableDepartment
                 department = tempGameObject.AddComponent<Department>();
                 break;
         }
-
+        List<Employee> newEmployees = new List<Employee>();
+        foreach (SerializableEmployee serializableEmployee in employees)
+        {
+            Employee employee = serializableEmployee.ToEmployee();
+            newEmployees.Add(employee);
+        }
+        List<Employee> newManagers = new List<Employee>();
+        foreach (SerializableEmployee serializableEmployee in managers)
+        {
+            Employee employee = serializableEmployee.ToEmployee();
+            newManagers.Add(employee);
+        }
         // Populate the department properties
         department.capacity = capacity;
         department.departmentName = departmentName;
@@ -598,10 +621,10 @@ public struct SerializableDepartment
         department.departmentExp = departmentExp;
         department.departmentType = departmentType;
         department.managerCapacity = managerCapacity;
-        department.employees = new List<Employee>(employees);
+        department.employees = newEmployees;
         department.disablers = new List<Disablers.Disabler>(disablers);
         department.managerIndex = managerIndex;
-        department.managers = new List<Employee>(managers);
+        department.managers = newManagers;
 
         // Don't destroy the GameObject when loading new scenes
         GameObject.DontDestroyOnLoad(tempGameObject);

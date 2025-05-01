@@ -1,5 +1,6 @@
 using System.Collections;
 
+[System.Serializable]
 public class ActionRequest
 {
     public Employee employee; // Employee associated with the action request (if any)
@@ -15,6 +16,8 @@ public class ActionRequest
         this.action = action;
         status = StatusType.Type.Pending; // Default status is pending
     }
+
+    [System.Serializable]
     public class StatusType
     {
         public enum Type

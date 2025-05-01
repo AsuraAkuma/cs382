@@ -59,7 +59,7 @@ public class StartMenuController : MonoBehaviour
         saveFileDropdown.RegisterValueChangedCallback(OnSaveFileSelected);
 
         // Check if we need to load data at start
-        StartCoroutine(LoadDataAtStart());
+        // StartCoroutine(LoadDataAtStart());
     }
 
     private IEnumerator LoadDataAtStart()
@@ -101,9 +101,22 @@ public class StartMenuController : MonoBehaviour
         // Show/hide save selection container based on toggle state
         saveSelectionContainer.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
 
-        // If toggle is turned off, clear the selection
-        if (!evt.newValue)
+        if (evt.newValue)
         {
+            // If toggle is turned on, select the first save file as default
+            if (saveFileDropdown.choices.Count > 0 && saveFileDropdown.choices[0] != "No saved games found")
+            {
+                saveFileDropdown.index = 0;
+                string defaultSaveLabel = saveFileDropdown.choices[0];
+                if (saveFilePaths.TryGetValue(defaultSaveLabel, out string filePath))
+                {
+                    SelectSaveFile(filePath);
+                }
+            }
+        }
+        else
+        {
+            // If toggle is turned off, clear the selection
             selectedSaveFile = "";
         }
     }
@@ -180,10 +193,10 @@ public class StartMenuController : MonoBehaviour
     private void SelectSaveFile(string filePath)
     {
         // Store selected save file path
-        selectedSaveFile = filePath;
+        Globals.saveFilePath = filePath;
 
         // Load the save data to populate fields
-        StartCoroutine(Globals.LoadFromSpecificFile(filePath));
+        // StartCoroutine(Globals.Load());
 
         // Update the form fields with data from the save
         warehouseNameField.value = Globals.tempSaveData.warehouseName;

@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 
+[System.Serializable]
 public class Disablers
 {
+    [System.Serializable]
     public class Warehouse
     {
         public static List<Disabler> allDisablers = new List<Disabler>
@@ -16,6 +18,8 @@ public class Disablers
         public static Disabler securityBreach = new Disabler("Security Breach", new List<DepartmentTypes.Type> { DepartmentTypes.Type.Security });
         public static Disabler networkFailure = new Disabler("Network Failure", new List<DepartmentTypes.Type> { DepartmentTypes.Type.IT });
     }
+
+    [System.Serializable]
     public class Department
     {
         public static List<Disabler> allDisablers = new List<Disabler>
@@ -40,6 +44,8 @@ public class Disablers
         public static Disabler accident = new Disabler("Accident", new List<DepartmentTypes.Type> { DepartmentTypes.Type.Safety });
         public static Disabler hazardousMaterial = new Disabler("Hazardous Material", new List<DepartmentTypes.Type> { DepartmentTypes.Type.Safety, DepartmentTypes.Type.Cleaning });
     }
+
+    [System.Serializable]
     public class Employee
     {
         public static List<Disabler> allDisablers = new List<Disabler>
@@ -60,6 +66,8 @@ public class Disablers
         public static Disabler dirtyStation = new Disabler("Dirty Station", new List<DepartmentTypes.Type> { DepartmentTypes.Type.Cleaning });
         public static Disabler stationUnsafe = new Disabler("Unsafe Station", new List<DepartmentTypes.Type> { DepartmentTypes.Type.Safety });
     }
+
+    [System.Serializable]
     public struct Disabler
     {
         public string name;
@@ -86,11 +94,9 @@ public class Disablers
             }
         }
 
-        // Add this copy constructor
         public Disabler Clone()
         {
             return new Disabler(name, new List<DepartmentTypes.Type>(enablingDepartments), actionRequests);
         }
     }
-
 }
