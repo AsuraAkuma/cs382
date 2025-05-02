@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+[Serializable]
 public class Employee : MonoBehaviour
 {
     public int id; // Unique identifier for the employee
@@ -502,7 +504,7 @@ public class Employee : MonoBehaviour
         focus = Mathf.Max(0f, focus);
         strength = Mathf.Max(0f, strength);
         experience = Mathf.Max(0f, experience);
-        if (Random.Range(1, 101) <= 60)
+        if (UnityEngine.Random.Range(1, 101) <= 60)
         {
             // Do primary action
             PrimaryAction();
@@ -679,7 +681,7 @@ public class Employee : MonoBehaviour
         yield return StartCoroutine(actionRequest.action); // Execute the action request
         // Delay for a short time to simulate action completion
         // generate random number for success rate
-        bool successful = Random.Range(1, 101) <= GetStatAverage() * 100;
+        bool successful = UnityEngine.Random.Range(1, 101) <= GetStatAverage() * 100;
         if (successful)
         {
             actionRequest.status = ActionRequest.StatusType.Type.Completed;
@@ -715,6 +717,8 @@ public class Employee : MonoBehaviour
         }
     }
 }
+
+[Serializable]
 public class Manager : Employee
 {
     public Manager() { } // Default constructor
@@ -724,7 +728,7 @@ public class Manager : Employee
         {
             return;
         }
-        if (Random.Range(1, 101) <= 60)
+        if (UnityEngine.Random.Range(1, 101) <= 60)
         {
             // Do primary action
             PrimaryAction();
@@ -855,7 +859,9 @@ public class Manager : Employee
     }
 
 }
+
 // Dept. Employees
+[Serializable]
 public class HREmployee : Employee
 {
     public HREmployee() { } // Default constructor
@@ -867,6 +873,7 @@ public class HREmployee : Employee
     public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
 }
 
+[Serializable]
 public class HRManager : Manager
 {
     public HRManager() { } // Default constructor
@@ -878,6 +885,7 @@ public class HRManager : Manager
     public new float GetExperience() { return Mathf.Min(2f, experience + retentionStrategy + combinedTraits.experience); }
 }
 
+[Serializable]
 public class ITEmployee : Employee
 {
     public ITEmployee() { } // Default constructor
@@ -889,6 +897,7 @@ public class ITEmployee : Employee
     public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
+[Serializable]
 public class ITManager : Manager
 {
     public ITManager() { } // Default constructor
@@ -900,6 +909,7 @@ public class ITManager : Manager
     public new float GetExperience() { return Mathf.Min(2f, experience + techBudgeting + combinedTraits.experience); }
 }
 
+[Serializable]
 public class OperationsEmployee : Employee
 {
     public OperationsEmployee() { } // Default constructor
@@ -911,6 +921,7 @@ public class OperationsEmployee : Employee
     public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
+[Serializable]
 public class OperationsManager : Manager
 {
     public OperationsManager() { } // Default constructor
@@ -922,15 +933,83 @@ public class OperationsManager : Manager
     public new float GetExperience() { return Mathf.Min(2f, experience + kpiMonitoring + combinedTraits.experience); }
 }
 
+[Serializable]
 public class InboundEmployee : Employee
 {
-    public InboundEmployee() { } // Default constructor
-    public new float GetSpeed() { return Mathf.Min(2f, speed + loadMaster + speedyUnloader + combinedTraits.speed); }
-    public new float GetStrength() { return Mathf.Min(2f, strength + loadMaster + combinedTraits.strength); }
-    public new float GetFocus() { return Mathf.Min(2f, focus + inventoryCheck + combinedTraits.focus); }
-    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + inventoryCheck + combinedTraits.efficiency); }
-    public new float GetStamina() { return Mathf.Min(2f, stamina + speedyUnloader + combinedTraits.stamina); }
-    public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
+    public InboundEmployee()
+    {
+        // Initialize combinedTraits if it's null
+        if (combinedTraits == null)
+        {
+            combinedTraits = new TraitValues();
+        }
+    } // Default constructor
+
+    public new float GetSpeed()
+    {
+        // Ensure combinedTraits is not null
+        if (combinedTraits == null)
+        {
+            combinedTraits = new TraitValues();
+            Debug.LogWarning("combinedTraits was null in InboundEmployee.GetSpeed() - initialized new TraitValues");
+        }
+        return Mathf.Min(2f, speed + loadMaster + speedyUnloader + combinedTraits.speed);
+    }
+
+    public new float GetStrength()
+    {
+        // Ensure combinedTraits is not null
+        if (combinedTraits == null)
+        {
+            combinedTraits = new TraitValues();
+            Debug.LogWarning("combinedTraits was null in InboundEmployee.GetStrength() - initialized new TraitValues");
+        }
+        return Mathf.Min(2f, strength + loadMaster + combinedTraits.strength);
+    }
+
+    public new float GetFocus()
+    {
+        // Ensure combinedTraits is not null
+        if (combinedTraits == null)
+        {
+            combinedTraits = new TraitValues();
+            Debug.LogWarning("combinedTraits was null in InboundEmployee.GetFocus() - initialized new TraitValues");
+        }
+        return Mathf.Min(2f, focus + inventoryCheck + combinedTraits.focus);
+    }
+
+    public new float GetEfficiency()
+    {
+        // Ensure combinedTraits is not null
+        if (combinedTraits == null)
+        {
+            combinedTraits = new TraitValues();
+            Debug.LogWarning("combinedTraits was null in InboundEmployee.GetEfficiency() - initialized new TraitValues");
+        }
+        return Mathf.Min(2f, efficiency + inventoryCheck + combinedTraits.efficiency);
+    }
+
+    public new float GetStamina()
+    {
+        // Ensure combinedTraits is not null
+        if (combinedTraits == null)
+        {
+            combinedTraits = new TraitValues();
+            Debug.LogWarning("combinedTraits was null in InboundEmployee.GetStamina() - initialized new TraitValues");
+        }
+        return Mathf.Min(2f, stamina + speedyUnloader + combinedTraits.stamina);
+    }
+
+    public new float GetExperience()
+    {
+        // Ensure combinedTraits is not null
+        if (combinedTraits == null)
+        {
+            combinedTraits = new TraitValues();
+            Debug.LogWarning("combinedTraits was null in InboundEmployee.GetExperience() - initialized new TraitValues");
+        }
+        return Mathf.Min(2f, experience + combinedTraits.experience);
+    }
 
     void FixedUpdate()
     {
@@ -966,6 +1045,7 @@ public class InboundEmployee : Employee
     }
 }
 
+[Serializable]
 public class InboundManager : Manager
 {
     public InboundManager() { } // Default constructor
@@ -977,6 +1057,7 @@ public class InboundManager : Manager
     public new float GetExperience() { return Mathf.Min(2f, experience + supplierCoordination + combinedTraits.experience); }
 }
 
+[Serializable]
 public class OutboundEmployee : Employee
 {
     public OutboundEmployee() { } // Default constructor
@@ -988,6 +1069,7 @@ public class OutboundEmployee : Employee
     public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
+[Serializable]
 public class OutboundManager : Manager
 {
     public OutboundManager() { } // Default constructor
@@ -1000,6 +1082,7 @@ public class OutboundManager : Manager
     public new float GetExperience() { return Mathf.Min(2f, experience + carrierCoordination + combinedTraits.experience); }
 }
 
+[Serializable]
 public class SortingEmployee : Employee
 {
     public SortingEmployee() { } // Default constructor
@@ -1012,6 +1095,7 @@ public class SortingEmployee : Employee
     public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
+[Serializable]
 public class SortingManager : Manager
 {
     public SortingManager() { } // Default constructor
@@ -1023,6 +1107,7 @@ public class SortingManager : Manager
     public new float GetExperience() { return Mathf.Min(2f, experience + +combinedTraits.experience); }
 }
 
+[Serializable]
 public class RepackingEmployee : Employee
 {
     public RepackingEmployee() { } // Default constructor
@@ -1035,6 +1120,7 @@ public class RepackingEmployee : Employee
     public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
+[Serializable]
 public class RepackingManager : Manager
 {
     public RepackingManager() { } // Default constructor
@@ -1047,6 +1133,7 @@ public class RepackingManager : Manager
     public new float GetExperience() { return Mathf.Min(2f, experience + materialAllocation + combinedTraits.experience); }
 }
 
+[Serializable]
 public class PalletizingEmployee : Employee
 {
     public PalletizingEmployee() { } // Default constructor
@@ -1058,6 +1145,7 @@ public class PalletizingEmployee : Employee
     public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
+[Serializable]
 public class PalletizingManager : Manager
 {
     public PalletizingManager() { } // Default constructor
@@ -1069,6 +1157,7 @@ public class PalletizingManager : Manager
     public new float GetExperience() { return Mathf.Min(2f, experience + loadForecasting + combinedTraits.experience); }
 }
 
+[Serializable]
 public class WaterSpiderEmployee : Employee
 {
     public WaterSpiderEmployee() { } // Default constructor
@@ -1080,6 +1169,7 @@ public class WaterSpiderEmployee : Employee
     public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
+[Serializable]
 public class WaterSpiderManager : Manager
 {
     public WaterSpiderManager() { } // Default constructor
@@ -1091,17 +1181,92 @@ public class WaterSpiderManager : Manager
     public new float GetExperience() { return Mathf.Min(2f, experience + +combinedTraits.experience); }
 }
 
+[Serializable]
 public class FluidLoadEmployee : Employee
 {
-    public FluidLoadEmployee() { } // Default constructor
+    public FluidLoadEmployee()
+    {
+        // Initialize combinedTraits if it's null
+        if (combinedTraits == null)
+        {
+            combinedTraits = new TraitValues();
+        }
+    } // Default constructor
+
     private int truckBoxLimit = Globals.palletBoxLimit * Globals.truckPalletLimit;
     private int truckBoxCount = 0;
-    public new float GetSpeed() { return Mathf.Min(2f, speed + loadingSpeed + combinedTraits.speed); }
-    public new float GetStrength() { return Mathf.Min(2f, strength + loadingSpeed + combinedTraits.strength); }
-    public new float GetStamina() { return Mathf.Min(2f, stamina + hardHatProtection + combinedTraits.stamina); }
-    public new float GetFocus() { return Mathf.Min(2f, focus + hardHatProtection + weightDistribution + combinedTraits.focus); }
-    public new float GetEfficiency() { return Mathf.Min(2f, efficiency + weightDistribution + combinedTraits.efficiency); }
-    public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
+
+    // Add null check to prevent NullReferenceException
+    public new float GetSpeed()
+    {
+        // Ensure combinedTraits is not null
+        if (combinedTraits == null)
+        {
+            combinedTraits = new TraitValues();
+            Debug.LogWarning("combinedTraits was null in FluidLoadEmployee.GetSpeed() - initialized new TraitValues");
+        }
+        return Mathf.Min(2f, speed + loadingSpeed + combinedTraits.speed);
+    }
+
+    // Add null check to prevent NullReferenceException
+    public new float GetStrength()
+    {
+        // Ensure combinedTraits is not null
+        if (combinedTraits == null)
+        {
+            combinedTraits = new TraitValues();
+            Debug.LogWarning("combinedTraits was null in FluidLoadEmployee.GetStrength() - initialized new TraitValues");
+        }
+        return Mathf.Min(2f, strength + loadingSpeed + combinedTraits.strength);
+    }
+
+    // Add null check to prevent NullReferenceException
+    public new float GetStamina()
+    {
+        // Ensure combinedTraits is not null
+        if (combinedTraits == null)
+        {
+            combinedTraits = new TraitValues();
+            Debug.LogWarning("combinedTraits was null in FluidLoadEmployee.GetStamina() - initialized new TraitValues");
+        }
+        return Mathf.Min(2f, stamina + hardHatProtection + combinedTraits.stamina);
+    }
+
+    // Add null check to prevent NullReferenceException
+    public new float GetFocus()
+    {
+        // Ensure combinedTraits is not null
+        if (combinedTraits == null)
+        {
+            combinedTraits = new TraitValues();
+            Debug.LogWarning("combinedTraits was null in FluidLoadEmployee.GetFocus() - initialized new TraitValues");
+        }
+        return Mathf.Min(2f, focus + hardHatProtection + weightDistribution + combinedTraits.focus);
+    }
+
+    // Add null check to prevent NullReferenceException
+    public new float GetEfficiency()
+    {
+        // Ensure combinedTraits is not null
+        if (combinedTraits == null)
+        {
+            combinedTraits = new TraitValues();
+            Debug.LogWarning("combinedTraits was null in FluidLoadEmployee.GetEfficiency() - initialized new TraitValues");
+        }
+        return Mathf.Min(2f, efficiency + weightDistribution + combinedTraits.efficiency);
+    }
+
+    // Add null check to prevent NullReferenceException
+    public new float GetExperience()
+    {
+        // Ensure combinedTraits is not null
+        if (combinedTraits == null)
+        {
+            combinedTraits = new TraitValues();
+            Debug.LogWarning("combinedTraits was null in FluidLoadEmployee.GetExperience() - initialized new TraitValues");
+        }
+        return Mathf.Min(2f, experience + combinedTraits.experience);
+    }
 
     void FixedUpdate()
     {
@@ -1145,6 +1310,7 @@ public class FluidLoadEmployee : Employee
 
 }
 
+[Serializable]
 public class FluidLoadManager : Manager
 {
     public FluidLoadManager() { } // Default constructor
@@ -1157,6 +1323,7 @@ public class FluidLoadManager : Manager
     public new float GetExperience() { return Mathf.Min(2f, experience + +combinedTraits.experience); }
 }
 
+[Serializable]
 public class QualityControlEmployee : Employee
 {
     public QualityControlEmployee() { } // Default constructor
@@ -1169,6 +1336,7 @@ public class QualityControlEmployee : Employee
     public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
 }
 
+[Serializable]
 public class QualityControlManager : Manager
 {
     public QualityControlManager() { } // Default constructor
@@ -1180,6 +1348,7 @@ public class QualityControlManager : Manager
     public new float GetExperience() { return Mathf.Min(2f, experience + inspectionProtocols + continuousImprovement + combinedTraits.experience); }
 }
 
+[Serializable]
 public class MaintenanceEmployee : Employee
 {
     public MaintenanceEmployee() { } // Default constructor
@@ -1191,6 +1360,7 @@ public class MaintenanceEmployee : Employee
     public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
 }
 
+[Serializable]
 public class MaintenanceManager : Manager
 {
     public MaintenanceManager() { } // Default constructor
@@ -1202,6 +1372,7 @@ public class MaintenanceManager : Manager
     public new float GetExperience() { return Mathf.Min(2f, experience + partInventory + combinedTraits.experience); }
 }
 
+[Serializable]
 public class RoboticsEmployee : Employee
 {
     public RoboticsEmployee() { } // Default constructor
@@ -1214,6 +1385,7 @@ public class RoboticsEmployee : Employee
     public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
+[Serializable]
 public class RoboticsManager : Manager
 {
     public RoboticsManager() { } // Default constructor
@@ -1226,6 +1398,7 @@ public class RoboticsManager : Manager
     public new float GetExperience() { return Mathf.Min(2f, experience + automationPlanning + combinedTraits.experience); }
 }
 
+[Serializable]
 public class SecurityEmployee : Employee
 {
     public SecurityEmployee() { } // Default constructor
@@ -1238,6 +1411,7 @@ public class SecurityEmployee : Employee
     public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
+[Serializable]
 public class SecurityManager : Manager
 {
     public SecurityManager() { } // Default constructor
@@ -1250,6 +1424,7 @@ public class SecurityManager : Manager
     public new float GetExperience() { return Mathf.Min(2f, experience + surveillanceOversight + combinedTraits.experience); }
 }
 
+[Serializable]
 public class CleaningEmployee : Employee
 {
     public CleaningEmployee() { } // Default constructor
@@ -1262,6 +1437,7 @@ public class CleaningEmployee : Employee
     public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
+[Serializable]
 public class CleaningManager : Manager
 {
     public CleaningManager() { } // Default constructor
@@ -1274,6 +1450,7 @@ public class CleaningManager : Manager
     public new float GetExperience() { return Mathf.Min(2f, experience + supplyManagement + combinedTraits.experience); }
 }
 
+[Serializable]
 public class LearningEmployee : Employee
 {
     public LearningEmployee() { } // Default constructor
@@ -1286,6 +1463,7 @@ public class LearningEmployee : Employee
     public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
 }
 
+[Serializable]
 public class LearningManager : Manager
 {
     public LearningManager() { } // Default constructor
@@ -1298,6 +1476,7 @@ public class LearningManager : Manager
     public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
 }
 
+[Serializable]
 public class SafetyEmployee : Employee
 {
     public SafetyEmployee() { } // Default constructor
@@ -1309,6 +1488,7 @@ public class SafetyEmployee : Employee
     public new float GetExperience() { return Mathf.Min(2f, experience + combinedTraits.experience); }
 }
 
+[Serializable]
 public class SafetyManager : Manager
 {
     public SafetyManager() { } // Default constructo
@@ -1320,6 +1500,7 @@ public class SafetyManager : Manager
     public new float GetExperience() { return Mathf.Min(2f, experience + trainingEnforcement + auditExecution + combinedTraits.experience); }
 }
 
+[Serializable]
 public class RecruitingEmployee : Employee
 {
     public RecruitingEmployee() { } // Default constructor
@@ -1332,6 +1513,7 @@ public class RecruitingEmployee : Employee
     public new float GetStrength() { return Mathf.Min(2f, strength + combinedTraits.strength); }
 }
 
+[Serializable]
 public class RecruitingManager : Manager
 {
     public RecruitingManager() { } // Default constructor

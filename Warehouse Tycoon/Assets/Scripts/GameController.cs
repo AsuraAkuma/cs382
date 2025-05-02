@@ -4,6 +4,7 @@ using UnityEngine.UIElements;
 using System.Linq;
 using Unity.VisualScripting;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GameController : MonoBehaviour
 {
@@ -65,20 +66,6 @@ public class GameController : MonoBehaviour
 
         // Hide pause screen initially
         pauseScreen.style.display = DisplayStyle.None;
-        if (Globals.tutorialStatus == StatusType.Type.Completed)
-        {
-            // Load the game state
-            LoadGameState();
-            // Update the employee UI list
-            UpdateEmployeeUIList();
-            // Update the new hire UI list
-            UpdateNewHireUIList();
-        }
-        else
-        {
-            // Start the tutorial
-            ProgressTutorial();
-        }
 
         // Register pause screen button callbacks
         pauseScreenSaveButton.RegisterCallback<ClickEvent>(OnPauseScreenButtonClick);
@@ -100,45 +87,60 @@ public class GameController : MonoBehaviour
         editDepartmentPanelCancelButton.RegisterCallback<ClickEvent>(OnEditDepartmentPanelButtonClick);
         employeeManagerCloseButton.RegisterCallback<ClickEvent>(OnEmployeeManagerButtonClick);
         // Register click event for the edit name panel buttons
+        Globals.gameController = this;
+        if (Globals.tutorialStatus == StatusType.Type.Completed)
+        {
+            // Load the game state
+            LoadGameState();
+            // Update the employee UI list
+            UpdateEmployeeUIList();
+            // Update the new hire UI list
+            UpdateNewHireUIList();
+        }
+        else
+        {
+            // Start the tutorial
+            ProgressTutorial();
+        }
+        Time.timeScale = 40f;
+        if (Globals.loadSave == false && Globals.departments.Count == 0)
+        {
+            // TESTING ONLY
+            // Create a new hire
+            HR hrDepartment = gameObject.AddComponent<HR>();
+            hrDepartment.departmentType = DepartmentTypes.Type.HR;
+            hrDepartment.departmentName = "HR";
+            hrDepartment.departmentLevel = 1;
+            hrDepartment.capacity = 10;
+            Inbound inboundDepartment = gameObject.AddComponent<Inbound>();
+            inboundDepartment.departmentType = DepartmentTypes.Type.Inbound;
+            inboundDepartment.departmentName = "Inbound";
+            inboundDepartment.departmentLevel = 1;
+            inboundDepartment.capacity = 10;
+            FluidLoad fluidDepartment = gameObject.AddComponent<FluidLoad>();
+            fluidDepartment.departmentType = DepartmentTypes.Type.FluidLoad;
+            fluidDepartment.departmentName = "FluidLoad";
+            fluidDepartment.departmentLevel = 1;
+            fluidDepartment.capacity = 10;
 
-        // Check if the tutorial has been completed
-        // speed up the game
-        // Time.timeScale = 40f;
-        // TESTING ONLY
-        // Create a new hire
-        HR hrDepartment = gameObject.AddComponent<HR>();
-        hrDepartment.departmentType = DepartmentTypes.Type.HR;
-        hrDepartment.departmentName = "HR";
-        hrDepartment.departmentLevel = 1;
-        hrDepartment.capacity = 10;
-        Inbound inboundDepartment = gameObject.AddComponent<Inbound>();
-        inboundDepartment.departmentType = DepartmentTypes.Type.Inbound;
-        inboundDepartment.departmentName = "Inbound";
-        inboundDepartment.departmentLevel = 1;
-        inboundDepartment.capacity = 10;
-        FluidLoad fluidDepartment = gameObject.AddComponent<FluidLoad>();
-        fluidDepartment.departmentType = DepartmentTypes.Type.FluidLoad;
-        fluidDepartment.departmentName = "FluidLoad";
-        fluidDepartment.departmentLevel = 1;
-        fluidDepartment.capacity = 10;
-
-        int departmentCountHR = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.HR);
-        int departmentCountInbound = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Inbound);
-        int departmentCountFluidLoad = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.FluidLoad);
-        int itemCostValueHR = Globals.departmentCost + 5000 * (departmentCountHR + 1);
-        int itemCostValueInbound = Globals.departmentCost + 5000 * (departmentCountInbound + 1);
-        int itemCostValueFluidLoad = Globals.departmentCost + 5000 * (departmentCountFluidLoad + 1);
-        storeItemHR.Q<Label>("storeItemCost").text = $"Cost\n${itemCostValueHR}";
-        storeItemInbound.Q<Label>("storeItemCost").text = $"Cost\n${itemCostValueInbound}";
-        storeItemFluidLoad.Q<Label>("storeItemCost").text = $"Cost\n${itemCostValueFluidLoad}";
-        storeItemHR.RegisterCallback<ClickEvent>(OnStoreItemClick);
-        storeItemInbound.RegisterCallback<ClickEvent>(OnStoreItemClick);
-        storeItemFluidLoad.RegisterCallback<ClickEvent>(OnStoreItemClick);
-        // Globals.departments.Add(hrDepartment);
-        StartCoroutine(gameActions.CreateNewHire());
-        UpdateNewHireUIList();
-        UpdateDepartmentUIList();
-        Globals.playerMoney = 100000;
+            int departmentCountHR = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.HR);
+            int departmentCountInbound = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Inbound);
+            int departmentCountFluidLoad = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.FluidLoad);
+            int itemCostValueHR = Globals.departmentCost + 5000 * (departmentCountHR + 1);
+            int itemCostValueInbound = Globals.departmentCost + 5000 * (departmentCountInbound + 1);
+            int itemCostValueFluidLoad = Globals.departmentCost + 5000 * (departmentCountFluidLoad + 1);
+            storeItemHR.Q<Label>("storeItemCost").text = $"Cost\n${itemCostValueHR}";
+            storeItemInbound.Q<Label>("storeItemCost").text = $"Cost\n${itemCostValueInbound}";
+            storeItemFluidLoad.Q<Label>("storeItemCost").text = $"Cost\n${itemCostValueFluidLoad}";
+            storeItemHR.RegisterCallback<ClickEvent>(OnStoreItemClick);
+            storeItemInbound.RegisterCallback<ClickEvent>(OnStoreItemClick);
+            storeItemFluidLoad.RegisterCallback<ClickEvent>(OnStoreItemClick);
+            // Globals.departments.Add(hrDepartment);
+            StartCoroutine(gameActions.CreateNewHire());
+            UpdateNewHireUIList();
+            UpdateDepartmentUIList();
+            Globals.playerMoney = 100000;
+        }
         Globals.gameState = State.Playing;
 
         // Update separtment UI list every 10 seconds
@@ -337,6 +339,14 @@ public class GameController : MonoBehaviour
             // Create a VisualElement for the employee's picture
             VisualElement employeeListItemPicture = new VisualElement();
             employeeListItemPicture.AddToClassList("employeeListItemPicture");
+
+            // Ensure employee sprite is set
+            if (employee.employeeSprite == null)
+            {
+                employee.employeeSprite = defaultEmployeeSprite;
+            }
+            employeeListItemPicture.style.backgroundImage = new StyleBackground(employee.employeeSprite);
+
             employeeListItem.Add(employeeListItemPicture);
 
             // Create a Label for the employee's details
@@ -458,14 +468,14 @@ public class GameController : MonoBehaviour
 
         // Clear the existing department list
         departmentListContainer.Clear();
-        Debug.Log($"Department list count: {Globals.departments.Count}");
+        // Debug.Log($"Department list count: {Globals.departments.Count}");
 
         // Loop through each department and add them to the UI
         foreach (Department department in Globals.departments)
         {
             department.AddToUI();
         }
-        Debug.Log("Department UI list updated.");
+        // Debug.Log("Department UI list updated.");
 
         // Force the ScrollView to update its layout
         departmentListContainer.style.display = DisplayStyle.None;
@@ -819,7 +829,14 @@ public class GameController : MonoBehaviour
         // Get the Employee Manager
         VisualElement employeeManager = gameUI.rootVisualElement.Q<VisualElement>("employeeManager");
         if (employeeManager == null) return;
+
         // Set the employee details in the UI
+        // Check if employee sprite is null and assign default sprite if needed
+        if (employee.employeeSprite == null)
+        {
+            employee.employeeSprite = defaultEmployeeSprite;
+            Debug.LogWarning($"Employee {employee.employeeName} had null sprite, assigned default sprite");
+        }
         employeeManager.Q<VisualElement>("employeeManagerImage").style.backgroundImage = new StyleBackground(employee.employeeSprite);
         employeeManager.Q<Label>("employeeManagerDetails").text = $"Name: {employee.employeeName}\n" +
             $"Department: {(employee.department != null ? employee.department.departmentName : "None")}\n" +
@@ -841,81 +858,98 @@ public class GameController : MonoBehaviour
         employeeManager.Q<VisualElement>("EMFocusStat").Q<Label>("EMStatText").text = $"Focus: {employee.focus} / {Globals.employeeStatMax}";
         employeeManager.Q<VisualElement>("EMExperienceStat").Q<VisualElement>("EMStatProgress").style.width = new StyleLength(new Length(employee.experience / Globals.employeeStatMax * 100, LengthUnit.Percent));
         employeeManager.Q<VisualElement>("EMExperienceStat").Q<Label>("EMStatText").text = $"Experience: {employee.experience} / {Globals.employeeStatMax}";
-        // Set traits
+
+        // Set traits - add null check and initialization
         string traitsText = "";
-        foreach (TraitValues trait in employee.traits)
+        if (employee.traits == null)
         {
-            // Get the trait name and value
-            string traitName = TraitValues.GetTraitName(trait);
-            traitsText += $"{traitName}: ";
-            if (trait.speed > 0f)
-            {
-                if (trait.speed < 0f)
-                {
-                    traitsText += $"Speed -{trait.speed * 100}%|";
-                }
-                else
-                {
-                    traitsText += $"Speed +{trait.speed * 100}%|";
-                }
-            }
-            if (trait.efficiency > 0f)
-            {
-                if (trait.efficiency < 0f)
-                {
-                    traitsText += $"Efficiency -{trait.efficiency * 100}%|";
-                }
-                else
-                {
-                    traitsText += $"Efficiency +{trait.efficiency * 100}%|";
-                }
-            }
-            if (trait.stamina > 0f)
-            {
-                if (trait.stamina < 0f)
-                {
-                    traitsText += $"Stamina -{trait.stamina * 100}%|";
-                }
-                else
-                {
-                    traitsText += $"Stamina +{trait.stamina * 100}%|";
-                }
-            }
-            if (trait.strength > 0f)
-            {
-                if (trait.strength < 0f)
-                {
-                    traitsText += $"Strength -{trait.strength * 100}%|";
-                }
-                else
-                {
-                    traitsText += $"Strength +{trait.strength * 100}%|";
-                }
-            }
-            if (trait.focus > 0f)
-            {
-                if (trait.focus < 0f)
-                {
-                    traitsText += $"Focus -{trait.focus * 100}%|";
-                }
-                else
-                {
-                    traitsText += $"Focus +{trait.focus * 100}%|";
-                }
-            }
-            if (trait.experience > 0f)
-            {
-                if (trait.experience < 0f)
-                {
-                    traitsText += $"Experience -{trait.experience * 100}%|";
-                }
-                else
-                {
-                    traitsText += $"Experience +{trait.experience * 100}%|";
-                }
-            }
-            traitsText += $"Department: {trait.departmentType}\n\n";
+            employee.traits = new List<TraitValues>();
+            Debug.LogWarning($"Employee {employee.employeeName} had null traits collection, initialized empty list");
+            traitsText = "No traits";
         }
+        else if (employee.traits.Count == 0)
+        {
+            traitsText = "No traits";
+        }
+        else
+        {
+            foreach (TraitValues trait in employee.traits)
+            {
+                if (trait == null) continue; // Skip null traits
+
+                // Get the trait name and value
+                string traitName = TraitValues.GetTraitName(trait);
+                traitsText += $"{traitName}: ";
+                if (trait.speed != 0f)
+                {
+                    if (trait.speed < 0f)
+                    {
+                        traitsText += $"Speed -{Math.Abs(trait.speed) * 100}%|";
+                    }
+                    else
+                    {
+                        traitsText += $"Speed +{trait.speed * 100}%|";
+                    }
+                }
+                if (trait.efficiency != 0f)
+                {
+                    if (trait.efficiency < 0f)
+                    {
+                        traitsText += $"Efficiency -{Math.Abs(trait.efficiency) * 100}%|";
+                    }
+                    else
+                    {
+                        traitsText += $"Efficiency +{trait.efficiency * 100}%|";
+                    }
+                }
+                if (trait.stamina != 0f)
+                {
+                    if (trait.stamina < 0f)
+                    {
+                        traitsText += $"Stamina -{Math.Abs(trait.stamina) * 100}%|";
+                    }
+                    else
+                    {
+                        traitsText += $"Stamina +{trait.stamina * 100}%|";
+                    }
+                }
+                if (trait.strength != 0f)
+                {
+                    if (trait.strength < 0f)
+                    {
+                        traitsText += $"Strength -{Math.Abs(trait.strength) * 100}%|";
+                    }
+                    else
+                    {
+                        traitsText += $"Strength +{trait.strength * 100}%|";
+                    }
+                }
+                if (trait.focus != 0f)
+                {
+                    if (trait.focus < 0f)
+                    {
+                        traitsText += $"Focus -{Math.Abs(trait.focus) * 100}%|";
+                    }
+                    else
+                    {
+                        traitsText += $"Focus +{trait.focus * 100}%|";
+                    }
+                }
+                if (trait.experience != 0f)
+                {
+                    if (trait.experience < 0f)
+                    {
+                        traitsText += $"Experience -{Math.Abs(trait.experience) * 100}%|";
+                    }
+                    else
+                    {
+                        traitsText += $"Experience +{trait.experience * 100}%|";
+                    }
+                }
+                traitsText += $"Department: {trait.departmentType}\n\n";
+            }
+        }
+
         employeeManager.Q<Label>("EMModifiers").text = traitsText;
         UpdateUpgradeUIList();
         // Show the Employee Manager

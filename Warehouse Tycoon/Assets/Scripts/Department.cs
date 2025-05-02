@@ -3,23 +3,45 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public static class NameGenerator
+[Serializable]
+public class NameGenerator
 {
-    private static List<string> usedNames = new List<string>();
-    private static readonly string[] firstNames = {
+    private static NameGenerator _instance;
+    public static NameGenerator Instance
+    {
+        get
+        {
+            if (_instance == null)
+                _instance = new NameGenerator();
+            return _instance;
+        }
+    }
+
+    [SerializeField] private List<string> usedNames = new List<string>();
+    [SerializeField] private HashSet<int> usedIds = new HashSet<int>();
+    [SerializeField]
+    private readonly string[] firstNames = {
         "John", "Emma", "Michael", "Sophia", "William", "Olivia", "James", "Ava", "Alexander", "Isabella",
         "Benjamin", "Mia", "Daniel", "Charlotte", "Henry", "Amelia", "Joseph", "Harper", "Samuel", "Evelyn",
         "David", "Abigail", "Carter", "Emily", "Owen", "Elizabeth", "Wyatt", "Sofia", "Jack", "Victoria",
         "Luke", "Camila", "Gabriel", "Aria", "Anthony", "Scarlett", "Isaac", "Luna", "Grayson", "Chloe"
     };
-    private static readonly string[] lastNames = {
+    [SerializeField]
+    private readonly string[] lastNames = {
         "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez",
         "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin",
         "Lee", "Perez", "Thompson", "White", "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson",
         "Walker", "Young", "Allen", "King", "Wright", "Scott", "Torres", "Nguyen", "Hill", "Flores"
     };
 
+    // Static method for backward compatibility
     public static string GetRandomUnusedName()
+    {
+        return Instance.GetRandomUnusedNameInternal();
+    }
+
+    // Instance method
+    private string GetRandomUnusedNameInternal()
     {
         string fullName;
         do
@@ -33,9 +55,47 @@ public static class NameGenerator
         return fullName;
     }
 
+    // Static method for backward compatibility
     public static void ResetUsedNames()
     {
+        Instance.ResetUsedNamesInternal();
+    }
+
+    // Instance method
+    private void ResetUsedNamesInternal()
+    {
         usedNames.Clear();
+    }
+
+    // Static method for ID generation
+    public static int GetUniqueId()
+    {
+        return Instance.GetUniqueIdInternal();
+    }
+
+    // Instance method for ID generation
+    private int GetUniqueIdInternal()
+    {
+        int id;
+        do
+        {
+            id = UnityEngine.Random.Range(1, 100000);
+        } while (usedIds.Contains(id));
+
+        usedIds.Add(id);
+        return id;
+    }
+
+    // Method to check if an ID exists
+    public static bool IdExists(int id)
+    {
+        return Instance.usedIds.Contains(id);
+    }
+
+    // Reset all used IDs
+    public static void ResetUsedIds()
+    {
+        Instance.usedIds.Clear();
     }
 }
 
@@ -138,9 +198,15 @@ public class Department : MonoBehaviour
 
     public void AddToUI()
     {
-        Debug.Log($"Starting AddToUI for department: {departmentName}");
+        // Debug.Log($"Starting AddToUI for department: {departmentName}");
 
         // Find the parent element in the UI where the department will be added
+        gameController = Globals.gameController;
+        if (gameController == null)
+        {
+            Debug.LogError("GameController not found in the scene!");
+            return;
+        }
         UIDocument uiDocument = gameController.gameUI;
         if (uiDocument == null)
         {
@@ -159,11 +225,11 @@ public class Department : MonoBehaviour
         VisualElement existingDepartment = parentElement.Q<VisualElement>(departmentName);
         if (existingDepartment != null)
         {
-            Debug.Log($"Department {departmentName} already exists in UI\n{existingDepartment.parent.name}");
+            // Debug.Log($"Department {departmentName} already exists in UI\n{existingDepartment.parent.name}");
             return;
         }
 
-        Debug.Log($"Creating UI elements for department: {departmentName}");
+        // Debug.Log($"Creating UI elements for department: {departmentName}");
 
         // Create a new VisualElement for the department
         VisualElement departmentElement = new VisualElement();
@@ -258,7 +324,7 @@ public class Department : MonoBehaviour
         employeeList.name = "departmentEmployeeList";
         employeeList.AddToClassList("departmentEmployeeList");
         employeeList.mode = ScrollViewMode.Horizontal;
-        Debug.Log($"Adding {employees.Count} employees to UI for department: {departmentName}");
+        // Debug.Log($"Adding {employees.Count} employees to UI for department: {departmentName}");
         if (employees != null)
         {
             foreach (Employee employee in employees)
@@ -288,12 +354,12 @@ public class Department : MonoBehaviour
 
         // Add the department element to the parent ScrollView
         parentElement.Add(departmentElement);
-        Debug.Log($"Added department {departmentName} to UI successfully");
+        // Debug.Log($"Added department {departmentName} to UI successfully");
 
         // Check if department was added to the parent element
         if (parentElement.Q(departmentName) == null)
         {
-            Debug.LogError($"Failed to add department {departmentName} to UI");
+            // Debug.LogError($"Failed to add department {departmentName} to UI");
             return;
         }
         // Initialize manager display
@@ -386,15 +452,18 @@ public class Department : MonoBehaviour
     {
 
     }
-    public void Awake()
+    public void Start()
     {
+        if (departmentId == 0)
+        {
+            departmentId = NameGenerator.GetUniqueId();
+        }
         gameController = FindFirstObjectByType<GameController>();
         if (gameController == null)
         {
             // Debug.LogError("GameController not found in the scene.");
             return;
         }
-
         // Ensure we add to Globals.departments before updating UI
         Globals.departments.Add(this);
         // Debug.Log($"Added {departmentName} to Globals.departments");
@@ -422,14 +491,15 @@ public class HR : Department
         capacity = cap;
     }
 
-    new void Awake()
+    new void Start()
     {
-        base.Awake();
-        if (employees.Count == 0)
+        base.Start();
+        if (employees.Count == 0 && Globals.loadSave == false)
         {
+            Debug.Log("Creating HR department employees and managers");
             // Create Employee and add to the department
             HREmployee employee = gameObject.AddComponent<HREmployee>();
-            employee.id = 1;
+            employee.id = NameGenerator.GetUniqueId();
             employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
@@ -448,7 +518,7 @@ public class HR : Department
 
             // Create Manager and add to the department
             HRManager manager = gameObject.AddComponent<HRManager>();
-            manager.id = 2;
+            manager.id = NameGenerator.GetUniqueId();
             manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
@@ -489,13 +559,13 @@ public class IT : Department
         capacity = cap;
     }
 
-    new void Awake()
+    new void Start()
     {
-        base.Awake();
-        if (employees.Count == 0)
+        base.Start();
+        if (employees.Count == 0 && Globals.loadSave == false)
         {
             ITEmployee employee = gameObject.AddComponent<ITEmployee>();
-            employee.id = 3;
+            employee.id = NameGenerator.GetUniqueId();
             employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
@@ -512,7 +582,7 @@ public class IT : Department
             Globals.warehouseEmployees.Add(employee);
 
             ITManager manager = gameObject.AddComponent<ITManager>();
-            manager.id = 4;
+            manager.id = NameGenerator.GetUniqueId();
             manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
@@ -553,13 +623,13 @@ public class Operations : Department
         capacity = cap;
     }
 
-    new void Awake()
+    new void Start()
     {
-        base.Awake();
-        if (employees.Count == 0)
+        base.Start();
+        if (employees.Count == 0 && Globals.loadSave == false)
         {
             OperationsEmployee employee = gameObject.AddComponent<OperationsEmployee>();
-            employee.id = 5;
+            employee.id = NameGenerator.GetUniqueId();
             employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
@@ -576,7 +646,7 @@ public class Operations : Department
             Globals.warehouseEmployees.Add(employee);
 
             OperationsManager manager = gameObject.AddComponent<OperationsManager>();
-            manager.id = 6;
+            manager.id = NameGenerator.GetUniqueId();
             manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
@@ -617,13 +687,13 @@ public class Inbound : Department
         capacity = cap;
     }
 
-    new void Awake()
+    new void Start()
     {
-        base.Awake();
-        if (employees.Count == 0)
+        base.Start();
+        if (employees.Count == 0 && Globals.loadSave == false)
         {
             InboundEmployee employee = gameObject.AddComponent<InboundEmployee>();
-            employee.id = 7;
+            employee.id = NameGenerator.GetUniqueId();
             employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
@@ -640,7 +710,7 @@ public class Inbound : Department
             Globals.warehouseEmployees.Add(employee);
 
             InboundManager manager = gameObject.AddComponent<InboundManager>();
-            manager.id = 8;
+            manager.id = NameGenerator.GetUniqueId();
             manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
@@ -681,13 +751,13 @@ public class Sorting : Department
         capacity = cap;
     }
 
-    new void Awake()
+    new void Start()
     {
-        base.Awake();
-        if (employees.Count == 0)
+        base.Start();
+        if (employees.Count == 0 && Globals.loadSave == false)
         {
             SortingEmployee employee = gameObject.AddComponent<SortingEmployee>();
-            employee.id = 9;
+            employee.id = NameGenerator.GetUniqueId();
             employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
@@ -704,7 +774,7 @@ public class Sorting : Department
             Globals.warehouseEmployees.Add(employee);
 
             SortingManager manager = gameObject.AddComponent<SortingManager>();
-            manager.id = 10;
+            manager.id = NameGenerator.GetUniqueId();
             manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
@@ -745,13 +815,13 @@ public class Repacking : Department
         capacity = cap;
     }
 
-    new void Awake()
+    new void Start()
     {
-        base.Awake();
-        if (employees.Count == 0)
+        base.Start();
+        if (employees.Count == 0 && Globals.loadSave == false)
         {
             RepackingEmployee employee = gameObject.AddComponent<RepackingEmployee>();
-            employee.id = 11;
+            employee.id = NameGenerator.GetUniqueId();
             employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
@@ -768,7 +838,7 @@ public class Repacking : Department
             Globals.warehouseEmployees.Add(employee);
 
             RepackingManager manager = gameObject.AddComponent<RepackingManager>();
-            manager.id = 12;
+            manager.id = NameGenerator.GetUniqueId();
             manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
@@ -809,13 +879,13 @@ public class Palletizing : Department
         capacity = cap;
     }
 
-    new void Awake()
+    new void Start()
     {
-        base.Awake();
-        if (employees.Count == 0)
+        base.Start();
+        if (employees.Count == 0 && Globals.loadSave == false)
         {
             PalletizingEmployee employee = gameObject.AddComponent<PalletizingEmployee>();
-            employee.id = 13;
+            employee.id = NameGenerator.GetUniqueId();
             employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
@@ -832,7 +902,7 @@ public class Palletizing : Department
             Globals.warehouseEmployees.Add(employee);
 
             PalletizingManager manager = gameObject.AddComponent<PalletizingManager>();
-            manager.id = 14;
+            manager.id = NameGenerator.GetUniqueId();
             manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
@@ -873,13 +943,13 @@ public class WaterSpidering : Department
         capacity = cap;
     }
 
-    new void Awake()
+    new void Start()
     {
-        base.Awake();
-        if (employees.Count == 0)
+        base.Start();
+        if (employees.Count == 0 && Globals.loadSave == false)
         {
             WaterSpiderEmployee employee = gameObject.AddComponent<WaterSpiderEmployee>();
-            employee.id = 15;
+            employee.id = NameGenerator.GetUniqueId();
             employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
@@ -896,7 +966,7 @@ public class WaterSpidering : Department
             Globals.warehouseEmployees.Add(employee);
 
             WaterSpiderManager manager = gameObject.AddComponent<WaterSpiderManager>();
-            manager.id = 16;
+            manager.id = NameGenerator.GetUniqueId();
             manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
@@ -937,13 +1007,13 @@ public class FluidLoad : Department
         capacity = cap;
     }
 
-    new void Awake()
+    new void Start()
     {
-        base.Awake();
-        if (employees.Count == 0)
+        base.Start();
+        if (employees.Count == 0 && Globals.loadSave == false)
         {
             FluidLoadEmployee employee = gameObject.AddComponent<FluidLoadEmployee>();
-            employee.id = 17;
+            employee.id = NameGenerator.GetUniqueId();
             employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
@@ -960,7 +1030,7 @@ public class FluidLoad : Department
             Globals.warehouseEmployees.Add(employee);
 
             FluidLoadManager manager = gameObject.AddComponent<FluidLoadManager>();
-            manager.id = 18;
+            manager.id = NameGenerator.GetUniqueId();
             manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
@@ -1001,13 +1071,13 @@ public class QualityControl : Department
         capacity = cap;
     }
 
-    new void Awake()
+    new void Start()
     {
-        base.Awake();
-        if (employees.Count == 0)
+        base.Start();
+        if (employees.Count == 0 && Globals.loadSave == false)
         {
             QualityControlEmployee employee = gameObject.AddComponent<QualityControlEmployee>();
-            employee.id = 19;
+            employee.id = NameGenerator.GetUniqueId();
             employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
@@ -1024,7 +1094,7 @@ public class QualityControl : Department
             Globals.warehouseEmployees.Add(employee);
 
             QualityControlManager manager = gameObject.AddComponent<QualityControlManager>();
-            manager.id = 20;
+            manager.id = NameGenerator.GetUniqueId();
             manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
@@ -1065,13 +1135,13 @@ public class Outbound : Department
         capacity = cap;
     }
 
-    new void Awake()
+    new void Start()
     {
-        base.Awake();
-        if (employees.Count == 0)
+        base.Start();
+        if (employees.Count == 0 && Globals.loadSave == false)
         {
             OutboundEmployee employee = gameObject.AddComponent<OutboundEmployee>();
-            employee.id = 21;
+            employee.id = NameGenerator.GetUniqueId();
             employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
@@ -1088,7 +1158,7 @@ public class Outbound : Department
             Globals.warehouseEmployees.Add(employee);
 
             OutboundManager manager = gameObject.AddComponent<OutboundManager>();
-            manager.id = 22;
+            manager.id = NameGenerator.GetUniqueId();
             manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
@@ -1129,13 +1199,13 @@ public class Maintenance : Department
         capacity = cap;
     }
 
-    new void Awake()
+    new void Start()
     {
-        base.Awake();
-        if (employees.Count == 0)
+        base.Start();
+        if (employees.Count == 0 && Globals.loadSave == false)
         {
             MaintenanceEmployee employee = gameObject.AddComponent<MaintenanceEmployee>();
-            employee.id = 23;
+            employee.id = NameGenerator.GetUniqueId();
             employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
@@ -1152,7 +1222,7 @@ public class Maintenance : Department
             Globals.warehouseEmployees.Add(employee);
 
             MaintenanceManager manager = gameObject.AddComponent<MaintenanceManager>();
-            manager.id = 24;
+            manager.id = NameGenerator.GetUniqueId();
             manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
@@ -1193,13 +1263,13 @@ public class Robotics : Department
         capacity = cap;
     }
 
-    new void Awake()
+    new void Start()
     {
-        base.Awake();
-        if (employees.Count == 0)
+        base.Start();
+        if (employees.Count == 0 && Globals.loadSave == false)
         {
             RoboticsEmployee employee = gameObject.AddComponent<RoboticsEmployee>();
-            employee.id = 25;
+            employee.id = NameGenerator.GetUniqueId();
             employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
@@ -1216,7 +1286,7 @@ public class Robotics : Department
             Globals.warehouseEmployees.Add(employee);
 
             RoboticsManager manager = gameObject.AddComponent<RoboticsManager>();
-            manager.id = 26;
+            manager.id = NameGenerator.GetUniqueId();
             manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
@@ -1257,13 +1327,13 @@ public class Safety : Department
         capacity = cap;
     }
 
-    new void Awake()
+    new void Start()
     {
-        base.Awake();
-        if (employees.Count == 0)
+        base.Start();
+        if (employees.Count == 0 && Globals.loadSave == false)
         {
             SafetyEmployee employee = gameObject.AddComponent<SafetyEmployee>();
-            employee.id = 27;
+            employee.id = NameGenerator.GetUniqueId();
             employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
@@ -1280,7 +1350,7 @@ public class Safety : Department
             Globals.warehouseEmployees.Add(employee);
 
             SafetyManager manager = gameObject.AddComponent<SafetyManager>();
-            manager.id = 28;
+            manager.id = NameGenerator.GetUniqueId();
             manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
@@ -1321,13 +1391,13 @@ public class Cleaning : Department
         capacity = cap;
     }
 
-    new void Awake()
+    new void Start()
     {
-        base.Awake();
-        if (employees.Count == 0)
+        base.Start();
+        if (employees.Count == 0 && Globals.loadSave == false)
         {
             CleaningEmployee employee = gameObject.AddComponent<CleaningEmployee>();
-            employee.id = 29;
+            employee.id = NameGenerator.GetUniqueId();
             employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
@@ -1344,7 +1414,7 @@ public class Cleaning : Department
             Globals.warehouseEmployees.Add(employee);
 
             CleaningManager manager = gameObject.AddComponent<CleaningManager>();
-            manager.id = 30;
+            manager.id = NameGenerator.GetUniqueId();
             manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
@@ -1385,13 +1455,13 @@ public class Security : Department
         capacity = cap;
     }
 
-    new void Awake()
+    new void Start()
     {
-        base.Awake();
-        if (employees.Count == 0)
+        base.Start();
+        if (employees.Count == 0 && Globals.loadSave == false)
         {
             SecurityEmployee employee = gameObject.AddComponent<SecurityEmployee>();
-            employee.id = 31;
+            employee.id = NameGenerator.GetUniqueId();
             employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
@@ -1408,7 +1478,7 @@ public class Security : Department
             Globals.warehouseEmployees.Add(employee);
 
             SecurityManager manager = gameObject.AddComponent<SecurityManager>();
-            manager.id = 32;
+            manager.id = NameGenerator.GetUniqueId();
             manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
@@ -1449,13 +1519,13 @@ public class Learning : Department
         capacity = cap;
     }
 
-    new void Awake()
+    new void Start()
     {
-        base.Awake();
-        if (employees.Count == 0)
+        base.Start();
+        if (employees.Count == 0 && Globals.loadSave == false)
         {
             LearningEmployee employee = gameObject.AddComponent<LearningEmployee>();
-            employee.id = 33;
+            employee.id = NameGenerator.GetUniqueId();
             employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
@@ -1472,7 +1542,7 @@ public class Learning : Department
             Globals.warehouseEmployees.Add(employee);
 
             LearningManager manager = gameObject.AddComponent<LearningManager>();
-            manager.id = 34;
+            manager.id = NameGenerator.GetUniqueId();
             manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;
@@ -1513,13 +1583,13 @@ public class Recruiting : Department
         capacity = cap;
     }
 
-    new void Awake()
+    new void Start()
     {
-        base.Awake();
-        if (employees.Count == 0)
+        base.Start();
+        if (employees.Count == 0 && Globals.loadSave == false)
         {
             RecruitingEmployee employee = gameObject.AddComponent<RecruitingEmployee>();
-            employee.id = 35;
+            employee.id = NameGenerator.GetUniqueId();
             employee.employeeName = NameGenerator.GetRandomUnusedName();
             employee.level = 1;
             employee.department = this;
@@ -1536,7 +1606,7 @@ public class Recruiting : Department
             Globals.warehouseEmployees.Add(employee);
 
             RecruitingManager manager = gameObject.AddComponent<RecruitingManager>();
-            manager.id = 36;
+            manager.id = NameGenerator.GetUniqueId();
             manager.employeeName = NameGenerator.GetRandomUnusedName();
             manager.level = 1;
             manager.department = this;

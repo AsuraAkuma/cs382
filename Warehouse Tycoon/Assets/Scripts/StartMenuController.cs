@@ -111,6 +111,7 @@ public class StartMenuController : MonoBehaviour
                 if (saveFilePaths.TryGetValue(defaultSaveLabel, out string filePath))
                 {
                     SelectSaveFile(filePath);
+                    Globals.loadSave = true;
                 }
             }
         }
@@ -118,6 +119,7 @@ public class StartMenuController : MonoBehaviour
         {
             // If toggle is turned off, clear the selection
             selectedSaveFile = "";
+            Globals.loadSave = false;
         }
     }
 
@@ -254,7 +256,7 @@ public class StartMenuController : MonoBehaviour
         }
 
         // Save the data
-        yield return StartCoroutine(Globals.Save());
+        // yield return StartCoroutine(Globals.Save());
 
         // Mark that we have a saved game
         PlayerPrefs.SetInt("HasSavedGame", 1);

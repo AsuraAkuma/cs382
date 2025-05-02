@@ -4,6 +4,7 @@ using System.Collections;
 using System.Text;
 using System.Collections.Generic;
 using System.IO;
+using Unity.VisualScripting;
 
 [System.Serializable]
 public struct SerializableEmployee
@@ -329,17 +330,151 @@ public struct SerializableEmployee
 
     public Employee ToEmployee()
     {
-        Employee employee = new Employee();
+        Employee employee;
+
+        // Create employee instance based on employee type
+        switch (this.employeeType)
+        {
+            case EmployeeType.Type.HREmployee:
+                employee = Globals.gameController.AddComponent<HREmployee>();
+                break;
+            case EmployeeType.Type.HRManager:
+                employee = Globals.gameController.AddComponent<HRManager>();
+                break;
+            case EmployeeType.Type.ITEmployee:
+                employee = Globals.gameController.AddComponent<ITEmployee>();
+                break;
+            case EmployeeType.Type.ITManager:
+                employee = Globals.gameController.AddComponent<ITManager>();
+                break;
+            case EmployeeType.Type.OperationsEmployee:
+                employee = Globals.gameController.AddComponent<OperationsEmployee>();
+                break;
+            case EmployeeType.Type.OperationsManager:
+                employee = Globals.gameController.AddComponent<OperationsManager>();
+                break;
+            case EmployeeType.Type.InboundEmployee:
+                employee = Globals.gameController.AddComponent<InboundEmployee>();
+                break;
+            case EmployeeType.Type.InboundManager:
+                employee = Globals.gameController.AddComponent<InboundManager>();
+                break;
+            case EmployeeType.Type.OutboundEmployee:
+                employee = Globals.gameController.AddComponent<OutboundEmployee>();
+                break;
+            case EmployeeType.Type.OutboundManager:
+                employee = Globals.gameController.AddComponent<OutboundManager>();
+                break;
+            case EmployeeType.Type.SortingEmployee:
+                employee = Globals.gameController.AddComponent<SortingEmployee>();
+                break;
+            case EmployeeType.Type.SortingManager:
+                employee = Globals.gameController.AddComponent<SortingManager>();
+                break;
+            case EmployeeType.Type.RepackingEmployee:
+                employee = Globals.gameController.AddComponent<RepackingEmployee>();
+                break;
+            case EmployeeType.Type.RepackingManager:
+                employee = Globals.gameController.AddComponent<RepackingManager>();
+                break;
+            case EmployeeType.Type.PalletizingEmployee:
+                employee = Globals.gameController.AddComponent<PalletizingEmployee>();
+                break;
+            case EmployeeType.Type.PalletizingManager:
+                employee = Globals.gameController.AddComponent<PalletizingManager>();
+                break;
+            case EmployeeType.Type.WaterSpiderEmployee:
+                employee = Globals.gameController.AddComponent<WaterSpiderEmployee>();
+                break;
+            case EmployeeType.Type.WaterSpiderManager:
+                employee = Globals.gameController.AddComponent<WaterSpiderManager>();
+                break;
+            case EmployeeType.Type.FluidLoadEmployee:
+                employee = Globals.gameController.AddComponent<FluidLoadEmployee>();
+                break;
+            case EmployeeType.Type.FluidLoadManager:
+                employee = Globals.gameController.AddComponent<FluidLoadManager>();
+                break;
+            case EmployeeType.Type.QualityControlEmployee:
+                employee = Globals.gameController.AddComponent<QualityControlEmployee>();
+                break;
+            case EmployeeType.Type.QualityControlManager:
+                employee = Globals.gameController.AddComponent<QualityControlManager>();
+                break;
+            case EmployeeType.Type.MaintenanceEmployee:
+                employee = Globals.gameController.AddComponent<MaintenanceEmployee>();
+                break;
+            case EmployeeType.Type.MaintenanceManager:
+                employee = Globals.gameController.AddComponent<MaintenanceManager>();
+                break;
+            case EmployeeType.Type.RoboticsEmployee:
+                employee = Globals.gameController.AddComponent<RoboticsEmployee>();
+                break;
+            case EmployeeType.Type.RoboticsManager:
+                employee = Globals.gameController.AddComponent<RoboticsManager>();
+                break;
+            case EmployeeType.Type.SecurityEmployee:
+                employee = Globals.gameController.AddComponent<SecurityEmployee>();
+                break;
+            case EmployeeType.Type.SecurityManager:
+                employee = Globals.gameController.AddComponent<SecurityManager>();
+                break;
+            case EmployeeType.Type.CleaningEmployee:
+                employee = Globals.gameController.AddComponent<CleaningEmployee>();
+                break;
+            case EmployeeType.Type.CleaningManager:
+                employee = Globals.gameController.AddComponent<CleaningManager>();
+                break;
+            case EmployeeType.Type.LearningEmployee:
+                employee = Globals.gameController.AddComponent<LearningEmployee>();
+                break;
+            case EmployeeType.Type.LearningManager:
+                employee = Globals.gameController.AddComponent<LearningManager>();
+                break;
+            case EmployeeType.Type.SafetyEmployee:
+                employee = Globals.gameController.AddComponent<SafetyEmployee>();
+                break;
+            case EmployeeType.Type.SafetyManager:
+                employee = Globals.gameController.AddComponent<SafetyManager>();
+                break;
+            case EmployeeType.Type.RecruitingEmployee:
+                employee = Globals.gameController.AddComponent<RecruitingEmployee>();
+                break;
+            case EmployeeType.Type.RecruitingManager:
+                employee = Globals.gameController.AddComponent<RecruitingManager>();
+                break;
+            default:
+                employee = Globals.gameController.AddComponent<Employee>();
+                break;
+        }
+
+        // Populate the employee properties
         employee.id = this.id;
         employee.employeeName = this.employeeName;
         employee.level = this.level;
         employee.levelPending = this.levelPending;
         employee.exp = this.exp;
+
         // Load sprite by name if available
         if (!string.IsNullOrEmpty(this.spriteName))
         {
-            employee.employeeSprite = Resources.Load<Sprite>("Assets/" + this.spriteName);
+            // Correct path: don't prepend "Assets/" and search in Resources folder
+            employee.employeeSprite = Resources.Load<Sprite>(this.spriteName);
+
+            // If sprite is still null, try alternative locations or use a default sprite
+            if (employee.employeeSprite == null)
+            {
+                // Try a few common sprite locations
+                employee.employeeSprite = Resources.Load<Sprite>(spriteName);
+
+                if (employee.employeeSprite == null)
+                {
+                    employee.employeeSprite = Globals.gameController.defaultEmployeeSprite;
+                }
+            }
         }
+
+        // Transfer all the remaining properties
         employee.salary = this.salary;
         employee.cost = this.cost;
         employee.isHired = this.isHired;
@@ -347,6 +482,32 @@ public struct SerializableEmployee
         employee.employeeType = this.employeeType;
         employee.departmentType = this.departmentType;
         employee.departmentPending = this.departmentPending;
+
+        // Find department by ID if it exists
+        if (this.departmentId >= 0)
+        {
+            Department foundDepartment = null;
+            foreach (Department dept in Globals.departments)
+            {
+                if (dept.departmentId == this.departmentId)
+                {
+                    foundDepartment = dept;
+                    break;
+                }
+            }
+            employee.department = foundDepartment;
+            // if employee is manager, add to managers list
+            if (employee is Manager && foundDepartment != null)
+            {
+                foundDepartment.managers.Add(employee); // Add manager to the department's manager list
+            }
+            else if (employee is Employee && foundDepartment != null)
+            {
+                // if employee is not a manager, add to employees list
+                foundDepartment.employees.Add(employee); // Add employee to the department's employee list
+            }
+        }
+
         // Core Stats
         employee.speed = this.speed;
         employee.efficiency = this.efficiency;
@@ -354,6 +515,7 @@ public struct SerializableEmployee
         employee.strength = this.strength;
         employee.focus = this.focus;
         employee.experience = this.experience;
+
         // Traits
         employee.traits = this.traits;
         employee.combinedTraits = this.combinedTraits;
@@ -362,6 +524,7 @@ public struct SerializableEmployee
         employee.workInterval = this.workInterval;
         employee.restInterval = this.restInterval;
         employee.infractions = this.infractions;
+
         // Department-specific stats
         employee.empathy = this.empathy;
         employee.conflictResolution = this.conflictResolution;
@@ -474,6 +637,7 @@ public struct SerializableEmployee
         employee.disablers = this.disablers;
         employee.actionRequests = this.actionRequests ?? new List<ActionRequest>();
 
+        employee.actionState = ActionState.State.Idle; // Default state
         return employee;
     }
 }
@@ -535,81 +699,73 @@ public struct SerializableDepartment
         Department department;
 
         // Create a temporary GameObject to hold our department component
-        GameObject tempGameObject = new GameObject("TempDepartment");
 
         // Add the appropriate department component based on departmentType
         switch (departmentType)
         {
             case DepartmentTypes.Type.HR:
-                department = tempGameObject.AddComponent<HR>();
+                department = Globals.gameController.AddComponent<HR>();
                 break;
             case DepartmentTypes.Type.IT:
-                department = tempGameObject.AddComponent<IT>();
+                department = Globals.gameController.AddComponent<IT>();
                 break;
             case DepartmentTypes.Type.Operations:
-                department = tempGameObject.AddComponent<Operations>();
+                department = Globals.gameController.AddComponent<Operations>();
                 break;
             case DepartmentTypes.Type.Inbound:
-                department = tempGameObject.AddComponent<Inbound>();
+                department = Globals.gameController.AddComponent<Inbound>();
                 break;
             case DepartmentTypes.Type.Sorting:
-                department = tempGameObject.AddComponent<Sorting>();
+                department = Globals.gameController.AddComponent<Sorting>();
                 break;
             case DepartmentTypes.Type.Repacking:
-                department = tempGameObject.AddComponent<Repacking>();
+                department = Globals.gameController.AddComponent<Repacking>();
                 break;
             case DepartmentTypes.Type.Palletizing:
-                department = tempGameObject.AddComponent<Palletizing>();
+                department = Globals.gameController.AddComponent<Palletizing>();
                 break;
             case DepartmentTypes.Type.WaterSpidering:
-                department = tempGameObject.AddComponent<WaterSpidering>();
+                department = Globals.gameController.AddComponent<WaterSpidering>();
                 break;
             case DepartmentTypes.Type.FluidLoad:
-                department = tempGameObject.AddComponent<FluidLoad>();
+                department = Globals.gameController.AddComponent<FluidLoad>();
                 break;
             case DepartmentTypes.Type.QualityControl:
-                department = tempGameObject.AddComponent<QualityControl>();
+                department = Globals.gameController.AddComponent<QualityControl>();
                 break;
             case DepartmentTypes.Type.Outbound:
-                department = tempGameObject.AddComponent<Outbound>();
+                department = Globals.gameController.AddComponent<Outbound>();
                 break;
             case DepartmentTypes.Type.Maintenance:
-                department = tempGameObject.AddComponent<Maintenance>();
+                department = Globals.gameController.AddComponent<Maintenance>();
                 break;
             case DepartmentTypes.Type.Robotics:
-                department = tempGameObject.AddComponent<Robotics>();
+                department = Globals.gameController.AddComponent<Robotics>();
                 break;
             case DepartmentTypes.Type.Safety:
-                department = tempGameObject.AddComponent<Safety>();
+                department = Globals.gameController.AddComponent<Safety>();
                 break;
             case DepartmentTypes.Type.Cleaning:
-                department = tempGameObject.AddComponent<Cleaning>();
+                department = Globals.gameController.AddComponent<Cleaning>();
                 break;
             case DepartmentTypes.Type.Security:
-                department = tempGameObject.AddComponent<Security>();
+                department = Globals.gameController.AddComponent<Security>();
                 break;
             case DepartmentTypes.Type.Learning:
-                department = tempGameObject.AddComponent<Learning>();
+                department = Globals.gameController.AddComponent<Learning>();
                 break;
             case DepartmentTypes.Type.Recruiting:
-                department = tempGameObject.AddComponent<Recruiting>();
+                department = Globals.gameController.AddComponent<Recruiting>();
                 break;
             default:
-                department = tempGameObject.AddComponent<Department>();
+                department = Globals.gameController.AddComponent<Department>();
                 break;
         }
-        List<Employee> newEmployees = new List<Employee>();
-        foreach (SerializableEmployee serializableEmployee in employees)
-        {
-            Employee employee = serializableEmployee.ToEmployee();
-            newEmployees.Add(employee);
-        }
-        List<Employee> newManagers = new List<Employee>();
-        foreach (SerializableEmployee serializableEmployee in managers)
-        {
-            Employee employee = serializableEmployee.ToEmployee();
-            newManagers.Add(employee);
-        }
+
+        // Initialize empty lists for employees and managers
+        department.employees = new List<Employee>();
+        department.managers = new List<Employee>();
+
         // Populate the department properties
         department.capacity = capacity;
         department.departmentName = departmentName;
@@ -621,13 +777,8 @@ public struct SerializableDepartment
         department.departmentExp = departmentExp;
         department.departmentType = departmentType;
         department.managerCapacity = managerCapacity;
-        department.employees = newEmployees;
         department.disablers = new List<Disablers.Disabler>(disablers);
         department.managerIndex = managerIndex;
-        department.managers = newManagers;
-
-        // Don't destroy the GameObject when loading new scenes
-        GameObject.DontDestroyOnLoad(tempGameObject);
 
         return department;
     }
@@ -679,12 +830,10 @@ public struct GlobalVariables
 
 public class Globals
 {
-    public static string apiURL = "http://127.0.0.1:5505/api/v1"; // Test API URL for local development
-    // public static string apiURL = "https://api.warehousetycoon.com/api/v1"; // Production API URL for live deployment
-
+    public static GameController gameController; // Reference to the GameController script
     // Added static field to store temporary save data
     public static GlobalVariables tempSaveData;
-
+    public static bool loadSave = false;
     public static int gameState = State.NotPlaying; // Current state of the game, initialized to NotPlaying
     // Warehouse data
     public static string warehouseName = "My Warehouse"; // Default name for the warehouse
@@ -696,7 +845,7 @@ public class Globals
     public static int warehouseMaxEmployees; // Maximum number of employees allowed in the warehouse
     public static int boxesInStorage = 0; // Number of boxes currently in storage
     public static int palletsInStorage = 0; // Number of pallets currently in storage
-    public static int boxValue = 5;
+    public static int boxValue = 7;
     public static int palletBoxLimit = 5;
     public static int palletValue = palletBoxLimit * boxValue; // Value of a pallet based on the number of boxes it can hold
     public static int truckPalletLimit = 1;
@@ -833,98 +982,162 @@ public class Globals
         try
         {
             // Check if save file exists
-            if (File.Exists(saveFilePath))
+            if (loadSave && File.Exists(saveFilePath))
             {
+                Debug.Log("Loading save file: " + saveFilePath);
+
                 // Read the JSON from the local file
                 string jsonData = File.ReadAllText(saveFilePath);
 
-                // Parse the JSON and update the game state
-                var data = JsonUtility.FromJson<GlobalVariables>(jsonData);
-
-                // Simple properties
-                warehouseName = data.warehouseName;
-                warehouseId = data.warehouseId;
-                warehouselevel = data.warehouselevel;
-                warehouseValue = data.warehouseValue;
-                warehouseExp = data.warehouseExp;
-                warehouseMaxEmployees = data.warehouseMaxEmployees;
-                playerId = data.playerId;
-                playerName = data.playerName;
-                playerLevel = data.playerLevel;
-                playerExp = data.playerExp;
-                playerExpMultiplier = data.playerExpMultiplier;
-                playerMoney = data.playerMoney;
-                playerMaxMoney = data.playerMaxMoney;
-                playerMaxLevel = data.playerMaxLevel;
-                employeeStatMax = data.employeeStatMax;
-                employeeStatMin = data.employeeStatMin;
-                employeeStatUpgradeValue = data.employeeStatUpgradeValue;
-                employeeStatUpgradeCost = data.employeeStatUpgradeCost;
-                employeeMaxLevel = data.employeeMaxLevel;
-                employeeInfractionMax = data.employeeInfractionMax;
-                tutorialStatus = data.tutorialStatus;
-                tutorialStep = data.tutorialStep;
-                gameState = data.gameState;
-                notifications = data.notifications;
-                boxesInStorage = data.boxesInStorage;
-                palletsInStorage = data.palletsInStorage;
-                boxValue = data.boxValue;
-                palletBoxLimit = data.palletBoxLimit;
-                palletValue = data.palletValue;
-                truckPalletLimit = data.truckPalletLimit;
-                truckValue = data.truckValue;
-                gameTimeElapsed = data.gameTimeElapsed;
-                gameSpeed = data.gameSpeed;
-                daysSinceLastNewHire = data.daysSinceLastNewHire;
-
-                // Recreate departments first
-                departments.Clear();
-                foreach (SerializableDepartment deptData in data.departments)
+                try
                 {
-                    departments.Add(deptData.ToDepartment());
-                }
+                    // Parse the JSON and update the game state
+                    var data = JsonUtility.FromJson<GlobalVariables>(jsonData);
 
-                disabledDepartments.Clear();
-                foreach (SerializableDepartment deptData in data.disabledDepartments)
-                {
-                    disabledDepartments.Add(deptData.ToDepartment());
-                }
-
-                // Recreate employees and assign departments
-                warehouseEmployees.Clear();
-                foreach (SerializableEmployee empData in data.warehouseEmployees)
-                {
-                    Employee emp = empData.ToEmployee();
-                    // Reconnect department reference
-                    if (empData.departmentId >= 0)
+                    // Simple properties
+                    warehouseName = data.warehouseName;
+                    warehouseId = data.warehouseId;
+                    warehouselevel = data.warehouselevel;
+                    warehouseValue = data.warehouseValue;
+                    warehouseExp = data.warehouseExp;
+                    warehouseMaxEmployees = data.warehouseMaxEmployees;
+                    playerId = data.playerId;
+                    playerName = data.playerName;
+                    playerLevel = data.playerLevel;
+                    playerExp = data.playerExp;
+                    playerExpMultiplier = data.playerExpMultiplier;
+                    playerMoney = data.playerMoney;
+                    playerMaxMoney = data.playerMaxMoney;
+                    playerMaxLevel = data.playerMaxLevel;
+                    employeeStatMax = data.employeeStatMax;
+                    employeeStatMin = data.employeeStatMin;
+                    employeeStatUpgradeValue = data.employeeStatUpgradeValue;
+                    employeeStatUpgradeCost = data.employeeStatUpgradeCost;
+                    employeeMaxLevel = data.employeeMaxLevel;
+                    employeeInfractionMax = data.employeeInfractionMax;
+                    tutorialStatus = data.tutorialStatus;
+                    tutorialStep = data.tutorialStep;
+                    gameState = data.gameState;
+                    notifications = data.notifications ?? new List<Notification>();
+                    boxesInStorage = data.boxesInStorage;
+                    palletsInStorage = data.palletsInStorage;
+                    boxValue = data.boxValue;
+                    palletBoxLimit = data.palletBoxLimit;
+                    palletValue = data.palletValue;
+                    truckPalletLimit = data.truckPalletLimit;
+                    truckValue = data.truckValue;
+                    gameTimeElapsed = data.gameTimeElapsed;
+                    gameSpeed = data.gameSpeed;
+                    daysSinceLastNewHire = data.daysSinceLastNewHire;
+                    departments = new List<Department>();
+                    disabledDepartments = new List<Department>();
+                    warehouseEmployees = new List<Employee>();
+                    newHires = new List<Employee>();
+                    try
                     {
-                        emp.department = departments.Find(d => d.departmentId == empData.departmentId);
+                        // Recreate departments first (if any)
+                        if (data.departments != null)
+                        {
+                            foreach (SerializableDepartment deptData in data.departments)
+                            {
+                                Department dept = deptData.ToDepartment();
+                                if (dept != null)
+                                {
+                                    departments.Add(dept);
+                                }
+                            }
+                        }
                     }
-                    warehouseEmployees.Add(emp);
-                }
-
-                newHires.Clear();
-                foreach (SerializableEmployee hireData in data.newHires)
-                {
-                    Employee hire = hireData.ToEmployee();
-                    // Reconnect department reference if needed
-                    if (hireData.departmentId >= 0)
+                    catch (System.Exception e)
                     {
-                        hire.department = departments.Find(d => d.departmentId == hireData.departmentId);
+                        Debug.LogError("Error loading departments: " + e.Message + "\n" + e.StackTrace);
                     }
-                    newHires.Add(hire);
-                }
 
-                Debug.Log($"Game loaded successfully from {saveFilePath}");
+                    try
+                    {
+                        // Load disabled departments (if any)
+                        if (data.disabledDepartments != null)
+                        {
+                            foreach (SerializableDepartment deptData in data.disabledDepartments)
+                            {
+                                Department dept = deptData.ToDepartment();
+                                if (dept != null)
+                                {
+                                    disabledDepartments.Add(dept);
+                                }
+                            }
+                        }
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogError("Error loading disabled departments: " + e.Message + "\n" + e.StackTrace);
+                    }
+
+                    try
+                    {
+                        // Recreate employees and assign departments (if any)
+                        if (data.warehouseEmployees != null)
+                        {
+                            foreach (SerializableEmployee empData in data.warehouseEmployees)
+                            {
+                                try
+                                {
+                                    Employee emp = empData.ToEmployee();
+                                    warehouseEmployees.Add(emp);
+                                }
+                                catch (System.Exception e)
+                                {
+                                    Debug.LogWarning("Error loading employee: " + e.Message);
+                                    continue; // Skip this employee but continue with others
+                                }
+                            }
+                        }
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogError("Error loading employees: " + e.Message + "\n" + e.StackTrace);
+                    }
+
+                    try
+                    {
+                        // Load new hires (if any)
+                        if (data.newHires != null)
+                        {
+                            foreach (SerializableEmployee hireData in data.newHires)
+                            {
+                                try
+                                {
+                                    Employee hire = hireData.ToEmployee();
+                                    newHires.Add(hire);
+                                }
+                                catch (System.Exception e)
+                                {
+                                    Debug.LogWarning("Error loading new hire: " + e.Message);
+                                    continue; // Skip this hire but continue with others
+                                }
+                            }
+                        }
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogError("Error loading new hires: " + e.Message + "\n" + e.StackTrace);
+                    }
+
+                    Debug.Log($"Game loaded successfully from {saveFilePath}");
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError("Error deserializing save data: " + e.Message + "\n" + e.StackTrace);
+                }
             }
             else
             {
-                Debug.LogWarning("No save file found. Starting new game.");
+                Debug.LogWarning("No save file found or loading not requested. Starting new game.");
             }
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"Error loading game: {e.Message}");
+            Debug.LogError($"Error loading game: {e.Message}\n{e.StackTrace}");
         }
 
         yield return null;
@@ -945,7 +1158,6 @@ public class Globals
 
                 // Store in tempSaveData for preview purposes
                 tempSaveData = data;
-
                 Debug.Log($"Game data loaded successfully from {filePath} into temporary storage");
                 Debug.Log($"To apply this save, call a method to copy from tempSaveData to the actual game state");
             }
