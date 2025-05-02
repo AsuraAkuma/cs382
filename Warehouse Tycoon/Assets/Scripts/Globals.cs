@@ -5,6 +5,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.IO;
 using Unity.VisualScripting;
+using System;
 
 [System.Serializable]
 public struct SerializableEmployee
@@ -824,6 +825,7 @@ public struct GlobalVariables
     public int truckPalletLimit;
     public int truckValue;
     public float gameTimeElapsed;
+    public int gameDaysElapsed;
     public float gameSpeed;
     public float daysSinceLastNewHire;
 }
@@ -881,6 +883,7 @@ public class Globals
     public static List<Notification> notifications = new List<Notification>(); // Array of notifications for the player
     // Game state data
     public static float gameTimeElapsed = 0; // Time elapsed in the game
+    public static int gameDaysElapsed; // Start time of the game
     public static float gameSpeed = 1; // Speed of the game (1x speed by default)
     public static float daysSinceLastNewHire = 0; // Days since the last new hire was made
 
@@ -957,7 +960,8 @@ public class Globals
                 truckValue = truckValue,
                 gameTimeElapsed = gameTimeElapsed,
                 gameSpeed = gameSpeed,
-                daysSinceLastNewHire = daysSinceLastNewHire
+                daysSinceLastNewHire = daysSinceLastNewHire,
+                gameDaysElapsed = gameDaysElapsed // Save the current date and time
             };
 
             // Convert the GlobalVariables struct to JSON
@@ -1033,6 +1037,7 @@ public class Globals
                     disabledDepartments = new List<Department>();
                     warehouseEmployees = new List<Employee>();
                     newHires = new List<Employee>();
+                    gameDaysElapsed = data.gameDaysElapsed;
                     try
                     {
                         // Recreate departments first (if any)

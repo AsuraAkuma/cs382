@@ -194,7 +194,7 @@
 
 .headerLabel {
     color: rgb(255, 255, 255);
-    font-size: 250%;
+    font-size: 200%;
     -unity-text-align: middle-left;
     left: 1%;
     width: 25%;

@@ -102,7 +102,7 @@ public class GameController : MonoBehaviour
             // Start the tutorial
             ProgressTutorial();
         }
-        Time.timeScale = 40f;
+        Time.timeScale = 2f;
         if (Globals.loadSave == false && Globals.departments.Count == 0)
         {
             // TESTING ONLY
@@ -140,6 +140,8 @@ public class GameController : MonoBehaviour
             UpdateNewHireUIList();
             UpdateDepartmentUIList();
             Globals.playerMoney = 100000;
+            Globals.gameDaysElapsed = 0;
+            Globals.gameTimeElapsed = 0f;
         }
         Globals.gameState = State.Playing;
 
@@ -159,6 +161,7 @@ public class GameController : MonoBehaviour
         {
             // UpdateUpgradeUIList();
         }
+
         UpdateHeaderUI();
         // UpdateDepartmentUIList();
         // Elapse game time
@@ -169,6 +172,7 @@ public class GameController : MonoBehaviour
         if (Globals.gameTimeElapsed >= 24f)
         {
             Globals.gameTimeElapsed = 0f;
+            Globals.gameDaysElapsed++;
             // subtract employee salary from balance
             foreach (Employee employee in Globals.warehouseEmployees)
             {
@@ -310,10 +314,15 @@ public class GameController : MonoBehaviour
         Label warehouseName = header.Q<Label>("warehouseName");
         Label balance = header.Q<Label>("balance");
         Label playerName = header.Q<Label>("playerName");
+        Label dateTime = header.Q<Label>("dateTime");
         // Update the header UI elements with the current values
         warehouseName.text = Globals.warehouseName;
         balance.text = $"Balance: ${Globals.playerMoney}";
         playerName.text = Globals.playerName;
+        int hours = Mathf.FloorToInt(Globals.gameTimeElapsed);
+        int minutes = Mathf.FloorToInt((Globals.gameTimeElapsed - hours) * 60);
+        dateTime.text = $"Days: {Globals.gameDaysElapsed} " +
+                $"Time: {hours:D2}:{minutes:D2}";
     }
     public void UpdateEmployeeUIList()
     {
