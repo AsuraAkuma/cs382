@@ -5,6 +5,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.IO;
 using Unity.VisualScripting;
+using System;
 
 [System.Serializable]
 public struct SerializableEmployee
@@ -825,6 +826,7 @@ public struct GlobalVariables
     public int truckValue;
     public float gameTimeElapsed;
     public int gameDaysElapsed;
+    public int gameDaysElapsed;
     public float gameSpeed;
     public float daysSinceLastNewHire;
 }
@@ -1001,7 +1003,8 @@ public class Globals
                 gameTimeElapsed = gameTimeElapsed,
                 gameDaysElapsed = gameDaysElapsed,
                 gameSpeed = gameSpeed,
-                daysSinceLastNewHire = daysSinceLastNewHire
+                daysSinceLastNewHire = daysSinceLastNewHire,
+                gameDaysElapsed = gameDaysElapsed // Save the current date and time
             };
 
             // Convert the GlobalVariables struct to JSON
@@ -1113,6 +1116,7 @@ public class Globals
                     disabledDepartments = new List<Department>();
                     warehouseEmployees = new List<Employee>();
                     newHires = new List<Employee>();
+                    gameDaysElapsed = data.gameDaysElapsed;
                     try
                     {
                         // Recreate departments first (if any)

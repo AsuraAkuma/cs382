@@ -164,6 +164,7 @@ public class GameController : MonoBehaviour
         {
             // UpdateUpgradeUIList();
         }
+
         UpdateHeaderUI();
         if (Globals.playerMoney < 0)
         {
@@ -445,10 +446,15 @@ public class GameController : MonoBehaviour
         Label balance = header.Q<Label>("balance");
         Label playerName = header.Q<Label>("playerName");
         Label dateTime = header.Q<Label>("dateTime");
+        Label dateTime = header.Q<Label>("dateTime");
         // Update the header UI elements with the current values
         warehouseName.text = Globals.warehouseName;
         balance.text = $"Balance: ${Globals.playerMoney}";
         playerName.text = Globals.playerName;
+        int hours = Mathf.FloorToInt(Globals.gameTimeElapsed);
+        int minutes = Mathf.FloorToInt((Globals.gameTimeElapsed - hours) * 60);
+        dateTime.text = $"Days: {Globals.gameDaysElapsed} " +
+                $"Time: {hours:D2}:{minutes:D2}";
         int hours = Mathf.FloorToInt(Globals.gameTimeElapsed);
         int minutes = Mathf.FloorToInt((Globals.gameTimeElapsed - hours) * 60);
         dateTime.text = $"Days: {Globals.gameDaysElapsed} " +
