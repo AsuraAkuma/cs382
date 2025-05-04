@@ -107,7 +107,7 @@ public class GameController : MonoBehaviour
         // Update the new hire UI list
         UpdateNewHireUIList();
 
-        Time.timeScale = 40f;
+        // Time.timeScale = 40f;
         if (Globals.loadSave == false && Globals.departments.Count == 0)
         {
             // TESTING ONLY
@@ -329,7 +329,7 @@ public class GameController : MonoBehaviour
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-            Application.Quit();
+        Application.Quit();
 #endif
     }
 
