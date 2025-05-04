@@ -5,6 +5,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
@@ -35,6 +36,7 @@ public class GameController : MonoBehaviour
     Button pauseScreenSaveButton;
     Button pauseScreenExitButton;
     Button pauseScreenResumeButton;
+    Button pauseScreenMainMenuButton;
     float previousTimeScale;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -63,6 +65,7 @@ public class GameController : MonoBehaviour
         pauseScreenSaveButton = pauseScreen.Q<Button>("pauseSaveButton");
         pauseScreenExitButton = pauseScreen.Q<Button>("pauseExitButton");
         pauseScreenResumeButton = pauseScreen.Q<Button>("pauseResumeButton");
+        pauseScreenMainMenuButton = pauseScreen.Q<Button>("pauseMenuButton");
 
         // Hide pause screen initially
         pauseScreen.style.display = DisplayStyle.None;
@@ -71,6 +74,7 @@ public class GameController : MonoBehaviour
         pauseScreenSaveButton.RegisterCallback<ClickEvent>(OnPauseScreenButtonClick);
         pauseScreenExitButton.RegisterCallback<ClickEvent>(OnPauseScreenButtonClick);
         pauseScreenResumeButton.RegisterCallback<ClickEvent>(OnPauseScreenButtonClick);
+        pauseScreenMainMenuButton.RegisterCallback<ClickEvent>(OnPauseScreenButtonClick);
 
         // Add click event listeners to the buttons
         upgradesButton.RegisterCallback<ClickEvent>(OnPanelNavButtonClick);
@@ -92,56 +96,57 @@ public class GameController : MonoBehaviour
         {
             // Load the game state
             LoadGameState();
-            // Update the employee UI list
-            UpdateEmployeeUIList();
-            // Update the new hire UI list
-            UpdateNewHireUIList();
         }
         else
         {
             // Start the tutorial
             ProgressTutorial();
         }
+        // Update the employee UI list
+        UpdateEmployeeUIList();
+        // Update the new hire UI list
+        UpdateNewHireUIList();
+
         Time.timeScale = 40f;
         if (Globals.loadSave == false && Globals.departments.Count == 0)
         {
             // TESTING ONLY
             // Create a new hire
-            HR hrDepartment = gameObject.AddComponent<HR>();
-            hrDepartment.departmentType = DepartmentTypes.Type.HR;
-            hrDepartment.departmentName = "HR";
-            hrDepartment.departmentLevel = 1;
-            hrDepartment.capacity = 10;
-            Inbound inboundDepartment = gameObject.AddComponent<Inbound>();
-            inboundDepartment.departmentType = DepartmentTypes.Type.Inbound;
-            inboundDepartment.departmentName = "Inbound";
-            inboundDepartment.departmentLevel = 1;
-            inboundDepartment.capacity = 10;
-            FluidLoad fluidDepartment = gameObject.AddComponent<FluidLoad>();
-            fluidDepartment.departmentType = DepartmentTypes.Type.FluidLoad;
-            fluidDepartment.departmentName = "FluidLoad";
-            fluidDepartment.departmentLevel = 1;
-            fluidDepartment.capacity = 10;
+            // HR hrDepartment = gameObject.AddComponent<HR>();
+            // hrDepartment.departmentType = DepartmentTypes.Type.HR;
+            // hrDepartment.departmentName = "HR";
+            // hrDepartment.departmentLevel = 1;
+            // hrDepartment.capacity = 10;
+            // Inbound inboundDepartment = gameObject.AddComponent<Inbound>();
+            // inboundDepartment.departmentType = DepartmentTypes.Type.Inbound;
+            // inboundDepartment.departmentName = "Inbound";
+            // inboundDepartment.departmentLevel = 1;
+            // inboundDepartment.capacity = 10;
+            // FluidLoad fluidDepartment = gameObject.AddComponent<FluidLoad>();
+            // fluidDepartment.departmentType = DepartmentTypes.Type.FluidLoad;
+            // fluidDepartment.departmentName = "FluidLoad";
+            // fluidDepartment.departmentLevel = 1;
+            // fluidDepartment.capacity = 10;
 
-            int departmentCountHR = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.HR);
-            int departmentCountInbound = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Inbound);
-            int departmentCountFluidLoad = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.FluidLoad);
-            int itemCostValueHR = Globals.departmentCost + 5000 * (departmentCountHR + 1);
-            int itemCostValueInbound = Globals.departmentCost + 5000 * (departmentCountInbound + 1);
-            int itemCostValueFluidLoad = Globals.departmentCost + 5000 * (departmentCountFluidLoad + 1);
-            storeItemHR.Q<Label>("storeItemCost").text = $"Cost\n${itemCostValueHR}";
-            storeItemInbound.Q<Label>("storeItemCost").text = $"Cost\n${itemCostValueInbound}";
-            storeItemFluidLoad.Q<Label>("storeItemCost").text = $"Cost\n${itemCostValueFluidLoad}";
-            storeItemHR.RegisterCallback<ClickEvent>(OnStoreItemClick);
-            storeItemInbound.RegisterCallback<ClickEvent>(OnStoreItemClick);
-            storeItemFluidLoad.RegisterCallback<ClickEvent>(OnStoreItemClick);
-            // Globals.departments.Add(hrDepartment);
-            StartCoroutine(gameActions.CreateNewHire());
-            UpdateNewHireUIList();
-            UpdateDepartmentUIList();
-            Globals.playerMoney = 100000;
+            Globals.playerMoney = 170000;
         }
+        int departmentCountHR = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.HR);
+        int departmentCountInbound = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Inbound);
+        int departmentCountFluidLoad = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.FluidLoad);
+        int itemCostValueHR = Globals.departmentCost + 5000 * (departmentCountHR + 1);
+        int itemCostValueInbound = Globals.departmentCost + 5000 * (departmentCountInbound + 1);
+        int itemCostValueFluidLoad = Globals.departmentCost + 5000 * (departmentCountFluidLoad + 1);
+        storeItemHR.Q<Label>("storeItemCost").text = $"Cost\n${itemCostValueHR}";
+        storeItemInbound.Q<Label>("storeItemCost").text = $"Cost\n${itemCostValueInbound}";
+        storeItemFluidLoad.Q<Label>("storeItemCost").text = $"Cost\n${itemCostValueFluidLoad}";
+        storeItemHR.RegisterCallback<ClickEvent>(OnStoreItemClick);
+        storeItemInbound.RegisterCallback<ClickEvent>(OnStoreItemClick);
+        storeItemFluidLoad.RegisterCallback<ClickEvent>(OnStoreItemClick);
         Globals.gameState = State.Playing;
+        // Globals.departments.Add(hrDepartment);
+        StartCoroutine(gameActions.CreateNewHire());
+        UpdateNewHireUIList();
+        UpdateDepartmentUIList();
 
         // Update separtment UI list every 10 seconds
         InvokeRepeating("UpdateDepartmentUIList", 0f, 10f);
@@ -160,6 +165,10 @@ public class GameController : MonoBehaviour
             // UpdateUpgradeUIList();
         }
         UpdateHeaderUI();
+        if (Globals.playerMoney < 0)
+        {
+            GameOver();
+        }
         // UpdateDepartmentUIList();
         // Elapse game time
         // One real minute = 1 game hour
@@ -169,6 +178,14 @@ public class GameController : MonoBehaviour
         if (Globals.gameTimeElapsed >= 24f)
         {
             Globals.gameTimeElapsed = 0f;
+            Globals.gameDaysElapsed++;
+            if (Globals.gameDaysElapsed == 15)
+            {
+                if (Globals.playerMoney < 100000)
+                {
+                    GameOver();
+                }
+            }
             // subtract employee salary from balance
             foreach (Employee employee in Globals.warehouseEmployees)
             {
@@ -193,7 +210,51 @@ public class GameController : MonoBehaviour
         }
         // Debug.Log($"Game time elapsed: {Globals.gameTimeElapsed} hours.");
     }
+    void GameOver(bool deleteSave = true)
+    {
+        // Display game over dialog or notification here
+        VisualElement gameOverDialog = gameUI.rootVisualElement.Q<VisualElement>("gameOverDialog");
+        if (gameOverDialog != null)
+        {
+            gameOverDialog.style.display = DisplayStyle.Flex;
+            gameOverDialog.Q<Label>("gameOverMessage").text = $"Game Over! You've gone bankrupt after {Globals.gameDaysElapsed} days.";
+        }
 
+
+        if (deleteSave)
+        {
+            // Delete any existing save files
+            Globals.DeleteSaveFile(Globals.warehouseName);
+            Debug.Log("Save data deleted due to game over condition");
+        }
+        // reset globals
+        // Reset all game state variables
+        Globals.playerMoney = 100000;
+        Globals.warehouseName = "My Warehouse";
+        Globals.playerName = "Guest";
+        Globals.gameTimeElapsed = 0f;
+        Globals.gameDaysElapsed = 0;
+        Globals.daysSinceLastNewHire = 0;
+        Globals.departments.Clear();
+        Globals.warehouseEmployees.Clear();
+        Globals.newHires.Clear();
+        Globals.tutorialStatus = StatusType.Type.InComplete;
+        Globals.tutorialStep = 0;
+        Globals.gameState = State.NotPlaying;
+
+        // Clean up any remaining game objects and components
+        foreach (var department in FindObjectsByType<Department>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            Destroy(department);
+        }
+        foreach (var employee in FindObjectsByType<Employee>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            Destroy(employee);
+        }
+
+        // Return to start menu after a short delay
+        SceneManager.LoadScene("StartMenu");
+    }
     // Add input handling in Update to check for Escape key press
     void Update()
     {
@@ -242,7 +303,11 @@ public class GameController : MonoBehaviour
             case "pauseResumeButton":
                 TogglePauseScreen();
                 break;
-
+            case "pauseMenuButton":
+                // Return to start menu
+                SaveGame();
+                GameOver(false);
+                break;
             default:
                 Debug.Log("Unknown pause screen button clicked");
                 break;
@@ -272,28 +337,97 @@ public class GameController : MonoBehaviour
     {
         // Get the current tutorial step
         int currentStep = Globals.tutorialStep;
+        VisualElement tutorialContainer = gameUI.rootVisualElement.Q<VisualElement>("tutorialContainer");
+        VisualElement tutorialStep1 = tutorialContainer.Q<VisualElement>("step1");
+        VisualElement tutorialStep2 = tutorialContainer.Q<VisualElement>("step2");
+        VisualElement tutorialStep3 = tutorialContainer.Q<VisualElement>("step3");
+        VisualElement tutorialStep4 = tutorialContainer.Q<VisualElement>("step4");
+        VisualElement tutorialStep5 = tutorialContainer.Q<VisualElement>("step5");
+        VisualElement tutorialStep6 = tutorialContainer.Q<VisualElement>("step6");
+        VisualElement tutorialStep7 = tutorialContainer.Q<VisualElement>("step7");
+        VisualElement tutorialStep8 = tutorialContainer.Q<VisualElement>("step8");
         switch (currentStep)
         {
             case 0:
                 // Start the tutorial step 1
-                TutorialStep1();
+                tutorialStep1.style.display = DisplayStyle.Flex;
+                tutorialStep1.Q<VisualElement>("highlight").RegisterCallback<ClickEvent>(evt =>
+                {
+                    // Show the store panel
+                    ShowSidePanel("storePanel");
+                });
+                Globals.tutorialStep++;
+                break;
+            case 1:
+                // Start the tutorial step 2
+                tutorialStep1.style.display = DisplayStyle.None;
+                tutorialStep2.style.display = DisplayStyle.Flex;
+                Globals.tutorialStep++;
                 break;
 
+            case 2:
+                // Start the tutorial step 3
+                tutorialStep2.style.display = DisplayStyle.None;
+                tutorialStep3.style.display = DisplayStyle.Flex;
+                ShowSidePanel("employeesPanel");
+                Globals.tutorialStep++;
+                break;
+            case 3:
+                // Start the tutorial step 4
+                tutorialStep3.style.display = DisplayStyle.None;
+                tutorialStep4.style.display = DisplayStyle.Flex;
+                Globals.tutorialStep++;
+                // Wait 10 seconds then progress to next tutorial step
+                StartCoroutine(DelayedTutorialProgress(10f));
+                break;
+            case 4:
+                // Start the tutorial step 5
+                tutorialStep4.style.display = DisplayStyle.None;
+                tutorialStep5.style.display = DisplayStyle.Flex;
+                Globals.tutorialStep++;
+                break;
+            case 5:
+                // Start the tutorial step 6
+                tutorialStep5.style.display = DisplayStyle.None;
+                tutorialStep6.style.display = DisplayStyle.Flex;
+                Globals.tutorialStep++;
+                break;
+            case 6:
+                // Start the tutorial step 7
+                tutorialStep6.style.display = DisplayStyle.None;
+                tutorialStep7.style.display = DisplayStyle.Flex;
+                Globals.tutorialStep++;
+                ShowSidePanel("employeesPanel");
+                StartCoroutine(DelayedTutorialProgress(10f));
+                break;
+            case 7:
+                // Start the tutorial step 8
+                tutorialStep7.style.display = DisplayStyle.None;
+                tutorialStep8.style.display = DisplayStyle.Flex;
+                Globals.tutorialStep++;
+                StartCoroutine(DelayedTutorialProgress(10f));
+                break;
+            case 8:
+                // Complete the tutorial
+                tutorialStep8.style.display = DisplayStyle.None;
+                tutorialContainer.style.display = DisplayStyle.None;
+                Globals.tutorialStatus = StatusType.Type.Completed;
+                Globals.tutorialStep = 0;
+                // Unlock store items
+                storeItemHR.SetEnabled(true);
+                storeItemInbound.SetEnabled(true);
+                storeItemFluidLoad.SetEnabled(true);
+                break;
             default:
                 // Debug.Log("No more tutorial steps available.");
                 break;
         }
     }
-    // Tutorial step logic
-    private void TutorialStep1()
+    private IEnumerator DelayedTutorialProgress(float delay)
     {
-        // Add logic for tutorial step 1 here
-        // Debug.Log("Tutorial Step 1: Welcome to the Warehouse Tycoon!");
-
-        // Move to the next step
-        Globals.tutorialStep++;
+        yield return new WaitForSeconds(delay);
+        ProgressTutorial();
     }
-
     // Method to load the game state
     private void LoadGameState()
     {
@@ -310,10 +444,15 @@ public class GameController : MonoBehaviour
         Label warehouseName = header.Q<Label>("warehouseName");
         Label balance = header.Q<Label>("balance");
         Label playerName = header.Q<Label>("playerName");
+        Label dateTime = header.Q<Label>("dateTime");
         // Update the header UI elements with the current values
         warehouseName.text = Globals.warehouseName;
         balance.text = $"Balance: ${Globals.playerMoney}";
         playerName.text = Globals.playerName;
+        int hours = Mathf.FloorToInt(Globals.gameTimeElapsed);
+        int minutes = Mathf.FloorToInt((Globals.gameTimeElapsed - hours) * 60);
+        dateTime.text = $"Days: {Globals.gameDaysElapsed} " +
+                $"Time: {hours:D2}:{minutes:D2}";
     }
     public void UpdateEmployeeUIList()
     {
@@ -439,6 +578,10 @@ public class GameController : MonoBehaviour
                 employee.isHired = true;
                 employee.isFired = false;
                 UpdateNewHireUIList();
+                if (Globals.tutorialStep == 6)
+                {
+                    ProgressTutorial();
+                }
             })
             {
                 text = "Hire",
@@ -512,6 +655,14 @@ public class GameController : MonoBehaviour
         root.Q<VisualElement>(panelName).style.display = DisplayStyle.Flex;
         // Update the current panel name
         currentPanel = panelName;
+        if (Globals.tutorialStep == 1 && panelName == "storePanel")
+        {
+            ProgressTutorial();
+        }
+        else if (Globals.tutorialStep == 5 && panelName == "newHiresPanel")
+        {
+            ProgressTutorial();
+        }
     }
     private void OnPanelNavButtonClick(ClickEvent evt)
     {
@@ -817,6 +968,10 @@ public class GameController : MonoBehaviour
             // Show the employee details in a new panel or popup
             selectedEmployee = clickedEmployee;
             ShowEmployeeDetails(clickedEmployee);
+            if (Globals.tutorialStep == 3)
+            {
+                ProgressTutorial();
+            }
         }
         else
         {
@@ -1196,9 +1351,16 @@ public class GameController : MonoBehaviour
                 hrDepartment.departmentName = $"HR [{departmentCount + 1}]";
                 hrDepartment.departmentLevel = 1;
                 hrDepartment.capacity = 10;
-                Globals.departments.Add(hrDepartment);
                 Globals.playerMoney -= itemCostValue;
                 StartCoroutine(DelayDepartmentUpdate(hrDepartment));
+                if (Globals.tutorialStep == 2)
+                {
+                    clickedItem.SetEnabled(false);
+                    if (Globals.departments.Count == 2)
+                    {
+                        ProgressTutorial();
+                    }
+                }
                 break;
             case "storeItemDepartmentIT":
                 int itDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.IT);
@@ -1213,7 +1375,6 @@ public class GameController : MonoBehaviour
                 itDepartment.departmentName = $"IT [{itDepartmentCount + 1}]";
                 itDepartment.departmentLevel = 1;
                 itDepartment.capacity = 10;
-                Globals.departments.Add(itDepartment);
                 Globals.playerMoney -= itemCostValue;
                 StartCoroutine(DelayDepartmentUpdate(itDepartment));
                 break;
@@ -1230,7 +1391,6 @@ public class GameController : MonoBehaviour
                 operationsDepartment.departmentName = $"Operations [{operationsDepartmentCount + 1}]";
                 operationsDepartment.departmentLevel = 1;
                 operationsDepartment.capacity = 10;
-                Globals.departments.Add(operationsDepartment);
                 Globals.playerMoney -= itemCostValue;
                 StartCoroutine(DelayDepartmentUpdate(operationsDepartment));
                 break;
@@ -1247,9 +1407,16 @@ public class GameController : MonoBehaviour
                 inboundDepartment.departmentName = $"Inbound [{inboundDepartmentCount + 1}]";
                 inboundDepartment.departmentLevel = 1;
                 inboundDepartment.capacity = 10;
-                Globals.departments.Add(inboundDepartment);
                 Globals.playerMoney -= itemCostValue;
                 StartCoroutine(DelayDepartmentUpdate(inboundDepartment));
+                if (Globals.tutorialStep == 2)
+                {
+                    clickedItem.SetEnabled(false);
+                    if (Globals.departments.Count == 2)
+                    {
+                        ProgressTutorial();
+                    }
+                }
                 break;
             case "storeItemDepartmentFluidLoad":
                 int fluidDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.FluidLoad);
@@ -1264,9 +1431,16 @@ public class GameController : MonoBehaviour
                 fluidDepartment.departmentName = $"FluidLoad [{fluidDepartmentCount + 1}]";
                 fluidDepartment.departmentLevel = 1;
                 fluidDepartment.capacity = 10;
-                Globals.departments.Add(fluidDepartment);
                 Globals.playerMoney -= itemCostValue;
                 StartCoroutine(DelayDepartmentUpdate(fluidDepartment));
+                if (Globals.tutorialStep == 2)
+                {
+                    clickedItem.SetEnabled(false);
+                    if (Globals.departments.Count == 2)
+                    {
+                        ProgressTutorial();
+                    }
+                }
                 break;
             case "storeItemDepartmentOutbound":
                 int outboundDepartmentCount = Globals.departments.Count(d => d.departmentType == DepartmentTypes.Type.Outbound);
@@ -1281,7 +1455,6 @@ public class GameController : MonoBehaviour
                 outboundDepartment.departmentName = $"Outbound [{outboundDepartmentCount + 1}]";
                 outboundDepartment.departmentLevel = 1;
                 outboundDepartment.capacity = 10;
-                Globals.departments.Add(outboundDepartment);
                 Globals.playerMoney -= itemCostValue;
                 StartCoroutine(DelayDepartmentUpdate(outboundDepartment));
                 break;
@@ -1298,7 +1471,6 @@ public class GameController : MonoBehaviour
                 sortingDepartment.departmentName = $"Sorting [{sortingDepartmentCount + 1}]";
                 sortingDepartment.departmentLevel = 1;
                 sortingDepartment.capacity = 10;
-                Globals.departments.Add(sortingDepartment);
                 Globals.playerMoney -= itemCostValue;
                 StartCoroutine(DelayDepartmentUpdate(sortingDepartment));
                 break;
@@ -1315,7 +1487,6 @@ public class GameController : MonoBehaviour
                 repackingDepartment.departmentName = $"Repacking [{repackingDepartmentCount + 1}]";
                 repackingDepartment.departmentLevel = 1;
                 repackingDepartment.capacity = 10;
-                Globals.departments.Add(repackingDepartment);
                 Globals.playerMoney -= itemCostValue;
                 StartCoroutine(DelayDepartmentUpdate(repackingDepartment));
                 break;
@@ -1332,7 +1503,6 @@ public class GameController : MonoBehaviour
                 palletizingDepartment.departmentName = $"Palletizing [{palletizingDepartmentCount + 1}]";
                 palletizingDepartment.departmentLevel = 1;
                 palletizingDepartment.capacity = 10;
-                Globals.departments.Add(palletizingDepartment);
                 Globals.playerMoney -= itemCostValue;
                 StartCoroutine(DelayDepartmentUpdate(palletizingDepartment));
                 break;
@@ -1349,7 +1519,6 @@ public class GameController : MonoBehaviour
                 waterSpideringDepartment.departmentName = $"Water Spidering [{waterSpideringDepartmentCount + 1}]";
                 waterSpideringDepartment.departmentLevel = 1;
                 waterSpideringDepartment.capacity = 10;
-                Globals.departments.Add(waterSpideringDepartment);
                 Globals.playerMoney -= itemCostValue;
                 StartCoroutine(DelayDepartmentUpdate(waterSpideringDepartment));
                 break;
@@ -1366,7 +1535,6 @@ public class GameController : MonoBehaviour
                 qualityControlDepartment.departmentName = $"Quality Control [{qualityControlDepartmentCount + 1}]";
                 qualityControlDepartment.departmentLevel = 1;
                 qualityControlDepartment.capacity = 10;
-                Globals.departments.Add(qualityControlDepartment);
                 Globals.playerMoney -= itemCostValue;
                 StartCoroutine(DelayDepartmentUpdate(qualityControlDepartment));
                 break;
@@ -1383,7 +1551,6 @@ public class GameController : MonoBehaviour
                 maintenanceDepartment.departmentName = $"Maintenance [{maintenanceDepartmentCount + 1}]";
                 maintenanceDepartment.departmentLevel = 1;
                 maintenanceDepartment.capacity = 10;
-                Globals.departments.Add(maintenanceDepartment);
                 Globals.playerMoney -= itemCostValue;
                 StartCoroutine(DelayDepartmentUpdate(maintenanceDepartment));
                 break;
@@ -1400,7 +1567,6 @@ public class GameController : MonoBehaviour
                 roboticsDepartment.departmentName = $"Robotics [{roboticsDepartmentCount + 1}]";
                 roboticsDepartment.departmentLevel = 1;
                 roboticsDepartment.capacity = 10;
-                Globals.departments.Add(roboticsDepartment);
                 Globals.playerMoney -= itemCostValue;
                 StartCoroutine(DelayDepartmentUpdate(roboticsDepartment));
                 break;
@@ -1417,7 +1583,6 @@ public class GameController : MonoBehaviour
                 safetyDepartment.departmentName = $"Safety [{safetyDepartmentCount + 1}]";
                 safetyDepartment.departmentLevel = 1;
                 safetyDepartment.capacity = 10;
-                Globals.departments.Add(safetyDepartment);
                 Globals.playerMoney -= itemCostValue;
                 StartCoroutine(DelayDepartmentUpdate(safetyDepartment));
                 break;
@@ -1434,7 +1599,6 @@ public class GameController : MonoBehaviour
                 cleaningDepartment.departmentName = $"Cleaning [{cleaningDepartmentCount + 1}]";
                 cleaningDepartment.departmentLevel = 1;
                 cleaningDepartment.capacity = 10;
-                Globals.departments.Add(cleaningDepartment);
                 Globals.playerMoney -= itemCostValue;
                 StartCoroutine(DelayDepartmentUpdate(cleaningDepartment));
                 break;
@@ -1451,7 +1615,6 @@ public class GameController : MonoBehaviour
                 securityDepartment.departmentName = $"Security [{securityDepartmentCount + 1}]";
                 securityDepartment.departmentLevel = 1;
                 securityDepartment.capacity = 10;
-                Globals.departments.Add(securityDepartment);
                 Globals.playerMoney -= itemCostValue;
                 StartCoroutine(DelayDepartmentUpdate(securityDepartment));
                 break;
@@ -1468,7 +1631,6 @@ public class GameController : MonoBehaviour
                 learningDepartment.departmentName = $"Learning [{learningDepartmentCount + 1}]";
                 learningDepartment.departmentLevel = 1;
                 learningDepartment.capacity = 10;
-                Globals.departments.Add(learningDepartment);
                 Globals.playerMoney -= itemCostValue;
                 StartCoroutine(DelayDepartmentUpdate(learningDepartment));
                 break;
@@ -1485,7 +1647,6 @@ public class GameController : MonoBehaviour
                 recruitingDepartment.departmentName = $"Recruiting [{recruitingDepartmentCount + 1}]";
                 recruitingDepartment.departmentLevel = 1;
                 recruitingDepartment.capacity = 10;
-                Globals.departments.Add(recruitingDepartment);
                 Globals.playerMoney -= itemCostValue;
                 StartCoroutine(DelayDepartmentUpdate(recruitingDepartment));
                 break;
@@ -1499,9 +1660,6 @@ public class GameController : MonoBehaviour
     {
         Debug.Log($"Starting department update for {newDepartment.departmentName}");
 
-        // Short delay to allow initialization
-        yield return null;
-
         // Ensure department has reference to game controller
         newDepartment.gameController = this;
 
@@ -1509,11 +1667,11 @@ public class GameController : MonoBehaviour
         UpdateEmployeeUIList();
         UpdateStoreDepartmentCosts();
 
-        // Delay slightly to ensure the department component is fully initialized
-        yield return new WaitForSeconds(1f);
-
-        // Force departments panel display
-        ShowSidePanel("employeesPanel");
+        if (Globals.tutorialStatus == StatusType.Type.Completed)
+        {
+            // Force departments panel display
+            ShowSidePanel("employeesPanel");
+        }
 
         // Update department list
         UpdateDepartmentUIList();

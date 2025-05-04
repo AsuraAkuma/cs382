@@ -17,6 +17,7 @@ public class StartMenuController : MonoBehaviour
     private Button startButton;
     private Button confirmButton;
     private Button backButton;
+    private Button exitButton;
     private Button browseSaveButton;
     private TextField warehouseNameField;
     private TextField playerNameField;
@@ -33,6 +34,7 @@ public class StartMenuController : MonoBehaviour
         startScreen = root.Q<VisualElement>("startScreen");
         inputScreen = root.Q<VisualElement>("inputScreen");
         startButton = root.Q<Button>("startButton");
+        exitButton = root.Q<Button>("exitButton");
         confirmButton = root.Q<Button>("confirmButton");
         backButton = root.Q<Button>("backButton");
         warehouseNameField = root.Q<TextField>("warehouseNameField");
@@ -52,6 +54,7 @@ public class StartMenuController : MonoBehaviour
         startButton.clicked += OnStartButtonClicked;
         confirmButton.clicked += OnConfirmButtonClicked;
         backButton.clicked += OnBackButtonClicked;
+        exitButton.clicked += () => ExitGame();
 
         // Register save selection events
         loadSaveToggle.RegisterValueChangedCallback(OnLoadSaveToggleChanged);
@@ -60,6 +63,15 @@ public class StartMenuController : MonoBehaviour
 
         // Check if we need to load data at start
         // StartCoroutine(LoadDataAtStart());
+    }
+    private void ExitGame()
+    {
+        Debug.Log("Exiting game...");
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
     }
 
     private IEnumerator LoadDataAtStart()
@@ -112,6 +124,9 @@ public class StartMenuController : MonoBehaviour
                 {
                     SelectSaveFile(filePath);
                     Globals.loadSave = true;
+                    // Disable name fields when loading a save
+                    warehouseNameField.SetEnabled(false);
+                    playerNameField.SetEnabled(false);
                 }
             }
         }
@@ -120,6 +135,8 @@ public class StartMenuController : MonoBehaviour
             // If toggle is turned off, clear the selection
             selectedSaveFile = "";
             Globals.loadSave = false;
+            warehouseNameField.SetEnabled(true);
+            playerNameField.SetEnabled(true);
         }
     }
 
@@ -147,11 +164,10 @@ public class StartMenuController : MonoBehaviour
         saveFilePaths.Clear();
         List<string> dropdownChoices = new List<string>();
 
-        // Find all save files
-        string saveDirectory = Application.persistentDataPath;
-        string[] saveFiles = Directory.GetFiles(saveDirectory, "*.json");
+        // Get all warehouse save files using new Globals method
+        List<string> saveFiles = Globals.GetAllSaveFiles();
 
-        if (saveFiles.Length == 0)
+        if (saveFiles.Count == 0)
         {
             dropdownChoices.Add("No saved games found");
             saveFileDropdown.choices = dropdownChoices;
@@ -160,9 +176,11 @@ public class StartMenuController : MonoBehaviour
         }
 
         // Process each save file
-        foreach (string saveFile in saveFiles)
+        foreach (string saveFileName in saveFiles)
         {
-            StartCoroutine(ProcessSaveFileForDropdown(saveFile, dropdownChoices, () =>
+            Debug.Log($"Processing save file: {saveFileName}");
+            string filePath = Path.Combine(Application.persistentDataPath, saveFileName);
+            StartCoroutine(ProcessSaveFileForDropdown(filePath, dropdownChoices, () =>
             {
                 // After all files are processed, update the dropdown
                 if (dropdownChoices.Count > 0)
@@ -176,11 +194,10 @@ public class StartMenuController : MonoBehaviour
 
     private IEnumerator ProcessSaveFileForDropdown(string filePath, List<string> dropdownChoices, System.Action onComplete)
     {
-        yield return StartCoroutine(Globals.LoadFromSpecificFile(filePath));
-
+        GlobalVariables data = Globals.LoadFromSpecificFile(filePath);
         // Create descriptive label
-        string warehouseName = Globals.tempSaveData.warehouseName;
-        double playerMoney = Globals.tempSaveData.playerMoney;
+        string warehouseName = data.warehouseName;
+        double playerMoney = data.playerMoney;
         string saveDate = File.GetLastWriteTime(filePath).ToString("MM/dd/yyyy HH:mm");
 
         string displayLabel = $"{warehouseName} - ${playerMoney:F2} - {saveDate}";
@@ -190,19 +207,17 @@ public class StartMenuController : MonoBehaviour
         saveFilePaths[displayLabel] = filePath;
 
         onComplete?.Invoke();
+        yield return null; // Yield to allow UI to update
     }
 
     private void SelectSaveFile(string filePath)
     {
         // Store selected save file path
-        Globals.saveFilePath = filePath;
-
-        // Load the save data to populate fields
-        // StartCoroutine(Globals.Load());
-
+        selectedSaveFile = filePath;
+        GlobalVariables data = Globals.LoadFromSpecificFile(filePath);
         // Update the form fields with data from the save
-        warehouseNameField.value = Globals.tempSaveData.warehouseName;
-        playerNameField.value = Globals.tempSaveData.playerName;
+        warehouseNameField.value = data.warehouseName;
+        playerNameField.value = data.playerName;
     }
 
     private void OnConfirmButtonClicked()
@@ -233,30 +248,53 @@ public class StartMenuController : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(selectedSaveFile) && loadSaveToggle.value)
         {
-            // Load the selected save file
-            yield return StartCoroutine(Globals.LoadFromSpecificFile(selectedSaveFile));
+            // Loading an existing save
+            Globals.loadSave = true;
 
-            // Apply the temp save data to the global state
-            Globals.warehouseName = Globals.tempSaveData.warehouseName;
-            Globals.warehouseId = Globals.tempSaveData.warehouseId;
-            Globals.warehouselevel = Globals.tempSaveData.warehouselevel;
-            Globals.warehouseValue = Globals.tempSaveData.warehouseValue;
-            Globals.warehouseExp = Globals.tempSaveData.warehouseExp;
-            // Add other fields as needed
+            // Extract warehouse name from the save file to load properly
+            GlobalVariables data = Globals.LoadFromSpecificFile(selectedSaveFile);
 
-            // Override with user-entered values
-            Globals.warehouseName = warehouseNameField.value;
+            string originalWarehouseName = data.warehouseName;
+            int originalWarehouseId = data.warehouseId;
+
+            // Load from the original save file data
+            yield return StartCoroutine(Globals.LoadByWarehouseName(originalWarehouseName));
+
+            // If the user has changed the warehouse name, treat it as a new save
+            bool creatingNewSave = warehouseNameField.value != originalWarehouseName;
+
+            if (creatingNewSave)
+            {
+                // Create a new warehouse with a new ID based on the entered name
+                Globals.warehouseName = warehouseNameField.value;
+                Globals.warehouseId = System.DateTime.Now.GetHashCode(); // Generate new unique ID
+            }
+            else
+            {
+                // Keep the original warehouse ID to prevent duplicates
+                Globals.warehouseId = originalWarehouseId;
+            }
+
+            // Always update player name as this doesn't affect save identity
             Globals.playerName = playerNameField.value;
         }
         else
         {
-            // Just use the entered values for a new game
+            // Starting a new game
             Globals.warehouseName = warehouseNameField.value;
             Globals.playerName = playerNameField.value;
-        }
+            Globals.loadSave = false;
 
-        // Save the data
-        // yield return StartCoroutine(Globals.Save());
+            // Initialize new game values
+            Globals.playerMoney = 100000; // Starting money for new game
+            Globals.warehouselevel = 1;
+            Globals.warehouseExp = 0;
+            Globals.playerLevel = 1;
+            Globals.playerExp = 0;
+
+            // Generate a unique ID for the new warehouse
+            Globals.warehouseId = System.DateTime.Now.GetHashCode();
+        }
 
         // Mark that we have a saved game
         PlayerPrefs.SetInt("HasSavedGame", 1);
@@ -264,5 +302,31 @@ public class StartMenuController : MonoBehaviour
 
         // Load game scene
         SceneManager.LoadScene(gameSceneName);
+    }
+
+    private void OnDeleteSaveButtonClicked()
+    {
+        if (saveFileDropdown.index >= 0 && saveFileDropdown.choices.Count > 0)
+        {
+            string selectedSaveLabel = saveFileDropdown.value;
+
+            if (saveFilePaths.TryGetValue(selectedSaveLabel, out string filePath))
+            {
+                // Extract warehouse name from the selected save file
+                StartCoroutine(DeleteSaveAfterLoading(filePath));
+            }
+        }
+    }
+
+    private IEnumerator DeleteSaveAfterLoading(string filePath)
+    {
+        GlobalVariables data = Globals.LoadFromSpecificFile(filePath);
+
+        // Delete the save file
+        Globals.DeleteSaveFile(data.warehouseName);
+
+        // Refresh the dropdown
+        PopulateSaveFileDropdown();
+        yield return null; // Yield to allow UI to update
     }
 }

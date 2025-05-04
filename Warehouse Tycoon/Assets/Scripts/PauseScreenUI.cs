@@ -65,6 +65,18 @@ public class PauseScreenUI : MonoBehaviour
             saveButton.style.marginRight = 50;
             pausePanel.Add(saveButton);
 
+            // Create return to menu button
+            Button menuButton = new Button();
+            menuButton.name = "pauseMenuButton";
+            menuButton.text = "Return to Start Menu";
+            menuButton.style.height = 40;
+            menuButton.style.fontSize = 16;
+            menuButton.style.marginTop = 10;
+            menuButton.style.marginBottom = 10;
+            menuButton.style.marginLeft = 50;
+            menuButton.style.marginRight = 50;
+            pausePanel.Add(menuButton);
+
             // Create exit button
             Button exitButton = new Button();
             exitButton.name = "pauseExitButton";

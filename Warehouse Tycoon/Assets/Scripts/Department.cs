@@ -494,7 +494,7 @@ public class HR : Department
     new void Start()
     {
         base.Start();
-        if (employees.Count == 0 && Globals.loadSave == false)
+        if ((employees.Count == 0 && Globals.gameState == State.Playing) || Globals.loadSave == false)
         {
             Debug.Log("Creating HR department employees and managers");
             // Create Employee and add to the department
@@ -562,7 +562,7 @@ public class IT : Department
     new void Start()
     {
         base.Start();
-        if (employees.Count == 0 && Globals.loadSave == false)
+        if ((employees.Count == 0 && Globals.gameState == State.Playing) || Globals.loadSave == false)
         {
             ITEmployee employee = gameObject.AddComponent<ITEmployee>();
             employee.id = NameGenerator.GetUniqueId();
@@ -626,7 +626,7 @@ public class Operations : Department
     new void Start()
     {
         base.Start();
-        if (employees.Count == 0 && Globals.loadSave == false)
+        if ((employees.Count == 0 && Globals.gameState == State.Playing) || Globals.loadSave == false)
         {
             OperationsEmployee employee = gameObject.AddComponent<OperationsEmployee>();
             employee.id = NameGenerator.GetUniqueId();
@@ -690,7 +690,7 @@ public class Inbound : Department
     new void Start()
     {
         base.Start();
-        if (employees.Count == 0 && Globals.loadSave == false)
+        if ((employees.Count == 0 && Globals.gameState == State.Playing) || Globals.loadSave == false)
         {
             InboundEmployee employee = gameObject.AddComponent<InboundEmployee>();
             employee.id = NameGenerator.GetUniqueId();
@@ -754,7 +754,7 @@ public class Sorting : Department
     new void Start()
     {
         base.Start();
-        if (employees.Count == 0 && Globals.loadSave == false)
+        if ((employees.Count == 0 && Globals.gameState == State.Playing) || Globals.loadSave == false)
         {
             SortingEmployee employee = gameObject.AddComponent<SortingEmployee>();
             employee.id = NameGenerator.GetUniqueId();
@@ -818,7 +818,7 @@ public class Repacking : Department
     new void Start()
     {
         base.Start();
-        if (employees.Count == 0 && Globals.loadSave == false)
+        if ((employees.Count == 0 && Globals.gameState == State.Playing) || Globals.loadSave == false)
         {
             RepackingEmployee employee = gameObject.AddComponent<RepackingEmployee>();
             employee.id = NameGenerator.GetUniqueId();
@@ -882,7 +882,7 @@ public class Palletizing : Department
     new void Start()
     {
         base.Start();
-        if (employees.Count == 0 && Globals.loadSave == false)
+        if ((employees.Count == 0 && Globals.gameState == State.Playing) || Globals.loadSave == false)
         {
             PalletizingEmployee employee = gameObject.AddComponent<PalletizingEmployee>();
             employee.id = NameGenerator.GetUniqueId();
@@ -946,7 +946,7 @@ public class WaterSpidering : Department
     new void Start()
     {
         base.Start();
-        if (employees.Count == 0 && Globals.loadSave == false)
+        if ((employees.Count == 0 && Globals.gameState == State.Playing) || Globals.loadSave == false)
         {
             WaterSpiderEmployee employee = gameObject.AddComponent<WaterSpiderEmployee>();
             employee.id = NameGenerator.GetUniqueId();
@@ -1010,7 +1010,7 @@ public class FluidLoad : Department
     new void Start()
     {
         base.Start();
-        if (employees.Count == 0 && Globals.loadSave == false)
+        if ((employees.Count == 0 && Globals.gameState == State.Playing) || Globals.loadSave == false)
         {
             FluidLoadEmployee employee = gameObject.AddComponent<FluidLoadEmployee>();
             employee.id = NameGenerator.GetUniqueId();
@@ -1074,7 +1074,7 @@ public class QualityControl : Department
     new void Start()
     {
         base.Start();
-        if (employees.Count == 0 && Globals.loadSave == false)
+        if ((employees.Count == 0 && Globals.gameState == State.Playing) || Globals.loadSave == false)
         {
             QualityControlEmployee employee = gameObject.AddComponent<QualityControlEmployee>();
             employee.id = NameGenerator.GetUniqueId();
@@ -1138,7 +1138,7 @@ public class Outbound : Department
     new void Start()
     {
         base.Start();
-        if (employees.Count == 0 && Globals.loadSave == false)
+        if ((employees.Count == 0 && Globals.gameState == State.Playing) || Globals.loadSave == false)
         {
             OutboundEmployee employee = gameObject.AddComponent<OutboundEmployee>();
             employee.id = NameGenerator.GetUniqueId();
@@ -1202,7 +1202,7 @@ public class Maintenance : Department
     new void Start()
     {
         base.Start();
-        if (employees.Count == 0 && Globals.loadSave == false)
+        if ((employees.Count == 0 && Globals.gameState == State.Playing) || Globals.loadSave == false)
         {
             MaintenanceEmployee employee = gameObject.AddComponent<MaintenanceEmployee>();
             employee.id = NameGenerator.GetUniqueId();
@@ -1266,7 +1266,7 @@ public class Robotics : Department
     new void Start()
     {
         base.Start();
-        if (employees.Count == 0 && Globals.loadSave == false)
+        if ((employees.Count == 0 && Globals.gameState == State.Playing) || Globals.loadSave == false)
         {
             RoboticsEmployee employee = gameObject.AddComponent<RoboticsEmployee>();
             employee.id = NameGenerator.GetUniqueId();
@@ -1330,7 +1330,7 @@ public class Safety : Department
     new void Start()
     {
         base.Start();
-        if (employees.Count == 0 && Globals.loadSave == false)
+        if ((employees.Count == 0 && Globals.gameState == State.Playing) || Globals.loadSave == false)
         {
             SafetyEmployee employee = gameObject.AddComponent<SafetyEmployee>();
             employee.id = NameGenerator.GetUniqueId();
@@ -1394,7 +1394,7 @@ public class Cleaning : Department
     new void Start()
     {
         base.Start();
-        if (employees.Count == 0 && Globals.loadSave == false)
+        if ((employees.Count == 0 && Globals.gameState == State.Playing) || Globals.loadSave == false)
         {
             CleaningEmployee employee = gameObject.AddComponent<CleaningEmployee>();
             employee.id = NameGenerator.GetUniqueId();
@@ -1458,7 +1458,7 @@ public class Security : Department
     new void Start()
     {
         base.Start();
-        if (employees.Count == 0 && Globals.loadSave == false)
+        if ((employees.Count == 0 && Globals.gameState == State.Playing) || Globals.loadSave == false)
         {
             SecurityEmployee employee = gameObject.AddComponent<SecurityEmployee>();
             employee.id = NameGenerator.GetUniqueId();
@@ -1522,7 +1522,7 @@ public class Learning : Department
     new void Start()
     {
         base.Start();
-        if (employees.Count == 0 && Globals.loadSave == false)
+        if ((employees.Count == 0 && Globals.gameState == State.Playing) || Globals.loadSave == false)
         {
             LearningEmployee employee = gameObject.AddComponent<LearningEmployee>();
             employee.id = NameGenerator.GetUniqueId();
@@ -1586,7 +1586,7 @@ public class Recruiting : Department
     new void Start()
     {
         base.Start();
-        if (employees.Count == 0 && Globals.loadSave == false)
+        if ((employees.Count == 0 && Globals.gameState == State.Playing) || Globals.loadSave == false)
         {
             RecruitingEmployee employee = gameObject.AddComponent<RecruitingEmployee>();
             employee.id = NameGenerator.GetUniqueId();
