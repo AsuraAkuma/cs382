@@ -826,7 +826,6 @@ public struct GlobalVariables
     public int truckValue;
     public float gameTimeElapsed;
     public int gameDaysElapsed;
-    public int gameDaysElapsed;
     public float gameSpeed;
     public float daysSinceLastNewHire;
 }
@@ -1004,7 +1003,6 @@ public class Globals
                 gameDaysElapsed = gameDaysElapsed,
                 gameSpeed = gameSpeed,
                 daysSinceLastNewHire = daysSinceLastNewHire,
-                gameDaysElapsed = gameDaysElapsed // Save the current date and time
             };
 
             // Convert the GlobalVariables struct to JSON
