@@ -876,19 +876,60 @@ public class Globals
     public static float employeeMaxLevel = 10f; // Maximum level for employees
     public static int employeeInfractionMax = 3; // Maximum number of infractions for employees
     // Tutorial data
-    public static StatusType.Type tutorialStatus = StatusType.Type.Completed; // Status of the tutorial
+    public static StatusType.Type tutorialStatus = StatusType.Type.InComplete; // Status of the tutorial
     public static int tutorialStep = 0; // Index for the current step in the tutorial
     // Notification data
     public static NotificationController notificationController; // Reference to the NotificationController
     public static List<Notification> notifications = new List<Notification>(); // Array of notifications for the player
     // Game state data
     public static float gameTimeElapsed = 0; // Time elapsed in the game
-    public static int gameDaysElapsed; // Start time of the game
+    public static int gameDaysElapsed = 0;
     public static float gameSpeed = 1; // Speed of the game (1x speed by default)
     public static float daysSinceLastNewHire = 0; // Days since the last new hire was made
 
-    // File path for local save
-    public static string saveFilePath = Path.Combine(Application.persistentDataPath, "warehouseTycoonSave.json");
+    // Update the saveFilePath to be a property that generates the path based on warehouse name
+    public static string saveFilePath => GetSaveFilePath(warehouseName);
+
+    // Helper method to get the save file path for a specific warehouse name
+    public static string GetSaveFilePath(string name)
+    {
+        // Sanitize the warehouse name for use in a filename
+        string sanitizedName = string.Join("_", name.Split(Path.GetInvalidFileNameChars()));
+        return Path.Combine(Application.persistentDataPath, $"{sanitizedName}_save.json");
+    }
+
+    // Get a list of all available save files
+    public static List<string> GetAllSaveFiles()
+    {
+        List<string> saveFiles = new List<string>();
+        try
+        {
+            string[] files = Directory.GetFiles(Application.persistentDataPath, "*_save.json");
+            foreach (string file in files)
+            {
+                saveFiles.Add(Path.GetFileName(file));
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error getting save files: {e.Message}");
+        }
+        return saveFiles;
+    }
+
+    // Get warehouse names from save files
+    public static List<string> GetAllWarehouseNames()
+    {
+        List<string> warehouseNames = new List<string>();
+        foreach (string saveFile in GetAllSaveFiles())
+        {
+            // Extract warehouse name from filename (_save.json)
+            string name = saveFile.Substring(0, saveFile.Length - 10);
+            warehouseNames.Add(name);
+            Debug.Log($"Found save file for warehouse: {name}");
+        }
+        return warehouseNames;
+    }
 
     public static IEnumerator Save()
     {
@@ -959,15 +1000,15 @@ public class Globals
                 truckPalletLimit = truckPalletLimit,
                 truckValue = truckValue,
                 gameTimeElapsed = gameTimeElapsed,
+                gameDaysElapsed = gameDaysElapsed,
                 gameSpeed = gameSpeed,
                 daysSinceLastNewHire = daysSinceLastNewHire,
-                gameDaysElapsed = gameDaysElapsed // Save the current date and time
             };
 
             // Convert the GlobalVariables struct to JSON
             string jsonData = JsonUtility.ToJson(saveData, true);
 
-            // Write the JSON to a local file
+            // Write the JSON to a file named after the warehouse
             File.WriteAllText(saveFilePath, jsonData);
 
             Debug.Log($"Game saved successfully to {saveFilePath}");
@@ -981,22 +1022,57 @@ public class Globals
         yield return null;
     }
 
+    // Save to a specific warehouse name
+    public static IEnumerator SaveAs(string warehouseName)
+    {
+        // Store original values
+        string originalName = Globals.warehouseName;
+        int originalId = Globals.warehouseId;
+
+        // Set new warehouse name for save
+        Globals.warehouseName = warehouseName;
+
+        // Generate a new unique ID for new warehouses to prevent overwrites
+        if (Globals.warehouseId == 0)
+        {
+            Globals.warehouseId = System.DateTime.Now.GetHashCode();
+        }
+
+        // Save with the new name
+        yield return Save();
+
+        // Restore original values if this was just a "save as" operation
+        Globals.warehouseName = originalName;
+        Globals.warehouseId = originalId;
+    }
+
     public static IEnumerator Load()
     {
+        yield return LoadByWarehouseName(warehouseName);
+    }
+
+    public static IEnumerator LoadByWarehouseName(string warehouseName)
+    {
+        string filePath = GetSaveFilePath(warehouseName);
+
         try
         {
             // Check if save file exists
-            if (loadSave && File.Exists(saveFilePath))
+            if (loadSave && File.Exists(filePath))
             {
-                Debug.Log("Loading save file: " + saveFilePath);
+                Debug.Log($"Loading save file for warehouse '{warehouseName}': {filePath}");
 
                 // Read the JSON from the local file
-                string jsonData = File.ReadAllText(saveFilePath);
+                string jsonData = File.ReadAllText(filePath);
 
                 try
                 {
                     // Parse the JSON and update the game state
                     var data = JsonUtility.FromJson<GlobalVariables>(jsonData);
+
+                    // Make sure we preserve the original warehouse ID
+                    // This is critical for preventing duplicate saves
+                    warehouseId = data.warehouseId;
 
                     // Simple properties
                     warehouseName = data.warehouseName;
@@ -1031,6 +1107,7 @@ public class Globals
                     truckPalletLimit = data.truckPalletLimit;
                     truckValue = data.truckValue;
                     gameTimeElapsed = data.gameTimeElapsed;
+                    gameDaysElapsed = data.gameDaysElapsed;
                     gameSpeed = data.gameSpeed;
                     daysSinceLastNewHire = data.daysSinceLastNewHire;
                     departments = new List<Department>();
@@ -1128,7 +1205,7 @@ public class Globals
                         Debug.LogError("Error loading new hires: " + e.Message + "\n" + e.StackTrace);
                     }
 
-                    Debug.Log($"Game loaded successfully from {saveFilePath}");
+                    Debug.Log($"Game loaded successfully from {filePath}");
                 }
                 catch (System.Exception e)
                 {
@@ -1137,7 +1214,7 @@ public class Globals
             }
             else
             {
-                Debug.LogWarning("No save file found or loading not requested. Starting new game.");
+                Debug.LogWarning($"No save file found for warehouse '{warehouseName}' or loading not requested. Starting new game.");
             }
         }
         catch (System.Exception e)
@@ -1148,7 +1225,7 @@ public class Globals
         yield return null;
     }
 
-    public static IEnumerator LoadFromSpecificFile(string filePath)
+    public static GlobalVariables LoadFromSpecificFile(string filePath)
     {
         try
         {
@@ -1161,10 +1238,9 @@ public class Globals
                 // Parse the JSON and update the game state
                 var data = JsonUtility.FromJson<GlobalVariables>(jsonData);
 
-                // Store in tempSaveData for preview purposes
-                tempSaveData = data;
                 Debug.Log($"Game data loaded successfully from {filePath} into temporary storage");
                 Debug.Log($"To apply this save, call a method to copy from tempSaveData to the actual game state");
+                return data;
             }
             else
             {
@@ -1175,8 +1251,32 @@ public class Globals
         {
             Debug.LogError($"Error loading game from specific file: {e.Message}");
         }
+        return new GlobalVariables(); // Return an empty instance if loading fails
+    }
 
-        yield return null;
+    // Delete a save file for a specific warehouse
+    public static bool DeleteSaveFile(string warehouseName)
+    {
+        try
+        {
+            string filePath = GetSaveFilePath(warehouseName);
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+                Debug.Log($"Deleted save file for warehouse '{warehouseName}'");
+                return true;
+            }
+            else
+            {
+                Debug.LogWarning($"No save file found for warehouse '{warehouseName}'");
+                return false;
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error deleting save file: {e.Message}");
+            return false;
+        }
     }
 }
 

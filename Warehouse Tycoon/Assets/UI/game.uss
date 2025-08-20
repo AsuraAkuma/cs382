@@ -205,7 +205,7 @@
     width: 20%;
     height: 93%;
     max-height: none;
-    background-color: rgb(46, 46, 46);
+    background-color: rgba(46, 46, 46, 0);
     position: absolute;
     border-right-color: rgb(255, 141, 0);
     border-right-width: 2px;
